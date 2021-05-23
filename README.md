@@ -1,6 +1,7 @@
 # Name
 
 Tip Stock
+
 ポートフォリオとして作成し、現状まだ初期開発段階で開発環境用。
 
 # Description
@@ -22,5 +23,7 @@ Tip Stockはコードおよびその内容を保存しておくことで、
 # Tech
 
 言語はPython, フレームワークはDjango。
+
 その他の使用技術HTML,CSS,JavaScript。
+
 DBはDjango標準ののSQLite3(公開時はPostgreSQLに変更予定)
