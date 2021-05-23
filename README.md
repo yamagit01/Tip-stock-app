@@ -7,7 +7,9 @@ Tip Stock
 # Description
 
 Tip Stockはコードおよびその内容を保存しておくことで、
+
 「書いたことあるけど、どう書くんだったっけ？」となったときに
+
 いつでも検索・確認できるように作ったサービスです。
 
 今できることは
@@ -18,6 +20,7 @@ Tip Stockはコードおよびその内容を保存しておくことで、
 * コードの一覧・更新・削除(My Tips, Public Tips)
 
 今後、機能を追加し、最終的にはAWS等を使用し公開する予定。
+
 また、Vue.jsでのSPA化を検討。
 
 # Tech
@@ -26,4 +29,4 @@ Tip Stockはコードおよびその内容を保存しておくことで、
 
 その他の使用技術HTML,CSS,JavaScript。
 
-DBはDjango標準ののSQLite3(公開時はPostgreSQLに変更予定)
+DBはDjango標準のSQLite3(公開時はPostgreSQLに変更予定)
