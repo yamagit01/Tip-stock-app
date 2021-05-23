@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css%}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <section class="top">
+        <div>
+            <p class="top-title">
+                Tip Stock
+            </p>
+            <p class="top-subtitle">
+                調べたコードをTipに保存して<br>すぐ見つけ出せるようにしよう！
+            </p>
+        </div>
+    </section>
+
+    <section class="about section">
+        <div class="clear">
+            <h2 class="section-title">Tip Stockとは</h2>
+            <div class="about-left">
+                <img src="{% static 'img/about.png' %}" alt="Tip Stockとは">
+            </div>
+            <div class="about-right">
+                <p class="p-0">コーディングしている時、文法・ライブラリの使い方・フレームワークやミドルウェアの設定等々「書いたことはあるけど、どう書くんだったっけ？」と思うことはありませんか？(私は非常によくあります)。</p>
+                <p class="p-0">その際、google検索で調べたり、過去のコードを見返したりすることで回答を見つけ出します。
+                    ところが、ちょっとしたコードであっても、回答を見つけるまでに意外と時間を消費してしまい、さらには再度同じ問題にぶつかった際に、また思い出せずもう一度調べ直すことさえ...。</p>
+                <p class="p-0">そこで、一度調べて発見したコードは忘れてしまったとしても調べる時間は少しでも削減したい！と思い、本サービスを作成してみました。</p>
+                <p class="p-0">本サービスはコードをTipとして登録しておくことで、いつでも素早くコードを見つけ出せるという非常にシンプルなサービスです。</p>
+            </div>
+        </div>
+    </section>
+    <section class="course section">
+        <div class="container">
+            <h2 class="section-title">使用方法</h2>
+            <div class="course-wrapper">
+                <div class="course-item">
+                    <h5 class="course-title">
+                        <strong>Tip Form</strong>
+                    </h5>
+                    <p>Tip FormからTip(コード)を登録します。特定のファイルに対するコードを登録できるよう、ファイル名とコードをセットで入力することができます。</p>
+                </div>
+                <div class="course-item">
+                    <h5 class="course-title">
+                        <strong>My Tips</strong>
+                    </h5>
+                    <p>My Tipsでは自身が登録したTipの一覧を検索・確認することができ、各Tipを選択することで登録内容の確認・更新・削除を実施することができます。</p>
+                </div>
+                <div class="course-item">
+                    <h5 class="course-title">
+                        <strong>Public Tips</strong>
+                    </h5>
+                    <p>Public Tipsでは、Tipの公開範囲がPublicとなっているTipの一覧が表示され、自分以外のTipを検索・確認することができます。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="note section">
+        <div>
+            <h2 class="section-title">注意点</h2>
+            <p class="note-message">本サービスはポートフォリオとして作成したものです。</p>
+            <p class="note-message">そのため、あくまでお遊び程度での使用をお願いします。</p>
+            <p class="note-message">サービス使用による登録情報の損失等の過失については一切の責任を負いかねます。</p>
+            <p class="note-message">また、予告なくサイトを閉鎖することがあります。</p>
+        </div>
+    </section>
+    <section class="register section">
+        <div class="container">
+            <h2 class="section-title">ユーザ登録</h2>
+            <p class="register-message">使用するにはユーザ登録が必要となります。</p>
+            <a href="{% url 'accounts:signup' %}" class="btn-register">ユーザ登録画面へ</a>
+        </div>
+    </section>
+
+{% endblock %}

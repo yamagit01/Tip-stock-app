@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load filename %}
+
+{% block content %}
+
+    <div class="row my-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3>{{ object.title }}</h3>
+                    <small>Tag:
+                        {% for tag in object.tags.all %}[{{ tag }}]
+                        {% endfor %}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <label for="description" class="mb-2">
+                        <strong style="border-bottom: solid 1px;">コード</strong>
+                    </label>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        {% for code in codes %}
+                            <li class="nav-item" role="presentation" style="width: 150px;">
+                                <a
+                                    class="nav-link color-set {% if forloop.first %}active{% endif %} "
+                                    id="code-{{ forloop.revcounter0 }}-tab"
+                                    data-bs-toggle="tab"
+                                    href="#code-{{ forloop.revcounter0 }}"
+                                    role="tab"
+                                    aria-controls="code-{{ forloop.revcounter0 }}"
+                                    aria-selected="true">
+                                    {% if code.filename %}
+                                        {{ code.filename }}
+                                    {% else %}
+                                        No filename
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content mb-5 mt-2 ps-2" id="myTabContent">
+                        {% for code in codes %}
+                            <div
+                                class="tab-pane fade{% if forloop.first %}show active{% endif %}"
+                                id="code-{{ forloop.revcounter0 }}"
+                                role="tabpanel"
+                                aria-labelledby="code-{{ forloop.revcounter0 }}-tab">
+                                {{ code.content|linebreaksbr }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <label for="description">
+                        <strong style="border-bottom: solid 1px;">説明</strong>
+                    </label>
+                    <p id="description">{{ object.description|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">ファイル：
+                        {% if object.uploadfile %}
+                            <a href="{{ object.uploadfile.url }}">{{ object.uploadfile|get_filename }}</a>
+                        {% endif %}
+                    </li>
+                    <li class="list-group-item">ＵＲＬ ：
+                        {% if object.url %}
+                            {{ object.url|urlizetrunc:30 }}
+                        {% endif %}
+                    </li>
+                    <li class="list-group-item">公開範囲：{{ object.public_set }}</li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">更新日時：{{ object.updated_at }}</li>
+                    <li class="list-group-item">登録日時：{{ object.created_at }}</li>
+                    <li class="list-group-item">登録者 ：{{ object.created_by.username }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
+        {% if object.created_by == request.user %}
+            <a href="{% url 'app:tip_update' object.pk %}" class="btn btn-primary">更新</a>
+            <a href="{% url 'app:tip_delete' object.pk %}" class="btn btn-danger">削除</a>
+        {% endif %}
+    </div>
+
+{% endblock %}

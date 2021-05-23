@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="card card-auth my-5 mx-auto">
+        <div class="card-body">
+            <h5 class="card-title text-center">ログイン</h5>
+            <form class="form-auth" method="post">
+                {% csrf_token %}
+                <div class="form-label-group">
+                    {% render_field form.login class="form-control" placeholder="メールアドレス" %}
+                    {% for error in form.login.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <div class="form-label-group">
+                    {% render_field form.password class="form-control" placeholder="パスワード" %}
+                    {% for error in form.password.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <div class="button mx-auto text-center">
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
+                </div>
+            </form>
+            {# エラーメッセージを表示 #}
+            {% include 'form_alert.html' %}
+        </div>
+    </div>
+
+{% endblock %}

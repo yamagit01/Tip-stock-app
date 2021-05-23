@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-9">
+            <h2 class="my-3">Tip Form</h2>
+            <form action="" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label>タイトル（必須）</label>
+                    {% render_field form.title class="form-control" %}
+                    {% for error in form.title.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <div class="form-group mb-3" id="code-form">
+                    {{ form.formset.management_form }}
+                    <label>コード（最低１つは必須）<small>(ファイル名は任意)</small></label>
+                    <button class="btn btn-outline-secondary add-code my-3">コードを追加</button>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        {% for formset_form in form.formset %}
+                            {% for hidden in formset_form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            <li class="nav-item" role="presentation" style="width: 150px;">
+                                <a
+                                    class="nav-link color-set {% if forloop.first %}active{% endif %} "
+                                    id="code-{{ forloop.revcounter0 }}-tab"
+                                    data-bs-toggle="tab"
+                                    href="#code-{{ forloop.revcounter0 }}"
+                                    role="tab"
+                                    aria-controls="code-{{ forloop.revcounter0 }}"
+                                    aria-selected="true"
+                                    disabled="disabled"
+                                    draggable="false"
+                                    style="text-decoration: none">
+                                    {% render_field formset_form.filename class="form-control form-tag", placeholder="ファイル名" %}
+                                    {% for error in formset_form.filename.errors %}
+                                        <p class="text-danger">{{ error }}</p>
+                                    {% endfor %}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content mb-3" id="myTabContent">
+                        {% for formset_form in form.formset %}
+                            <div
+                                class="tab-pane fade{% if forloop.first %}show active{% endif %}"
+                                id="code-{{ forloop.revcounter0 }}"
+                                role="tabpanel"
+                                aria-labelledby="code-{{ forloop.revcounter0 }}-tab">
+                                {% render_field formset_form.content class="form-control", placeholder="内容" %}
+                                {% for error in formset_form.content.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                                {{ formset_form.DELETE }}（左記にチェックし保存するとコードが削除されます）
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>説明（必須）</label>
+                        {% render_field form.description class="form-control" %}
+                        {% for error in form.description.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>タグ（必須）<small>(複数タグはカンマ(,)区切り)</small>
+                        </label>
+                        {% render_field form.tags class="form-control" %}
+                        {% for error in form.tags.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>ファイル（任意）</label>
+                        {% render_field form.uploadfile class="form-control" %}
+                        {% for error in form.uploadfile.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label>URL（任意）</label>
+                        {% render_field form.url class="form-control" %}
+                        {% for error in form.url.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="me-3">公開範囲</label>
+                        {% for radio in form.public_set %}
+                            {{ radio.tag}}
+                            <label class="me-3">{{ radio.choice_label }}</label>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+            {# エラーメッセージを表示 #}
+            {% include 'form_alert.html' %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/html" id="code-tab-template">
+        <li class="nav-item" role="presentation" style="width: 150px;">
+            <a
+                class="nav-link color-set"
+                id="code-__prefix__-tab"
+                data-bs-toggle="tab"
+                href="#code-__prefix__"
+                role="tab"
+                aria-controls="code-__prefix__"
+                aria-selected="false"
+                draggable="false"
+                style="text-decoration: none">
+                {% render_field form.formset.empty_form.filename class="form-control", placeholder="ファイル名" %}
+            </a>
+        </li>
+        <!-- <div> <label>ファイル名</label> {% render_field form.formset.empty_form.filename
+        class="form-control" %} <label>コード</label> {% render_field form.formset.empty_form.content
+        class="form-control" %} 削除 {{ form.formset.empty_form.DELETE }} </div> -->
+    </script>
+    <script type="text/html" id="code-content-template">
+        <div
+            class="tab-pane fade"
+            id="code-__prefix__"
+            role="tabpanel"
+            aria-labelledby="code-__prefix__-tab">
+            {% render_field form.formset.empty_form.content class="form-control", placeholder="内容" %}
+            {{ form.formset.empty_form.DELETE }}（左記にチェックを入れると登録時にコードが削除されます）
+        </div>
+    </script>
+    <script>
+        $(function () {
+            $('.add-code').click(function (e) {
+                e.preventDefault();
+                var form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
+                var tmpl_tab = $('#code-tab-template').html();
+                var tmpl_content = $('#code-content-template').html();
+                console.log($('#code-template'))
+                var new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
+                var new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
+                $('#myTab').append(new_tag_form);
+                $('#myTabContent').append(new_content_form);
+                $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
+            });
+        });
+    </script>
+
+{% endblock %}
