@@ -52,5 +52,5 @@ class Code(models.Model):
 
         
     def get_absolute_url(self):
-        return reverse('app:tip_detail', kwargs={'pk': self.Tip.pk})
+        return reverse('app:tip_detail', kwargs={'pk': self.tip.pk})
 
