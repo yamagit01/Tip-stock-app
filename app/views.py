@@ -3,7 +3,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView)
 
@@ -15,7 +17,11 @@ from .models import Tip
 class OnlyMyTipMixin(UserPassesTestMixin):
     raise_exception = True
     def test_func(self):
-        tip = Tip.objects.get(id = self.kwargs['pk'])
+        try:
+            tip = Tip.objects.get(id = self.kwargs['pk'])
+        except Tip.DoesNotExist:
+            raise Http404(_("No %(verbose_name)s found matching the query") %
+                          {'verbose_name': Tip._meta.verbose_name})
         return tip.created_by == self.request.user
 
 
