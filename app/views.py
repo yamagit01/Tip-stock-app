@@ -67,7 +67,9 @@ class TipList(LoginRequiredMixin, ListView):
     paginate_by = 6
 
     def get_queryset(self):
-        queryset = Tip.objects.filter(created_by=self.request.user)
+        queryset = Tip.objects.filter(
+            Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
+        )
         query = self.request.GET.get('query')
         tagquery = self.request.GET.get('tagquery')
 
