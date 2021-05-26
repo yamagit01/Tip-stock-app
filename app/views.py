@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
@@ -9,6 +9,14 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 
 from .forms import CommentForm, TipForm
 from .models import Tip
+
+
+# tip作成者のみ処理可能
+class OnlyMyTipMixin(UserPassesTestMixin):
+    raise_exception = True
+    def test_func(self):
+        tip = Tip.objects.get(id = self.kwargs['pk'])
+        return tip.created_by == self.request.user
 
 
 class IndexView(TemplateView):
@@ -93,35 +101,22 @@ class TipPublicList(LoginRequiredMixin, ListView):
         return context
 
 
-class TipUpdate(LoginRequiredMixin, UpdateView):
+class TipUpdate(OnlyMyTipMixin, UpdateView):
     model = Tip
     form_class = TipForm
-
-    def get_object(self):  # TODO UserPassesTestMixinでclassを作成し継承するよう修正
-        obj = super().get_object()
-        # created_by!=request.user は更新不可
-        if obj.created_by != self.request.user:
-            raise PermissionDenied('そのページは編集できません')
-        return obj
 
     def get_success_url(self):
         messages.info(self.request, 'Tipを更新しました。')
         return resolve_url('app:tip_detail', pk=self.kwargs['pk'])
 
 
-class TipDelete(LoginRequiredMixin, DeleteView):
+class TipDelete(OnlyMyTipMixin, DeleteView):
     model = Tip
-
-    def get_object(self):  # TODO UserPassesTestMixinでclassを作成し継承するよう修正
-        obj = super().get_object()
-        # created_by!=request.user は削除不可
-        if obj.created_by != self.request.user:
-            raise PermissionDenied('そのページは削除できません。')
-        return obj
 
     def get_success_url(self):
         messages.info(self.request, 'Tipを削除しました。')
         return resolve_url('app:tip_list')
+
 
 @login_required
 def add_comment(request, pk):
