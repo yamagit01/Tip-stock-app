@@ -34,7 +34,9 @@
                         <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
                     </div>
                     <div class="card-footer text-muted text-center">
-                        <small>by&nbsp;{{ tip.created_by.username }}&nbsp;at&nbsp;{{ tip.created_at|date:"Y/m/d" }}</small>
+                        <small>by&nbsp;{{ tip.created_by.username }}&nbsp;at&nbsp;{{ tip.created_at|date:"Y/m/d" }}
+                            <span class="text-danger">&nbsp;{% if tip.public_set  == 'private' %}{{ tip.public_set }}{% endif %}</span>
+                        </small>
                     </div>
                 </div>
                 <br>

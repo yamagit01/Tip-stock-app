@@ -17,10 +17,10 @@
 
             <br>
             <p>タイトル</p>
-            {{ object.title }}
+            {{ tip.title }}
             <hr>
-            <p>コード</p>
-            {{ object.code }}
+            <p>説明</p>
+            {{ tip.description|linebreaks }}
             <div class="my-3">
                 <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
             </div>

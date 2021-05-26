@@ -1,5 +1,3 @@
-import os
-
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
@@ -54,3 +52,20 @@ class Code(models.Model):
     def get_absolute_url(self):
         return reverse('app:tip_detail', kwargs={'pk': self.tip.pk})
 
+
+class Comment(models.Model):
+    tip = models.ForeignKey(Tip, related_name='comments', on_delete=models.CASCADE)
+    no = models.IntegerField(default=0)
+    text = models.TextField()
+    created_by = models.ForeignKey(get_user_model(), related_name='created_comment', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'comment'
+        
+    def __str__(self):
+        return f'{self.tip} - {self.no}'
+
+        
+    def get_absolute_url(self):
+        return reverse('app:tip_detail', kwargs={'pk': self.tip.pk})

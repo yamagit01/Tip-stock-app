@@ -1,13 +1,14 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.shortcuts import resolve_url
+from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView)
 
-from .forms import TipForm
-from .models import Code, Tip
+from .forms import CommentForm, TipForm
+from .models import Tip
 
 
 class IndexView(TemplateView):
@@ -39,12 +40,11 @@ class TipDetail(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # 紐づくcodeを取得
-        context['codes'] = Code.objects.filter(tip=self.kwargs.get('pk'))
+        context['form'] = CommentForm()
         return context
 
 
-
+# TODO TipListとTipPublicListを１つにし、request.pathで処理を切り分け
 class TipList(LoginRequiredMixin, ListView):
     model = Tip
     paginate_by = 6
@@ -97,7 +97,7 @@ class TipUpdate(LoginRequiredMixin, UpdateView):
     model = Tip
     form_class = TipForm
 
-    def get_object(self):
+    def get_object(self):  # TODO UserPassesTestMixinでclassを作成し継承するよう修正
         obj = super().get_object()
         # created_by!=request.user は更新不可
         if obj.created_by != self.request.user:
@@ -112,7 +112,7 @@ class TipUpdate(LoginRequiredMixin, UpdateView):
 class TipDelete(LoginRequiredMixin, DeleteView):
     model = Tip
 
-    def get_object(self):
+    def get_object(self):  # TODO UserPassesTestMixinでclassを作成し継承するよう修正
         obj = super().get_object()
         # created_by!=request.user は削除不可
         if obj.created_by != self.request.user:
@@ -123,3 +123,22 @@ class TipDelete(LoginRequiredMixin, DeleteView):
         messages.info(self.request, 'Tipを削除しました。')
         return resolve_url('app:tip_list')
 
+@login_required
+def add_comment(request, pk):
+    tip = get_object_or_404(Tip, pk=pk)
+    if tip.public_set == 'private':
+            raise PermissionDenied('そのページにはコメントできません。')
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            form.save_with_otherfields(tip, request.user)
+            messages.success(request, 'コメントを追加しました。')
+            return redirect('app:tip_detail', pk=pk)
+        else:
+            #  formのエラーを表示
+            return render(request, 'app/tip_detail.html', context={
+                'object': tip,
+                'form': form,
+            })
+
+    return redirect('app:tip_detail', pk=pk)

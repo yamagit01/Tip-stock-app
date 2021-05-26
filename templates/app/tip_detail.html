@@ -8,9 +8,9 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h3>{{ object.title }}</h3>
+                    <h3>{{ tip.title }}</h3>
                     <small>Tag:
-                        {% for tag in object.tags.all %}[{{ tag }}]
+                        {% for tag in tip.tags.all %}[{{ tag }}]
                         {% endfor %}
                     </small>
                 </div>
@@ -25,7 +25,7 @@
                         <strong style="border-bottom: solid 1px;">コード</strong>
                     </label>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        {% for code in codes %}
+                        {% for code in tip.codes.all %}
                             <li class="nav-item" role="presentation" style="width: 150px;">
                                 <a
                                     class="nav-link color-set {% if forloop.first %}active{% endif %} "
@@ -45,7 +45,7 @@
                         {% endfor %}
                     </ul>
                     <div class="tab-content mb-5 mt-2 ps-2" id="myTabContent">
-                        {% for code in codes %}
+                        {% for code in tip.codes.all %}
                             <div
                                 class="tab-pane fade{% if forloop.first %}show active{% endif %}"
                                 id="code-{{ forloop.revcounter0 }}"
@@ -66,7 +66,7 @@
                     <label for="description">
                         <strong style="border-bottom: solid 1px;">説明</strong>
                     </label>
-                    <p id="description">{{ object.description|linebreaks }}</p>
+                    <p id="description">{{ tip.description|linebreaks }}</p>
                 </div>
             </div>
         </div>
@@ -76,35 +76,70 @@
             <div class="card">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item">ファイル：
-                        {% if object.uploadfile %}
-                            <a href="{{ object.uploadfile.url }}">{{ object.uploadfile|get_filename }}</a>
+                        {% if tip.uploadfile %}
+                            <a href="{{ tip.uploadfile.url }}">{{ tip.uploadfile|get_filename }}</a>
                         {% endif %}
                     </li>
                     <li class="list-group-item">ＵＲＬ ：
-                        {% if object.url %}
-                            {{ object.url|urlizetrunc:30 }}
+                        {% if tip.url %}
+                            {{ tip.url|urlizetrunc:30 }}
                         {% endif %}
                     </li>
-                    <li class="list-group-item">公開範囲：{{ object.public_set }}</li>
+                    <li class="list-group-item">公開範囲：{{ tip.public_set }}</li>
                 </ul>
             </div>
         </div>
         <div class="col-md-6">
             <div class="card">
                 <ul class="list-group list-group-flush">
-                    <li class="list-group-item">更新日時：{{ object.updated_at }}</li>
-                    <li class="list-group-item">登録日時：{{ object.created_at }}</li>
-                    <li class="list-group-item">登録者 ：{{ object.created_by.username }}</li>
+                    <li class="list-group-item">更新日時：{{ tip.updated_at }}</li>
+                    <li class="list-group-item">登録日時：{{ tip.created_at }}</li>
+                    <li class="list-group-item">登録者 ：{{ tip.created_by.username }}</li>
                 </ul>
             </div>
         </div>
     </div>
     <div class="mb-3">
-        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
-        {% if object.created_by == request.user %}
-            <a href="{% url 'app:tip_update' object.pk %}" class="btn btn-primary">更新</a>
-            <a href="{% url 'app:tip_delete' object.pk %}" class="btn btn-danger">削除</a>
+        <a href="javascript:void(0);" onclick="window.history.back();" class="btn-lg btn-outline-dark">戻る</a>
+        {% if tip.created_by == request.user %}
+            <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-primary">更新</a>
+            <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-danger">削除</a>
         {% endif %}
     </div>
+    {% if tip.public_set == 'public' %}
+    <!--コメント表示-->
+    <div class="ui segment">
+        {% for comment in tip.comments.all %}
+            <div class="ui segment secondary" style="color: grey;">
+                <p>{{ comment.no }}.
+                    {{ comment.created_by.username }}<br>{{ comment.created_at}}</p>
+                <p>{{comment.text}}</p>
+            </div>
+            <hr>
+            {% empty %}
+            <div class="ui warning message">
+                <p>まだコメントはありません</p>
+            </div>
+        {% endfor %}
+    </div>
+    <!--//コメント表示-->
+    <!--コメント投稿-->
+    <h4>コメント投稿</h4>
+    <div class="mb-3">
+        <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <p>名前：{{ request.user.username }}</p>
+                <p>コメント</p>
+                {% render_field form.text class="form-control" %}
+                {% for error in form.text.errors %}
+                    <p class="text-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-success">投稿</button>
+        </form>
+    </div>
+    <!--//コメント投稿-->
+    {% endif %}
 
 {% endblock %}

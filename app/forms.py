@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.models import inlineformset_factory
 
-from .models import Code, Tip
+from .models import Code, Comment, Tip
 
 
 class ModelFormWithFormSetMixin:
@@ -49,3 +49,26 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
         widgets = {
             'public_set': forms.RadioSelect
         }
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('text',)
+
+    # saveメソッド
+    def save_with_otherfields(self, tip, user, commit=True):
+        comment = self.save(commit=False)
+        comment.tip = tip
+        comment.created_by = user
+        comment.no = Comment.objects.filter(tip=tip).count() + 1
+        if commit:
+            comment.save()
+        return comment
+    
+    # コメントチェック
+    def clean_text(self):
+        text = self.cleaned_data.get('text')
+        if text in ('ばか', 'あほ', 'まぬけ', 'うんこ'):
+            self.add_error('text', 'コメントに暴言を含めないでください。')
+        return text
