@@ -99,47 +99,67 @@
             </div>
         </div>
     </div>
+    <!--お気に入り表示-->
+    {% if tip.public_set == 'public' %}
+        <div class="mb-3">
+            <small>{{ object.like_count }}人がお気に入りに入れています。</small>
+            {% if tip.created_by != request.user %}
+                {% if is_liked %}
+                    <a
+                    href="{% url 'app:delete_like' tip.pk %}"
+                    class="btn"
+                    style="background-color: #FFCC33; color: white;">お気に入りから外す</a>
+                {% else %}
+                    <a
+                        href="{% url 'app:add_like' tip.pk %}"
+                        class="btn"
+                        style="background-color: #FF6699; color: white;">お気に入りに入れる</a>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endif %}
+    <!--//お気に入り表示-->
     <div class="mb-3">
-        <a href="javascript:void(0);" onclick="window.history.back();" class="btn-lg btn-outline-dark">戻る</a>
+        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
         {% if tip.created_by == request.user %}
             <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-primary">更新</a>
             <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-danger">削除</a>
         {% endif %}
     </div>
-    {% if tip.public_set == 'public' %}
     <!--コメント表示-->
-    <div class="ui segment">
-        {% for comment in tip.comments.all %}
-            <div class="ui segment secondary" style="color: grey;">
-                <p>{{ comment.no }}.
-                    {{ comment.created_by.username }}<br>{{ comment.created_at}}</p>
-                <p>{{comment.text}}</p>
-            </div>
-            <hr>
-            {% empty %}
-            <div class="ui warning message">
-                <p>まだコメントはありません</p>
-            </div>
-        {% endfor %}
-    </div>
-    <!--//コメント表示-->
-    <!--コメント投稿-->
-    <h4>コメント投稿</h4>
-    <div class="mb-3">
-        <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <p>名前：{{ request.user.username }}</p>
-                <p>コメント</p>
-                {% render_field form.text class="form-control" %}
-                {% for error in form.text.errors %}
-                    <p class="text-danger">{{ error }}</p>
-                {% endfor %}
-            </div>
-            <button type="submit" class="btn btn-success">投稿</button>
-        </form>
-    </div>
-    <!--//コメント投稿-->
+    {% if tip.public_set == 'public' %}
+        <div class="ui segment">
+            {% for comment in tip.comments.all %}
+                <div class="ui segment secondary" style="color: grey;">
+                    <p>{{ comment.no }}.
+                        {{ comment.created_by.username }}<br>{{ comment.created_at}}</p>
+                    <p>{{comment.text}}</p>
+                </div>
+                <hr>
+                {% empty %}
+                <div class="ui warning message">
+                    <p>まだコメントはありません</p>
+                </div>
+            {% endfor %}
+        </div>
+        <!--//コメント表示-->
+        <!--コメント投稿-->
+        <h4>コメント投稿</h4>
+        <div class="mb-3">
+            <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <p>名前：{{ request.user.username }}</p>
+                    <p>コメント</p>
+                    {% render_field form.text class="form-control" %}
+                    {% for error in form.text.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn btn-success">投稿</button>
+            </form>
+        </div>
+        <!--//コメント投稿-->
     {% endif %}
 
 {% endblock %}

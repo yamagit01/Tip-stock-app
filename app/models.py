@@ -36,6 +36,13 @@ class Tip(models.Model):
     def get_absolute_url(self):
         return reverse('app:tip_detail', kwargs={'pk': self.pk})
     
+    def like_count(self):
+        count = Like.objects.filter(tip=self).count()
+        return count
+    
+    def is_liked_by_user(self, user):
+        return Like.objects.filter(created_by=user).filter(tip=self).exists()
+    
 
 class Code(models.Model):
     tip = models.ForeignKey(Tip, related_name='codes', on_delete=models.CASCADE)
@@ -62,10 +69,28 @@ class Comment(models.Model):
     
     class Meta:
         db_table = 'comment'
+        ordering = ('tip', 'no')
         
     def __str__(self):
         return f'{self.tip} - {self.no}'
 
-        
     def get_absolute_url(self):
         return reverse('app:tip_detail', kwargs={'pk': self.tip.pk})
+
+
+class Like(models.Model):
+    tip = models.ForeignKey(Tip, related_name='likes', on_delete=models.CASCADE)
+    created_by = models.ForeignKey(get_user_model(), related_name='created_like', on_delete=models.CASCADE)
+    
+    class Meta:
+        db_table = 'like'
+        constraints = [
+            models.UniqueConstraint(fields=['tip', 'created_by'], name='unique_like'),
+        ]
+        
+    def __str__(self):
+        return f'{self.tip} - {self.created_by.username}'
+
+    def get_absolute_url(self):
+        return reverse('app:tip_detail', kwargs={'pk': self.tip.pk})
+

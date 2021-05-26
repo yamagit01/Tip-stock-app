@@ -13,4 +13,6 @@ urlpatterns = [
     path('tip_list/', views.TipList.as_view(), name='tip_list'),
     path('tip_public_list/', views.TipPublicList.as_view(), name='tip_public_list'),
     path('comment/<int:pk>/', views.add_comment, name='add_comment'),
+    path('add_like/<int:pk>/', views.add_like, name='add_like'),
+    path('delete_like/<int:pk>/', views.delete_like, name='delete_like'),
 ]

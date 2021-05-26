@@ -10,7 +10,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView)
 
 from .forms import CommentForm, TipForm
-from .models import Tip
+from .models import Tip, Like
 
 
 # tip作成者のみ処理可能
@@ -21,7 +21,7 @@ class OnlyMyTipMixin(UserPassesTestMixin):
             tip = Tip.objects.get(id = self.kwargs['pk'])
         except Tip.DoesNotExist:
             raise Http404(_("No %(verbose_name)s found matching the query") %
-                          {'verbose_name': Tip._meta.verbose_name})
+                        {'verbose_name': Tip._meta.verbose_name})
         return tip.created_by == self.request.user
 
 
@@ -54,7 +54,10 @@ class TipDetail(LoginRequiredMixin, DetailView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # コメントformを設定
         context['form'] = CommentForm()
+        # お気に入り済み判定を設定
+        context['is_liked'] = self.object.is_liked_by_user(self.request.user)
         return context
 
 
@@ -142,4 +145,35 @@ def add_comment(request, pk):
                 'form': form,
             })
 
+    return redirect('app:tip_detail', pk=pk)
+
+
+@login_required
+def add_like(request, pk):
+    tip = get_object_or_404(Tip, pk=pk)
+    if tip.public_set == 'private' or tip.created_by == request.user:
+            raise PermissionDenied('そのページをお気に入りに追加することはできません。')
+    like = Like.objects.filter(created_by=request.user).filter(tip=tip)
+    if like.exists():
+        messages.info(request, 'すでにお気に入りに追加済みです。')
+        return redirect('app:tip_detail', pk=pk)
+
+    like = Like(created_by=request.user, tip=tip)
+    like.save()
+    messages.success(request, 'お気に入りに追加しました。')
+    return redirect('app:tip_detail', pk=pk)
+
+
+@login_required
+def delete_like(request, pk):
+    tip = get_object_or_404(Tip, pk=pk)
+    if tip.public_set == 'private' or tip.created_by == request.user:
+            raise PermissionDenied('そのページからお気に入りを削除することはできません。')
+    like = Like.objects.filter(created_by=request.user).filter(tip=tip)
+    if not like.exists():
+        messages.info(request, 'すでにお気に入りから削除済みです。')
+        return redirect('app:tip_detail', pk=pk)
+
+    like.first().delete()
+    messages.success(request, 'お気に入りから削除しました。')
     return redirect('app:tip_detail', pk=pk)
