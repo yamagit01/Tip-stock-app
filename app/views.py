@@ -170,6 +170,10 @@ def add_like(request, pk):
         messages.info(request, 'すでにお気に入りに追加済みです。')
         return redirect('app:tip_detail', pk=pk)
 
+    if Tip.objects.filter(created_by=request.user).count() < 2:
+        messages.error(request, 'お気に入りへの追加は２つ以上のTip登録が必要です。')
+        return redirect('app:tip_detail', pk=pk)
+
     like = Like(created_by=request.user, tip=tip)
     like.save()
     messages.success(request, 'お気に入りに追加しました。')

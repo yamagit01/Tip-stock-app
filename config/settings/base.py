@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
+from django.contrib.messages import constants as messages
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent  # ファイルの階層が下がったので変更
 PROJECT_NAME = os.path.basename(BASE_DIR)
@@ -196,3 +198,9 @@ SESSION_COOKIE_AGE = 86400
 
 # privateのTipの投稿制限回数
 PRIVATE_TIPS_LIMIT = 20
+
+# classが正しく設定されないメッセージのmessages.tagsの設定
+MESSAGE_TAGS = {
+    messages.DEBUG: 'dark',
+    messages.ERROR: 'danger',
+}
