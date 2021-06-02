@@ -91,7 +91,14 @@
                         <label class="me-3">公開範囲</label>
                         {% for radio in form.public_set %}
                             {{ radio.tag}}
-                            <label class="me-3">{{ radio.choice_label }}</label>
+                            <label class="me-3">{{ radio.choice_label }}
+                                {% if radio.choice_label == 'Private' %}
+                                    <span>(最大{{ private_tips_limit }}個)</span>
+                                {% endif%}
+                            </label>
+                        {% endfor %}
+                        {% for error in form.public_set.errors %}
+                            <p class="text-danger">{{ error }}</p>
                         {% endfor %}
                     </div>
                     <button type="submit" class="btn btn-primary">保存</button>

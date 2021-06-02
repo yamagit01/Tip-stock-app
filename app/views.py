@@ -33,6 +33,11 @@ class TipCreate(LoginRequiredMixin, CreateView):
     model = Tip
     form_class = TipForm
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request  # formのチェックでrequest.userを使用するため設定
+        return kwargs
+
     def form_valid(self, form):
         form.instance.created_by = self.request.user
         return super().form_valid(form)
@@ -115,6 +120,11 @@ class TipPublicList(LoginRequiredMixin, ListView):
 class TipUpdate(OnlyMyTipMixin, UpdateView):
     model = Tip
     form_class = TipForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request  # formのチェックでrequest.userを使用するため設定
+        return kwargs
 
     def get_success_url(self):
         messages.info(self.request, 'Tipを更新しました。')

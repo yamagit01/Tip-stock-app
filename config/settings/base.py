@@ -80,6 +80,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'app.context_processors.tips_count'
             ],
         },
     },
@@ -192,3 +193,6 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 #ブラウザを閉じてもセッション有効,ログイン状態を保持する場合の有効時間は１日(86400s)
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = 86400
+
+# privateのTipの投稿制限回数
+PRIVATE_TIPS_LIMIT = 20

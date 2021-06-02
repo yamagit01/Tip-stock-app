@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.forms.models import inlineformset_factory
 
 from .models import Code, Comment, Tip
@@ -49,6 +50,20 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
         widgets = {
             'public_set': forms.RadioSelect
         }
+
+    def __init__(self, *args, **kwargs):
+        # request.userをpublic_setのチェックで使用するため設定
+        self.request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
+
+    def clean_public_set(self):
+        public_set = self.cleaned_data.get('public_set')
+        if public_set == 'private':
+            private_count = Tip.objects.filter(created_by=self.request.user, public_set='private').count()
+            print(private_count)
+            if private_count >= settings.PRIVATE_TIPS_LIMIT:
+                self.add_error('public_set', 'PrivateのTipの数が制限回数(20回)に達しています。')
+        return public_set
 
 
 class CommentForm(forms.ModelForm):
