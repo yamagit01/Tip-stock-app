@@ -1,0 +1,10 @@
+{% autoescape off %}
+Tip Stock サービスをご利用いただきありがとうございます
+
+{% block content %}{% endblock %}
+
+このメールは自動送信のため、送信いただいてもお答えできません。
+ご不明な点がございましたら、サイトのお問い合わせよりご連絡ください。
+
+Tip Stock : http://127.0.0.1:8000
+{% endautoescape %}

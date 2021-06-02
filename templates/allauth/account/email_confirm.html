@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load account %}
+
+{% block content %}
+
+<h3 class="mt-2">ユーザ本登録認証</h3>
+
+{% if confirmation %}
+
+{% user_display confirmation.email_address.user as user_display %}
+
+<p>{% blocktrans with confirmation.email_address.email as email %}{{ email }}は{{ user_display }}さんのメールアドレスで間違いありませんか。{% endblocktrans %}</p>
+
+<p>間違いなければ、以下のボタンをクリックして本登録を完了してください。</p>
+
+<form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+{% csrf_token %}
+    <button type="submit btn-success" class="btn-lg btn-outline-success">本登録</button>
+</form>
+
+{% else %}
+
+{% url 'account_email' as email_url %}
+
+<p>リンクの認証有効期限が過ぎています。<a href="{{ email_url }}"><strong>ここ</strong></a>から新しい本登録認証メールを発行してください</a></p>
+
+{% endif %}
+
+{% endblock %}

@@ -40,6 +40,10 @@ a {
     max-width: 150px;
 }
 
+.button_social {
+    max-width: 200px;
+}
+
 .btn {
     font-size: 80%;
     border-radius: 5rem;

@@ -1,0 +1,3 @@
+{% autoescape off %}
+【Tip Stock】本登録を完了してください
+{% endautoescape %}

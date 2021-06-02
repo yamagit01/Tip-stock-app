@@ -157,5 +157,15 @@ Thumbs.db
 # profiling data
 .prof
 
+#vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+!default.code-workspace
+.devcontainer/devcontainer.json
+.devcontainer/docker-compose.override.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/django

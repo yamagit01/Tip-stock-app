@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
+{% load static %}
+{% load socialaccount %}
+
+{% block extra_css%}
+    <link rel="stylesheet" href="{% static 'css/bootstrap-social.css' %}">
+{% endblock %}
+
 
 {% block content %}
 
@@ -20,12 +27,26 @@
                         <p class="text-danger">{{ error }}</p>
                     {% endfor %}
                 </div>
+                <div class="form-label-group">
+                    {{ form.remember }}
+                    <span>ログイン状態を維持する</span>
+                    {% for error in form.remember.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
                 <div class="button mx-auto text-center">
                     <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
                 </div>
             </form>
             {# エラーメッセージを表示 #}
             {% include 'form_alert.html' %}
+        </div>
+        <p class="mx-auto">ソーシャルアカウントでログイン</p>
+        <div class="button-social mx-auto mb-2">
+            <a href="{% provider_login_url 'google' %}" class="btn btn-social btn-google"><span class="fab fa-google"></span>Googleでログイン</a>
+        </div>
+        <div class="button-social mx-auto  mb-2">
+            <a href="{% provider_login_url 'github' %}" class="btn btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでログイン</a>
         </div>
     </div>
 
