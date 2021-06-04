@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% load filename %}
+{% load static %}
+
+{% block extra_css%}
+<link rel="stylesheet" href="{% static 'css/codemirror.css' %}">
+{% endblock %}
 
 {% block content %}
 
@@ -9,9 +14,7 @@
             <div class="card">
                 <div class="card-header">
                     <h3>{{ tip.title }}</h3>
-                    <small>Tag:
-                        {% for tag in tip.tags.all %}[{{ tag }}]
-                        {% endfor %}
+                    <small>Tag:{% for tag in tip.tags.all %}[{{ tag }}]{% endfor %}
                     </small>
                 </div>
             </div>
@@ -28,19 +31,13 @@
                         {% for code in tip.codes.all %}
                             <li class="nav-item" role="presentation" style="width: 150px;">
                                 <a
-                                    class="nav-link color-set {% if forloop.first %}active{% endif %} "
-                                    id="code-{{ forloop.revcounter0 }}-tab"
+                                    class="nav-link color-set code-tab {% if forloop.first %}active{% endif %} "
+                                    id="code-{{ forloop.counter0 }}-tab"
                                     data-bs-toggle="tab"
-                                    href="#code-{{ forloop.revcounter0 }}"
+                                    href="#code-{{ forloop.counter0 }}"
                                     role="tab"
-                                    aria-controls="code-{{ forloop.revcounter0 }}"
-                                    aria-selected="true">
-                                    {% if code.filename %}
-                                        {{ code.filename }}
-                                    {% else %}
-                                        No filename
-                                    {% endif %}
-                                </a>
+                                    aria-controls="code-{{ forloop.counter0 }}"
+                                    aria-selected="true">{% if code.filename %}{{ code.filename }}{% else %}No filename{% endif %}</a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -48,10 +45,10 @@
                         {% for code in tip.codes.all %}
                             <div
                                 class="tab-pane fade{% if forloop.first %}show active{% endif %}"
-                                id="code-{{ forloop.revcounter0 }}"
+                                id="code-{{ forloop.counter0 }}"
                                 role="tabpanel"
-                                aria-labelledby="code-{{ forloop.revcounter0 }}-tab">
-                                {{ code.content|linebreaksbr }}
+                                aria-labelledby="code-{{ forloop.counter0 }}-tab">
+                                <textarea class="code-content" readonly>{{ code.content }}</textarea>
                             </div>
                         {% endfor %}
                     </div>
@@ -161,5 +158,41 @@
         </div>
         <!--//コメント投稿-->
     {% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <!-- CodeMirror用js -->
+    <script src="{% static 'js/codemirror/lib/codemirror.js' %}"></script>
+    <script src="{% static 'js/codemirror/mode/meta.js' %}"></script>
+    <script src="{% static 'js/codemirror/addon/display/autorefresh.js' %}"></script>
+    <script src="{% static 'js/codemirror/addon/mode/loadmode.js' %}"></script>
+
+    <script>
+        $(function () {
+            // CodeMirror初期表示処理
+            CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+            let code_tab = document.getElementsByClassName('code-tab');
+            let code_content = document.getElementsByClassName('code-content');
+            for (var count = 0; count < code_tab.length; count++) {
+
+                var editor = CodeMirror.fromTextArea(code_content[count],
+                {
+                    lineNumbers: true,  // 行番号を表示する
+                    lineWrapping: true,  // 行を折り返す
+                    readOnly: true,
+                    autoRefresh: true,  // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
+                });
+
+                let text = code_tab[count].textContent
+                var filename_info = CodeMirror.findModeByFileName(text);
+
+                if (filename_info){
+                    editor.setOption("mode", filename_info.mode);
+                    CodeMirror.autoLoadMode(editor, filename_info.mode);
+                }
+            }
+        });
+    </script>
 
 {% endblock %}

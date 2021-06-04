@@ -110,3 +110,9 @@ a {
     background-color: #e3fcf4 !important;
 }
 
+.tab-pane {
+    border: 1px solid; 
+    border-color: #ced4da;
+    border-radius: .15rem;
+}
+

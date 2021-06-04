@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.utils.translation import gettext_lazy as _
@@ -10,7 +10,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView)
 
 from .forms import CommentForm, TipForm
-from .models import Tip, Like
+from .models import Like, Tip
 
 
 # tip作成者のみ処理可能
@@ -66,54 +66,67 @@ class TipDetail(LoginRequiredMixin, DetailView):
         return context
 
 
-# TODO TipListとTipPublicListを１つにし、request.pathで処理を切り分け
 class TipList(LoginRequiredMixin, ListView):
     model = Tip
     paginate_by = 6
 
     def get_queryset(self):
-        queryset = Tip.objects.filter(
-            Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
-        )
-        query = self.request.GET.get('query')
-        tagquery = self.request.GET.get('tagquery')
+        path = self.request.path_info
 
-        # 検索条件の指定があればfilter
+        # My Tips と Public Tips で表示するTipを変更
+        if 'tip_list' in path:
+            queryset = Tip.objects.filter(
+                Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
+            )
+        elif 'tip_public_list' in path:
+            queryset = Tip.objects.filter(public_set='public')
+        else:
+            raise Http404("そのページは存在しません。")
+
+        # 表示対象で抽出
+        search_target = self.request.GET.get('searchTarget')
+
+        if search_target == 'my':
+            queryset = queryset.filter(created_by=self.request.user)
+        elif search_target == 'other':
+            queryset = queryset.exclude(created_by=self.request.user)
+        else:
+            pass
+
+        # 検索内容で抽出
+        query = self.request.GET.get('query')
+        tagquery = self.request.GET.get('tagQuery')
+
         if query:
             queryset = queryset.filter(
                 Q(title__icontains=query) | Q(description__icontains=query)
             )
         if tagquery:
             queryset = queryset.filter(tags__name__icontains=tagquery)
+
+        # 表示順で並び替え
+        display_order = self.request.GET.get('displayOrder')
+
+        if display_order == 'liked':
+            queryset = queryset.annotate(num_likes=Count('likes')).order_by('-num_likes')
+        else:
+            queryset = queryset.order_by('-updated_at')
+
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'My Tips'
-        return context
 
+        path = self.request.path_info
 
-class TipPublicList(LoginRequiredMixin, ListView):
-    model = Tip
-    paginate_by = 6
+        # My Tips と Public Tips で表示するtitleを変更
+        if 'tip_list' in path:
+            context['title'] = 'My Tips'
+        elif 'tip_public_list' in path:
+            context['title'] = 'Public Tips'
+        else:
+            raise Http404("そのページは存在しません。")
 
-    def get_queryset(self):
-        queryset = Tip.objects.filter(public_set='public')
-        query = self.request.GET.get('query')
-        tagquery = self.request.GET.get('tagquery')
-
-        # 検索条件の指定があればfilter
-        if query:
-            queryset = queryset.filter(
-                Q(title__icontains=query) | Q(description__icontains=query)
-            )
-        if tagquery:
-            queryset = queryset.filter(tags__name__icontains=tagquery)
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Public Tips'
         return context
 
 

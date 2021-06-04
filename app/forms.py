@@ -60,7 +60,6 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
         public_set = self.cleaned_data.get('public_set')
         if public_set == 'private':
             private_count = Tip.objects.filter(created_by=self.request.user, public_set='private').count()
-            print(private_count)
             if private_count >= settings.PRIVATE_TIPS_LIMIT:
                 self.add_error('public_set', 'PrivateのTipの数が制限回数(20回)に達しています。')
         return public_set

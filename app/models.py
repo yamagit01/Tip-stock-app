@@ -36,7 +36,7 @@ class Tip(models.Model):
     def get_absolute_url(self):
         return reverse('app:tip_detail', kwargs={'pk': self.pk})
     
-    def like_count(self):
+    def like_count(self): # TODO annotateで書ける？
         count = Like.objects.filter(tip=self).count()
         return count
     

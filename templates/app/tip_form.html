@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
+{% load static %}
+
+{% block extra_css%}
+<link rel="stylesheet" href="{% static 'css/codemirror.css' %}">
+{% endblock %}
 
 {% block content %}
     <div class="row">
@@ -35,7 +40,7 @@
                                     disabled="disabled"
                                     draggable="false"
                                     style="text-decoration: none">
-                                    {% render_field formset_form.filename class="form-control form-tag", placeholder="ファイル名" %}
+                                    {% render_field formset_form.filename class="form-control code-tab", placeholder="ファイル名" %}
                                     {% for error in formset_form.filename.errors %}
                                         <p class="text-danger">{{ error }}</p>
                                     {% endfor %}
@@ -50,11 +55,11 @@
                                 id="code-{{ forloop.revcounter0 }}"
                                 role="tabpanel"
                                 aria-labelledby="code-{{ forloop.revcounter0 }}-tab">
-                                {% render_field formset_form.content class="form-control", placeholder="内容" %}
+                                {% render_field formset_form.content class="form-control code-content" %}
                                 {% for error in formset_form.content.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}
-                                {{ formset_form.DELETE }}（左記にチェックし保存するとコードが削除されます）
+                                <span class="ms-2">{{ formset_form.DELETE }}（左記にチェックし保存するとコードが削除されます）</span>
                             </div>
                         {% endfor %}
                     </div>
@@ -112,6 +117,13 @@
 {% endblock %}
 
 {% block extra_js %}
+    <!-- CodeMirror用js -->
+    <script src="{% static 'js/codemirror/lib/codemirror.js' %}"></script>
+    <script src="{% static 'js/codemirror/mode/meta.js' %}"></script>
+    <script src="{% static 'js/codemirror/addon/display/autorefresh.js' %}"></script>
+    <script src="{% static 'js/codemirror/addon/mode/loadmode.js' %}"></script>
+
+    <!-- tab追加用js -->
     <script type="text/html" id="code-tab-template">
         <li class="nav-item" role="presentation" style="width: 150px;">
             <a
@@ -124,12 +136,9 @@
                 aria-selected="false"
                 draggable="false"
                 style="text-decoration: none">
-                {% render_field form.formset.empty_form.filename class="form-control", placeholder="ファイル名" %}
+                {% render_field form.formset.empty_form.filename class="form-control code-tab", placeholder="ファイル名" %}
             </a>
         </li>
-        <!-- <div> <label>ファイル名</label> {% render_field form.formset.empty_form.filename
-        class="form-control" %} <label>コード</label> {% render_field form.formset.empty_form.content
-        class="form-control" %} 削除 {{ form.formset.empty_form.DELETE }} </div> -->
     </script>
     <script type="text/html" id="code-content-template">
         <div
@@ -137,24 +146,70 @@
             id="code-__prefix__"
             role="tabpanel"
             aria-labelledby="code-__prefix__-tab">
-            {% render_field form.formset.empty_form.content class="form-control", placeholder="内容" %}
-            {{ form.formset.empty_form.DELETE }}（左記にチェックを入れると登録時にコードが削除されます）
+            {% render_field form.formset.empty_form.content class="form-control code-content" %}
+            <span class="ms-2">{{ form.formset.empty_form.DELETE }}（左記にチェックし保存するとコードが削除されます）</span>
         </div>
     </script>
     <script>
         $(function () {
+            // CodeMirror初期表示処理
+            CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+            var code_editor_array = []
+            let code_content = document.getElementsByClassName('code-content');
+            for (var count = 0; count < code_content.length; count++) {
+                var editor = CodeMirror.fromTextArea(code_content[count],
+                {
+                    lineNumbers: true,  // 行番号を表示する
+                    lineWrapping: true,  // 行を折り返す
+                    autoRefresh: true,  // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
+                });
+                code_editor_array.push(editor)
+                console.log(code_editor_array)
+            }
+
+            // 追加ボタン処理
             $('.add-code').click(function (e) {
+                // tab追加処理(totalのform数を基にid等を編集して追加)
                 e.preventDefault();
                 var form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
                 var tmpl_tab = $('#code-tab-template').html();
                 var tmpl_content = $('#code-content-template').html();
-                console.log($('#code-template'))
                 var new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
                 var new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
                 $('#myTab').append(new_tag_form);
                 $('#myTabContent').append(new_content_form);
                 $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
+
+                // CodeMirror反映処理
+                var editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`),
+                {
+                    lineNumbers: true,  // 行番号を表示する
+                    lineWrapping: true,  // 行を折り返す
+                    autoRefresh: true,  // 描画後にリフレッシュ(初期表示時は座標が取得できず表示がうまくいかない)
+                });
+                code_editor_array.push(editor)
             });
+
+            // ファイル名の拡張子に応じてCodeMirrorのmode変更処理
+            $(document).on('change', '.code-tab', function(e) {
+                // tabのファイル名を変更した要素のeditorを取得
+                let id = e.target.id;
+                let id_num = id.replace(/[^0-9]/g, '');
+                let target_editor = code_editor_array[Number(id_num)];
+
+                // ファイル名(拡張子)から対象の言語を判定
+                let text = $(e.target).val();
+                var filename_info = CodeMirror.findModeByFileName(text);
+
+                if (filename_info){
+                    target_editor.setOption("mode", filename_info.mode);
+                    CodeMirror.autoLoadMode(target_editor, filename_info.mode);
+                } else {
+                    // 判定できない場合、null(PlainText)モード
+                    target_editor.setOption("mode", "null");
+                }
+            });
+
         });
     </script>
 

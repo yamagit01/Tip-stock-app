@@ -5,13 +5,76 @@
     <h2 class="my-3">{{ title }}</h2>
     <form method="get">
         <div class="mb-3">
-            <input type="search" value="{{ request.GET.query }}" name="query" placeholder=" タイトル・説明検索">
-            <input
-                type="search"
-                value="{{ request.GET.tagquery }}"
-                name="tagquery"
-                placeholder=" タグ検索"
-                style="width: 100px;">
+            <div class="mb-2">
+                <label>検索内容</label>
+                <input type="search" value="{{ request.GET.query }}" name="query" placeholder=" タイトル・説明検索">
+                <input
+                    type="search"
+                    value="{{ request.GET.tagQuery }}"
+                    name="tagQuery"
+                    placeholder=" タグ検索"
+                    style="width: 100px;">
+            </div>
+            <div class="mb-2">
+                <label>表示順(降順)</label>
+                <div class="form-check form-check-inline">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="displayOrder"
+                        id="displayOrder1"
+                        value="updated"
+                        {% if request.GET.displayOrder != 'liked' %}checked="checked"{% endif %}>
+                    <label class="form-check-label" for="displayOrder1">更新年月日</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="displayOrder"
+                            id="displayOrder2"
+                            value="liked"
+                            {% if request.GET.displayOrder == 'liked' %}checked="checked"{% endif %}>
+                        <label class="form-check-label" for="displayOrder2">お気に入り数</label>
+                    </div>
+                </div>
+            </div>
+            {% if 'tip_list' in request.path_info %}
+                <div class="mb-2">
+                    <label>検索対象</label>
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="searchTarget"
+                            id="searchTarget1"
+                            value="all"
+                            {% if request.GET.searchTarget != 'my' and  request.GET.searchTarget != 'other' %}checked="checked"{% endif %}>
+                        <label class="form-check-label" for="searchTarget1">My Tips全体</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="searchTarget"
+                            id="searchTarget2"
+                            value="my"
+                            {% if request.GET.searchTarget == 'my' %}checked="checked"{% endif %}>
+                        <label class="form-check-label" for="searchTarget2">自分のTips</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            name="searchTarget"
+                            id="searchTarget3"
+                            value="other"
+                            {% if request.GET.searchTarget == 'other' %}checked="checked"{% endif %}>
+                        <label class="form-check-label" for="searchTarget3">自分以外のTips</label>
+                    </div>
+                </div>
+            {% endif %}
             <button type="submit" class="btn btn-outline-primary">Search</button>
         </div>
     </form>
@@ -35,7 +98,7 @@
                     </div>
                     <div class="card-footer text-muted text-center">
                         <small>by&nbsp;{{ tip.created_by.username }}&nbsp;at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}
-                            {% if tip.public_set  == 'private' %}
+                            {% if tip.public_set == 'private' %}
                                 <span class="text-danger">&nbsp;Private</span>
                             {% else %}
                                 <i class="fas fa-heart" style="color: pink;"></i>&nbsp;{{ tip.like_count }}
