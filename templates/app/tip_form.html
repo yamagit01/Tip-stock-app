@@ -63,6 +63,13 @@
                                 <span class="ms-2">{{ formset_form.DELETE }}（左記にチェックし保存するとコードが削除されます）</span>
                             </div>
                         {% endfor %}
+                        {% if form.formset.non_form_errors %}
+                            <div class="my-3">
+                                {% for non_form_error in form.formset.non_form_errors %}
+                                    <p class="text-danger">{{ non_form_error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="form-group mb-3">
                         <label>説明（必須）</label>

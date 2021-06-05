@@ -68,7 +68,7 @@ coverage.xml
 pytestdebug.log
 
 # Translations
-*.mo
+# *.mo
 
 # Django stuff:
 

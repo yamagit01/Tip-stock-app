@@ -204,3 +204,6 @@ MESSAGE_TAGS = {
     messages.DEBUG: 'dark',
     messages.ERROR: 'danger',
 }
+
+# localeファルダのパス設定
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
