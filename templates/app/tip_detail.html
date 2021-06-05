@@ -4,7 +4,8 @@
 {% load static %}
 
 {% block extra_css%}
-<link rel="stylesheet" href="{% static 'css/codemirror.css' %}">
+<link rel="stylesheet" href="{% static 'css/codemirror/lib/codemirror.css' %}">
+<link rel="stylesheet" href="{% static 'css/codemirror/theme/mdn-like.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -31,7 +32,7 @@
                         {% for code in tip.codes.all %}
                             <li class="nav-item" role="presentation" style="width: 150px;">
                                 <a
-                                    class="nav-link color-set code-tab {% if forloop.first %}active{% endif %} "
+                                    class="nav-link tab-color code-tab {% if forloop.first %}active{% endif %} "
                                     id="code-{{ forloop.counter0 }}-tab"
                                     data-bs-toggle="tab"
                                     href="#code-{{ forloop.counter0 }}"
@@ -179,9 +180,10 @@
                 var editor = CodeMirror.fromTextArea(code_content[count],
                 {
                     lineNumbers: true,  // 行番号を表示する
-                    lineWrapping: true,  // 行を折り返す
+                    fixedGutter: true,  // 水平カーソル移動時、行番号表示
                     readOnly: true,
                     autoRefresh: true,  // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
+                    theme: "mdn-like",  //  theme設定
                 });
 
                 let text = code_tab[count].textContent

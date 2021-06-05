@@ -102,12 +102,14 @@ a {
     border-radius: 2rem;
 }
 
-.color-set {
+.tab-color {
     color: black !important;
+    border: solid 0.5px !important;
+    border-color: #ced4da  !important;
 }
 
-.color-set.active {
-    background-color: #e3fcf4 !important;
+.tab-color.active {
+    background-color: rgba(0, 83, 159, 0.15) !important;
 }
 
 .tab-pane {
