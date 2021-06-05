@@ -14,7 +14,7 @@
             <form action="" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group mb-3">
-                    <label>タイトル（必須）</label>
+                    <label>タイトル<span class="text-danger">（必須）</span></label>
                     {% render_field form.title class="form-control" %}
                     {% for error in form.title.errors %}
                         <p class="text-danger">{{ error }}</p>
@@ -22,7 +22,7 @@
                 </div>
                 <div class="form-group mb-3" id="code-form">
                     {{ form.formset.management_form }}
-                    <label>コード（最低１つは必須）<small>(ファイル名は任意)</small></label>
+                    <label>コード（最低１つは<span class="text-danger">（必須）</span>）<small>(ファイル名は任意)</small></label>
                     <button class="btn btn-outline-secondary add-code my-3">コードを追加</button>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         {% for formset_form in form.formset %}
@@ -60,7 +60,8 @@
                                 {% for error in formset_form.content.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}
-                                <span class="ms-2">{{ formset_form.DELETE }}（左記にチェックし保存するとコードが削除されます）</span>
+                                <span class="ms-2">{% render_field formset_form.DELETE class="code-delete" %}
+                                    （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
                             </div>
                         {% endfor %}
                         {% if form.formset.non_form_errors %}
@@ -72,14 +73,14 @@
                         {% endif %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>説明（必須）</label>
+                        <label>説明<span class="text-danger">（必須）</span></label>
                         {% render_field form.description class="form-control" %}
                         {% for error in form.description.errors %}
                             <p class="text-danger">{{ error }}</p>
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>タグ（必須）<small>(複数タグはカンマ(,)区切り)</small>
+                        <label>タグ<span class="text-danger">（必須）</span><small>(複数タグはカンマ(,)区切り)</small>
                         </label>
                         {% render_field form.tags class="form-control" %}
                         {% for error in form.tags.errors %}
@@ -156,7 +157,8 @@
             role="tabpanel"
             aria-labelledby="code-__prefix__-tab">
             {% render_field form.formset.empty_form.content class="form-control code-content" %}
-            <span class="ms-2">{{ form.formset.empty_form.DELETE }}（左記にチェックし保存するとコードが削除されます）</span>
+            <span class="ms-2">{% render_field form.formset.empty_form.DELETE class="code-delete" %}
+                （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
         </div>
     </script>
     <script>
@@ -175,7 +177,6 @@
                     theme: "mdn-like",  //  theme設定
                 });
                 code_editor_array.push(editor)
-                console.log(code_editor_array)
             }
 
             // 追加ボタン処理
@@ -221,6 +222,22 @@
                     // 判定できない場合、null(PlainText)モード
                     target_editor.setOption("mode", "null");
                 }
+            });
+            // 削除チェック時にコードの入力エリアをグレー(網掛け)表示
+            $(document).on('change', '.code-delete', function(e) {
+                let id = e.target.id;
+                let id_num = id.replace(/[^0-9]/g, '');
+
+                let tab = document.getElementById(`id_codes-${id_num}-filename`);
+                let content = document.querySelector(`#code-${id_num} .CodeMirror`);
+                if( $(e.target).prop('checked') ){
+                    tab.classList.add('delete-color')
+                    content.classList.add('delete-color')
+                }else{
+                    tab.classList.remove('delete-color')
+                    content.classList.remove('delete-color')
+                }
+
             });
 
         });

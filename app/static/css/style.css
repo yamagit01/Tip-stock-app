@@ -118,3 +118,6 @@ a {
     border-radius: .15rem;
 }
 
+.delete-color {
+    background-color: silver !important;
+}
