@@ -127,3 +127,8 @@ a {
     height: 200px;
     object-fit: contain;
 }
+
+.password-reset {
+    width: 300px;
+    border-radius: 2rem;
+}

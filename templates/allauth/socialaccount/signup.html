@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}ユーザ登録{% endblock %}
+
+{% block content %}
+    <h2 class="my-3">ユーザ登録</h2>
+
+    <p>{{account.get_provider.name}}アカウントを使用してユーザ登録を実行します。以下の内容を確認してください。</p>
+
+    <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group field my-3">
+                <label for="{{ field.id_for_label }}">{{field.label}}</label>
+                {% render_field field class="form-control password-reset" %}
+                {% for error in field.errors %}
+                    <p class="text-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        {# non_field_errorを表示 #}
+        {% include 'form_alert.html' %}
+        <button class="btn btn-lg btn-primary btn-block" type="submit">サインアップ</button>
+    </form>
+
+{% endblock %}

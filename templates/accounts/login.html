@@ -11,7 +11,7 @@
 {% block content %}
 
     <div class="card card-auth my-5 mx-auto">
-        <div class="card-body">
+        <div class="card-body pb-3">
             <h5 class="card-title text-center">ログイン</h5>
             <form class="form-auth" method="post">
                 {% csrf_token %}
@@ -27,6 +27,8 @@
                         <p class="text-danger">{{ error }}</p>
                     {% endfor %}
                 </div>
+                {# non_field_errorを表示 #}
+                {% include 'form_alert.html' %}
                 <div class="form-label-group">
                     {{ form.remember }}
                     <span>ログイン状態を維持する</span>
@@ -38,15 +40,17 @@
                     <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
                 </div>
             </form>
-            {# エラーメッセージを表示 #}
-            {% include 'form_alert.html' %}
         </div>
-        <p class="mx-auto">ソーシャルアカウントでログイン</p>
+        <p class="mx-auto mb-1">ソーシャルアカウントでログイン</p>
         <div class="button-social mx-auto mb-2">
             <a href="{% provider_login_url 'google' %}" class="btn btn-social btn-google"><span class="fab fa-google"></span>Googleでログイン</a>
         </div>
-        <div class="button-social mx-auto  mb-2">
+        <div class="button-social mx-auto  mb-4">
             <a href="{% provider_login_url 'github' %}" class="btn btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでログイン</a>
+        </div>
+        <div class="mx-auto mb-1 text-center">
+            <p>ユーザ登録したい方は <a href="{{ signup_url }}">ここから登録</a></p>
+            <p>パスワードを忘れた方は <a href="{% url 'account_reset_password' %}">ここから再設定</a></p>
         </div>
     </div>
 

@@ -23,3 +23,11 @@ msgid "Please submit at least %d form."
 msgid_plural "Please submit at least %d forms."
 msgstr[0] "コードは少なくとも%dつ以上入力してください。"
 
+#: socialaccount/adapter.py:26
+#, python-format
+msgid ""
+"An account already exists with this e-mail address. Please sign in to that "
+"account first, then connect your %s account."
+msgstr ""
+"%sアカウントで使用されているこのメールアドレスは既に使用されています。"
+"確認してください。"

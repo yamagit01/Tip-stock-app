@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}ソーシャルログインエラー{% endblock %}
+
+{% block content %}
+    <h2 class="my-3">ソーシャルログインエラー</h2>
+
+    <p>あなたのソーシャルアカウントでサインアップ・ログインしようとしたところ、エラーが生じました。</p>
+    <p>コード:{{ auth_error.code }}</p>
+    <p>エラー:{{ auth_error.exception }}</p>
+{% endblock %}
