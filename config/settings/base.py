@@ -57,6 +57,9 @@ INSTALLED_APPS = [
     # My applications
     'accounts.apps.AccountsConfig',
     'app.apps.AppConfig',
+    
+    # Django added apps
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -207,3 +210,6 @@ MESSAGE_TAGS = {
 
 # localeファルダのパス設定
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
+
+# ウィジェットのテンプレートの探索を通常のテンプレートの探索と同様にする
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'

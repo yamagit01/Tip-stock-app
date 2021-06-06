@@ -23,26 +23,27 @@ class ProfileEditView(LoginRequiredMixin, View):
         form = ProfileForm(
             request.POST or None,
             initial = {
+                'username': user_data.username,
                 'icon': user_data.icon
             }
         )
         
         return render(request, 'accounts/profile_edit.html', {
             'form': form,
-            'user_data': user_data,
         })
         
     def post(self, request, *args, **kwargs):
-        form = ProfileForm(request.POST or None)
-        
+        user_data = User.objects.get(id=request.user.id)
+        form = ProfileForm(request.POST or None, instance=user_data)
+
         if form.is_valid():
-            user_data = User.objects.get(id=request.user.id)
+            user_data.username = form.cleaned_data.get('username')
             if request.FILES:
                 user_data.icon = request.FILES.get('icon')
             user_data.save()
             return redirect('accounts:profile')
-        
-        return render(request, 'accounts/profile.html', {
+
+        return render(request, 'accounts/profile_edit.html', {
             'form': form,
         })
 

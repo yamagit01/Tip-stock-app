@@ -5,23 +5,25 @@
 
     <div class="card card-profile my-5 mx-auto">
         <div class="card-body">
-            <div class="card-title text-center">プロフィール</div>
-            {% if user_data.icon %}
-                <img
-                    src="{{ user_data.icon.url }}"
-                    class="d-block mx-auto"
-                    width="200px"
-                    height="200px"
-                    style="object-fit: contain;">
-            {% endif %}
+            <div class="card-title text-center">プロフィール変更</div>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <table class="profile_table mb-4">
                     <tbody>
                         <tr>
+                            <th class="header">ユーザ名</th>
+                            <td class="data">
+                                {% render_field form.username class="form-control" %}
+                                {% for error in form.username.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
                             <th class="header">アイコン</th>
                             <td class="data">
-                                {% render_field form.icon class="form-control" %}
+                                {{ form.icon|add_class:"form-control" }}
+                                {{ form.media }}
                                 {% for error in form.icon.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}

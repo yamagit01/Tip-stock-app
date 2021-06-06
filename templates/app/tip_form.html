@@ -3,8 +3,8 @@
 {% load static %}
 
 {% block extra_css%}
-<link rel="stylesheet" href="{% static 'css/codemirror/lib/codemirror.css' %}">
-<link rel="stylesheet" href="{% static 'css/codemirror/theme/mdn-like.css' %}">
+<link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
+<link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -127,11 +127,11 @@
 
 {% block extra_js %}
     <!-- CodeMirror用js -->
-    <script src="{% static 'js/codemirror/lib/codemirror.js' %}"></script>
-    <script src="{% static 'js/codemirror/mode/meta.js' %}"></script>
-    <script src="{% static 'js/codemirror/keymap/sublime.js' %}"></script>
-    <script src="{% static 'js/codemirror/addon/display/autorefresh.js' %}"></script>
-    <script src="{% static 'js/codemirror/addon/mode/loadmode.js' %}"></script>
+    <script src="{% static 'app/js/codemirror/lib/codemirror.js' %}"></script>
+    <script src="{% static 'app/js/codemirror/mode/meta.js' %}"></script>
+    <script src="{% static 'app/js/codemirror/keymap/sublime.js' %}"></script>
+    <script src="{% static 'app/js/codemirror/addon/display/autorefresh.js' %}"></script>
+    <script src="{% static 'app/js/codemirror/addon/mode/loadmode.js' %}"></script>
 
     <!-- tab追加用js -->
     <script type="text/html" id="code-tab-template">
@@ -164,7 +164,7 @@
     <script>
         $(function () {
             // CodeMirror初期表示処理
-            CodeMirror.modeURL = "/static/js/codemirror/mode/%N/%N.js";
+            CodeMirror.modeURL = "/static/app/js/codemirror/mode/%N/%N.js";
             var code_editor_array = []
             let code_content = document.getElementsByClassName('code-content');
             for (var count = 0; count < code_content.length; count++) {

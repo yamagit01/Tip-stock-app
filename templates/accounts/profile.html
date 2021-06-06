@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block content %}
 
@@ -17,14 +18,9 @@
                     </tr>
                     <tr>
                         <th class="header">アイコン</th>
-                        {% if user_data.icon %}
-                            <td class="data"><img
-                                src="{{ user_data.icon.url }}"
-                                class="d-block mx-auto"
-                                width="200px"
-                                height="200px"
-                                style="object-fit: contain;"></td>
-                        {% endif %}
+                        <td class="data"><img
+                            src="{% if user_data.icon %}{{ user_data.icon.url }}{% else %}{% static 'accounts/img/noimage.png' %}{% endif %}"
+                            class="d-block mx-auto default-preview-img"></td>
                     </tr>
                 </tbody>
             </table>

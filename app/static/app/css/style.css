@@ -121,3 +121,9 @@ a {
 .delete-color {
     background-color: silver !important;
 }
+
+.default-preview-img {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+}
