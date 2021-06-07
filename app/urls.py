@@ -15,4 +15,6 @@ urlpatterns = [
     path('comment/<int:pk>/', views.add_comment, name='add_comment'),
     path('add_like/<int:pk>/', views.add_like, name='add_like'),
     path('delete_like/<int:pk>/', views.delete_like, name='delete_like'),
+    path('contact/', views.ContactView.as_view(), name='contact'),
+    path('thanks/', views.ThanksView.as_view(), name='thanks'),
 ]

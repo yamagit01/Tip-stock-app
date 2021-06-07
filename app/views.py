@@ -1,15 +1,19 @@
+import textwrap
+
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
+from django.core.mail import BadHeaderError, EmailMessage
 from django.db.models import Count, Q
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
-                                  TemplateView, UpdateView)
+                                  TemplateView, UpdateView, View)
 
-from .forms import CommentForm, TipForm
+from .forms import CommentForm, ContactForm, TipForm
 from .models import Like, Tip
 
 
@@ -206,3 +210,61 @@ def delete_like(request, pk):
     like.first().delete()
     messages.success(request, 'お気に入りから削除しました。')
     return redirect('app:tip_detail', pk=pk)
+
+class ContactView(View):
+    def get(self, request, *args, **kwargs):
+        form = ContactForm(request.POST or None)
+        return render(request, 'app/contact.html', {
+            'form': form,
+        })
+
+    def post(self, request, *args, **kwargs):
+        form = ContactForm(request.POST or None)
+
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            message = form.cleaned_data['message']
+            subject = '[Tip Stock]お問い合わせありがとうございます。'
+            contact = textwrap.dedent('''
+                ※このメールはシステムからの自動返信です。
+
+                {name} 様
+
+                お問い合わせありがとうございました。
+                以下の内容でお問い合わせを受付いたしました。
+                内容を確認させていただき、ご返信させて頂きますので、少々お待ち下さい。
+
+                -----------------------
+                ■お名前
+                {name}
+
+                ■メールアドレス
+                {email}
+
+                ■メッセージ
+                {message}
+                -----------------------
+                ''').format(
+                    name=name,
+                    email=email,
+                    message=message,
+                )
+            to_list = [email]
+            bcc_list = [settings.EMAIL_HOST_USER]
+
+            try:
+                message = EmailMessage(subject=subject, body=contact,to=to_list, bcc=bcc_list)
+                message.send()
+            except BadHeaderError:
+                return HttpResponse('無効なヘッダが検出されました。')
+
+            return redirect('app:thanks')
+
+        return render(request, 'app/contact.html', {
+            'form': form,
+        })
+
+
+class ThanksView(TemplateView):
+    template_name = 'app/thanks.html'

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+    <div class="card text-center contact mx-auto mt-3 rounded">
+        <div class="card-body">
+            <h2 class="mb-4">お問い合わせ</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {% render_field form.name class="form-control" placeholder="名前" %}
+                    {% for error in form.name.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {% render_field form.email class="form-control" placeholder="メールアドレス" %}
+                    {% for error in form.name.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                <div class="mb-3">
+                    {% render_field form.message class="form-control" placeholder="メッセージ" %}
+                    {% for error in form.name.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {# non_field_errorを表示 #}
+                {% include 'form_alert.html' %}
+                <div class="mb-3">
+                    <button class="btn btn-warning" type="submit">
+                        <i class="fas fa-paper-plane">&nbsp;送信する</i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

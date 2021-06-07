@@ -132,3 +132,7 @@ a {
     width: 300px;
     border-radius: 2rem;
 }
+
+.contact {
+    max-width: 600px;
+}
