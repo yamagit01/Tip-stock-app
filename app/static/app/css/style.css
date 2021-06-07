@@ -136,3 +136,12 @@ a {
 .contact {
     max-width: 600px;
 }
+
+.tag {
+    font-size: .8rem;
+    color: #fff;
+    padding: .25em .5em;
+    background: teal;
+    border-radius: 3px;
+    margin-top: 8px;
+}

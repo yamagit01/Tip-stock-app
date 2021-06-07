@@ -87,13 +87,15 @@
                             {% if forloop.counter == 3%}
                                 etc
                             {% else %}
-                                [{{ tag }}]
+                                <span class="tag">{{ tag }}</span>
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ tip.title|truncatechars:15 }}</h5>
-                        <p class="card-text">{{ tip.description|linebreaks|truncatechars:50 }}</p>
+                    <div class="card-body py-3">
+                        <div class="card-text">
+                            <p><strong>{{ tip.title|truncatechars:15 }}</strong></p>
+                            <p><small>{{ tip.description|truncatechars:50 }}</small></p>
+                        </div>
                         <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
                     </div>
                     <div class="card-footer text-muted text-center">
