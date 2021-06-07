@@ -3,9 +3,16 @@
 {% block title %}ソーシャルログインエラー{% endblock %}
 
 {% block content %}
-    <h2 class="my-3">ソーシャルログインエラー</h2>
 
-    <p>あなたのソーシャルアカウントでサインアップ・ログインしようとしたところ、エラーが生じました。</p>
-    <p>コード:{{ auth_error.code }}</p>
-    <p>エラー:{{ auth_error.exception }}</p>
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <div class="card-title text-center">ソーシャルログインエラー</div>
+            <div class="text-center">
+                <p class="mb-2">ソーシャルアカウントでサインアップ・ログイン試みたところ、<br> エラーが生じました。</p>
+                <p>コード:{{ auth_error.code }}</p>
+                <p>エラー:{{ auth_error.exception }}</p>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}

@@ -1,27 +1,46 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 
-{% block title %}ユーザ登録{% endblock %}
+{% block title %}サインアップ{% endblock %}
 
 {% block content %}
-    <h2 class="my-3">ユーザ登録</h2>
 
-    <p>{{account.get_provider.name}}アカウントを使用してユーザ登録を実行します。以下の内容を確認してください。</p>
-
-    <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
-        {% csrf_token %}
-        {% for field in form %}
-            <div class="form-group field my-3">
-                <label for="{{ field.id_for_label }}">{{field.label}}</label>
-                {% render_field field class="form-control password-reset" %}
-                {% for error in field.errors %}
-                    <p class="text-danger">{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endfor %}
-        {# non_field_errorを表示 #}
-        {% include 'form_alert.html' %}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">サインアップ</button>
-    </form>
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <div class="card-title text-center">サインアップ</div>
+            <p class="text-center">{{account.get_provider.name}}アカウントを使用してユーザ登録を実行します。<br>
+                以下の内容を確認してサインアップしてください。</p>
+            <form class="signup" id="signup_form" method="post" action="{% url 'socialaccount_signup' %}">
+                {% csrf_token %}
+                <table class="profile_table mb-4">
+                    <tbody>
+                        <tr>
+                            <th class="header">{{ form.email.label }}</th>
+                            <td class="data">
+                                {% render_field form.email class="form-control" placeholder='' %}
+                                {% for error in form.email.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="header">{{ form.username.label }}</th>
+                            <td class="data">
+                                {% render_field form.username class="form-control" placeholder='' %}
+                                {% for error in form.username.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {# non_field_errorを表示 #}
+                {% include 'form_alert.html' %}
+                <div class="button mx-auto text-center my-2">
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">サインアップ</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 {% endblock %}
