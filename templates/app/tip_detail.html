@@ -48,7 +48,7 @@
                                 id="code-{{ forloop.counter0 }}"
                                 role="tabpanel"
                                 aria-labelledby="code-{{ forloop.counter0 }}-tab">
-                                <textarea class="code-content" readonly>{{ code.content }}</textarea>
+                                <textarea class="code-content" readonly style="display:none;">{{ code.content }}</textarea>
                             </div>
                         {% endfor %}
                     </div>

@@ -56,7 +56,7 @@
                                 id="code-{{ forloop.revcounter0 }}"
                                 role="tabpanel"
                                 aria-labelledby="code-{{ forloop.revcounter0 }}-tab">
-                                {% render_field formset_form.content class="form-control code-content" %}
+                                {% render_field formset_form.content class="form-control code-content" style="display:none;" %}
                                 {% for error in formset_form.content.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}
