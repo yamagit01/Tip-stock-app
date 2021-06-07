@@ -1,7 +1,13 @@
+import uuid
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
+
+
+def _tip_uploadfile_upload_to(instance, filename):
+    return f'uploadfiles/{str(uuid.uuid4())}-{filename}'
 
 
 class Tip(models.Model):
@@ -17,7 +23,7 @@ class Tip(models.Model):
     description = models.TextField()
     tags = TaggableManager()
     # TODO filenameを変更(ハッシュ化, uuid)
-    uploadfile = models.FileField(upload_to='uploadfiles/', blank=True, null=True)
+    uploadfile = models.FileField(upload_to=_tip_uploadfile_upload_to, blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     created_by = models.ForeignKey(get_user_model(), related_name='created_tip', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

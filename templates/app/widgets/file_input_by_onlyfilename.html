@@ -1,12 +1,13 @@
 {% load filename %}
 
-{% if widget.include_preview %}
-    <img src="" id="{{ widget.name }}-preview" class="d-block mx-auto default-preview-img"><br>
-{% endif %}
 {% if widget.is_initial %}
     {{ widget.initial_text }}:<a href="{{ widget.value.url }}">{{ widget.value|get_filename }}</a>
     {% if not widget.required %}
-        <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}">
+        <input
+            type="checkbox"
+            name="{{ widget.checkbox_name }}"
+            id="{{ widget.checkbox_id }}"
+            {% if widget.attrs.disabled %} disabled{% endif %}>
         <label for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
     {% endif %}<br>
     {{ widget.input_text }}:
@@ -14,6 +15,4 @@
 <input
     type="{{ widget.type }}"
     name="{{ widget.name }}"
-    {% include "django/forms/widgets/attrs.html" %}
-    data-target="{{ widget.name }}-preview"
-    data-initial="{{ widget.value.url }}">
+    {% include "django/forms/widgets/attrs.html" %}>

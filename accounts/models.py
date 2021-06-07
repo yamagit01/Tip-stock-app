@@ -1,3 +1,5 @@
+import uuid
+
 from django.apps import apps
 from django.contrib import auth
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -9,6 +11,9 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+
+def _user_profile_icon_upload_to(instance, filename):
+    return f'icons/{str(uuid.uuid4())}-{filename}'
 
 # UserManagerクラスをcopy
 class UserManager(BaseUserManager):
@@ -112,7 +117,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         },
     )
     
-    icon = models.ImageField(upload_to='icons/', blank=True, null=True)
+    icon = models.ImageField(upload_to=_user_profile_icon_upload_to, blank=True, null=True)
     
     is_staff = models.BooleanField(
         _('staff status'),

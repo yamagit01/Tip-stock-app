@@ -3,6 +3,7 @@ from django.conf import settings
 from django.forms.models import inlineformset_factory
 
 from .models import Code, Comment, Tip
+from .widgets import FileInputByOnlyfilename
 
 
 class ModelFormWithFormSetMixin:
@@ -48,7 +49,8 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
         model = Tip
         exclude = ('created_by', 'created_at', 'updated_at')
         widgets = {
-            'public_set': forms.RadioSelect
+            'public_set': forms.RadioSelect,
+            'uploadfile': FileInputByOnlyfilename(),
         }
 
     def __init__(self, *args, **kwargs):

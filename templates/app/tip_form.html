@@ -88,7 +88,7 @@
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>ファイル（任意）</label>
+                        <label class="d-block">ファイル（任意）</label>
                         {% render_field form.uploadfile class="form-control" %}
                         {% for error in form.uploadfile.errors %}
                             <p class="text-danger">{{ error }}</p>
