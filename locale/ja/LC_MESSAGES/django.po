@@ -16,7 +16,7 @@ msgstr ""
 #, python-format
 msgid "Please submit at most %d form."
 msgid_plural "Please submit at most %d forms."
-msgstr[0] "コードは最大%dつまでしか入力できません。"
+msgstr[0] "コードの数が最大保存数を超えています。削除のチェックを入れて%dつ以下にしてください。"
 
 #, python-format
 msgid "Please submit at least %d form."

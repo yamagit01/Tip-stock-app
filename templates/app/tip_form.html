@@ -22,21 +22,25 @@
                 </div>
                 <div class="form-group mb-3" id="code-form">
                     {{ form.formset.management_form }}
-                    <label>コード（最低１つは<span class="text-danger">（必須）</span>）<small>(ファイル名は任意)</small></label>
-                    <button class="btn btn-outline-secondary add-code my-3">コードを追加</button>
+                    <label>コード<span class="text-danger">（必須）</span><small>(ファイル名は任意)</small></label>
+                    <button class="btn btn-outline-secondary add-code my-2">コードを追加</button>
+                    <p><span class="text-danger">※保存できるコードはTip１つにつき最大５つです。</span><br>
+                    <small>
+                        Formには５つ以上表示可能ですが、保存時にエラーとなります。<br>削除のチェックを入れるとカウントの対象外となります。
+                    </small></p>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         {% for formset_form in form.formset %}
                             {% for hidden in formset_form.hidden_fields %}
                                 {{ hidden }}
                             {% endfor %}
-                            <li class="nav-item" role="presentation" style="width: 150px;">
+                            <li class="nav-item" role="presentation" style="width: 140px;">
                                 <a
-                                    class="nav-link tab-color {% if forloop.first %}active{% endif %} "
-                                    id="code-{{ forloop.revcounter0 }}-tab"
+                                    class="px-2 nav-link tab-color {% if forloop.first %}active{% endif %} "
+                                    id="code-{{ forloop.counter0 }}-tab"
                                     data-bs-toggle="tab"
-                                    href="#code-{{ forloop.revcounter0 }}"
+                                    href="#code-{{ forloop.counter0 }}"
                                     role="tab"
-                                    aria-controls="code-{{ forloop.revcounter0 }}"
+                                    aria-controls="code-{{ forloop.counter0 }}"
                                     aria-selected="true"
                                     disabled="disabled"
                                     draggable="false"
@@ -52,10 +56,10 @@
                     <div class="tab-content mb-3" id="myTabContent">
                         {% for formset_form in form.formset %}
                             <div
-                                class="tab-pane fade{% if forloop.first %}show active{% endif %}"
-                                id="code-{{ forloop.revcounter0 }}"
+                                class="tab-pane fade{% if forloop.first %} active show{% endif %}"
+                                id="code-{{ forloop.counter0 }}"
                                 role="tabpanel"
-                                aria-labelledby="code-{{ forloop.revcounter0 }}-tab">
+                                aria-labelledby="code-{{ forloop.counter0 }}-tab">
                                 {% render_field formset_form.content class="form-control code-content" style="display:none;" %}
                                 {% for error in formset_form.content.errors %}
                                     <p class="text-danger">{{ error }}</p>
@@ -63,6 +67,11 @@
                                 <span class="ms-2">{% render_field formset_form.DELETE class="code-delete" %}
                                     （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
                             </div>
+                        {% endfor %}
+                        {% for formset_form in form.formset %}
+                            {% if formset_form.content.errors %}
+                                <p class="text-danger my-3">{{ forloop.counter }}つ目のコードエリアに誤りがあります。</p>
+                            {% endif %}
                         {% endfor %}
                         {% if form.formset.non_form_errors %}
                             <div class="my-3">
@@ -135,9 +144,9 @@
 
     <!-- tab追加用js -->
     <script type="text/html" id="code-tab-template">
-        <li class="nav-item" role="presentation" style="width: 150px;">
+        <li class="nav-item" role="presentation" style="width: 140px;">
             <a
-                class="nav-link tab-color"
+                class="px-2 nav-link tab-color"
                 id="code-__prefix__-tab"
                 data-bs-toggle="tab"
                 href="#code-__prefix__"
@@ -163,12 +172,16 @@
     </script>
     <script>
         $(function () {
-            // CodeMirror初期表示処理
+            // 初期表示処理
             CodeMirror.modeURL = "/static/app/js/codemirror/mode/%N/%N.js";
             var code_editor_array = []
-            let code_content = document.getElementsByClassName('code-content');
-            for (var count = 0; count < code_content.length; count++) {
-                var editor = CodeMirror.fromTextArea(code_content[count],
+            let code_tab = document.getElementsByClassName('code-tab');
+            let tab_pane = document.getElementsByClassName('tab-pane');
+            let code_delete = document.getElementsByClassName('code-delete');
+            for (var count = 0; count < code_tab.length; count++) {
+                // CodeMirror初期設定
+                let code_content = tab_pane[count].querySelector('.code-content');
+                var editor = CodeMirror.fromTextArea(code_content,
                 {
                     lineNumbers: true,  // 行番号を表示する
                     fixedGutter: true,  // 水平カーソル移動時、行番号表示
@@ -176,9 +189,31 @@
                     keyMap: "sublime",  //  keymap設定
                     theme: "mdn-like",  //  theme設定
                 });
+
+                // ファイル名(拡張子)から対象の言語を判定
+                let text = code_tab[count].value;
+                console.log(text)
+                var filename_info = CodeMirror.findModeByFileName(text);
+
+                if (filename_info){
+                    editor.setOption("mode", filename_info.mode);
+                    CodeMirror.autoLoadMode(editor, filename_info.mode);
+                } else {
+                    // 判定できない場合、null(PlainText)モード
+                    editor.setOption("mode", "null");
+                }
+
                 code_editor_array.push(editor)
+
+                // 削除チェック時にコードの入力エリアをグレー(網掛け)表示(エラー時にチェックがついた状態でのリターンケースで必要)
+                let code_mirror_content = tab_pane[count].querySelector(".CodeMirror");
+                if( $(code_delete[count]).prop('checked') ){
+                    code_tab[count].classList.add('delete-color')
+                    code_mirror_content.classList.add('delete-color')
+                }
             }
 
+            // 変更時処理
             // 追加ボタン処理
             $('.add-code').click(function (e) {
                 // tab追加処理(totalのform数を基にid等を編集して追加)
@@ -192,7 +227,7 @@
                 $('#myTabContent').append(new_content_form);
                 $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
 
-                // CodeMirror反映処理
+                // CodeMirror初期設定
                 var editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`),
                 {
                     lineNumbers: true,  // 行番号を表示する

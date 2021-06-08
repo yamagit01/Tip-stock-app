@@ -31,15 +31,16 @@
                             </label>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 {% for code in tip.codes.all %}
-                                    <li class="nav-item" role="presentation" style="width: 150px;">
+                                    <li class="nav-item" role="presentation" style="width: 140px;">
                                         <a
                                             class="nav-link tab-color code-tab {% if forloop.first %}active{% endif %} "
+                                            style="overflow-x: scroll;"
                                             id="code-{{ forloop.counter0 }}-tab"
                                             data-bs-toggle="tab"
                                             href="#code-{{ forloop.counter0 }}"
                                             role="tab"
                                             aria-controls="code-{{ forloop.counter0 }}"
-                                            aria-selected="true">{% if code.filename %}{{ code.filename }}{% else %}No filename{% endif %}</a>
+                                            aria-selected="true"><span style="white-space:nowrap">{% if code.filename %}{{ code.filename }}{% else %}No filename{% endif %}</span></a>
                                     </li>
                                 {% endfor %}
                             </ul>

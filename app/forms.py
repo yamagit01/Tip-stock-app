@@ -36,8 +36,9 @@ CodeFormSet = inlineformset_factory(
     form=CodeForm,
     extra=0,
     min_num=1,
-    validate_min=1,
-    validate_max=5
+    max_num=5,
+    validate_min=True,
+    validate_max=True
 )
 
 
