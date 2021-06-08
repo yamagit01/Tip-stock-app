@@ -10,154 +10,172 @@
 
 {% block content %}
 
-    <div class="row my-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3>{{ tip.title }}</h3>
-                    <div>Tag：{% for tag in tip.tags.all %}<span class="tag me-2">{{ tag }}</span>{% endfor %}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <label for="description" class="mb-2">
-                        <strong style="border-bottom: solid 1px;">コード</strong>
-                    </label>
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                        {% for code in tip.codes.all %}
-                            <li class="nav-item" role="presentation" style="width: 150px;">
-                                <a
-                                    class="nav-link tab-color code-tab {% if forloop.first %}active{% endif %} "
-                                    id="code-{{ forloop.counter0 }}-tab"
-                                    data-bs-toggle="tab"
-                                    href="#code-{{ forloop.counter0 }}"
-                                    role="tab"
-                                    aria-controls="code-{{ forloop.counter0 }}"
-                                    aria-selected="true">{% if code.filename %}{{ code.filename }}{% else %}No filename{% endif %}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    <div class="tab-content mb-5 mt-2 ps-2" id="myTabContent">
-                        {% for code in tip.codes.all %}
-                            <div
-                                class="tab-pane fade{% if forloop.first %}show active{% endif %}"
-                                id="code-{{ forloop.counter0 }}"
-                                role="tabpanel"
-                                aria-labelledby="code-{{ forloop.counter0 }}-tab">
-                                <textarea class="code-content" readonly style="display:none;">{{ code.content }}</textarea>
-                            </div>
-                        {% endfor %}
+    <div class="row justify-content-center my-3">
+        <div class="col-10">
+            <div class="row my-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>{{ tip.title }}</h3>
+                            <div>Tag：{% for tag in tip.tags.all %}<span class="tag me-2">{{ tag }}</span>{% endfor %}</div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-body">
-                    <label for="description">
-                        <strong style="border-bottom: solid 1px;">説明</strong>
-                    </label>
-                    <p id="description">{{ tip.description|linebreaks }}</p>
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <label class="mb-2">
+                                <strong style="border-bottom: solid 1px;">コード</strong>
+                            </label>
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                {% for code in tip.codes.all %}
+                                    <li class="nav-item" role="presentation" style="width: 150px;">
+                                        <a
+                                            class="nav-link tab-color code-tab {% if forloop.first %}active{% endif %} "
+                                            id="code-{{ forloop.counter0 }}-tab"
+                                            data-bs-toggle="tab"
+                                            href="#code-{{ forloop.counter0 }}"
+                                            role="tab"
+                                            aria-controls="code-{{ forloop.counter0 }}"
+                                            aria-selected="true">{% if code.filename %}{{ code.filename }}{% else %}No filename{% endif %}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                {% for code in tip.codes.all %}
+                                    <div
+                                        class="tab-pane fade{% if forloop.first %}show active{% endif %}"
+                                        id="code-{{ forloop.counter0 }}"
+                                        role="tabpanel"
+                                        aria-labelledby="code-{{ forloop.counter0 }}-tab">
+                                        <textarea class="code-content" readonly style="display:none;">{{ code.content }}</textarea>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <div class="card">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">ファイル：
-                        {% if tip.uploadfile %}
-                            <a href="{{ tip.uploadfile.url }}">{{ tip.uploadfile|get_filename }}</a>
-                        {% endif %}
-                    </li>
-                    <li class="list-group-item">ＵＲＬ ：
-                        {% if tip.url %}
-                            {{ tip.url|urlizetrunc:30 }}
-                        {% endif %}
-                    </li>
-                    <li class="list-group-item">公開範囲：{{ tip.public_set }}</li>
-                </ul>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <ul class="list-group list-group-flush">
-                    <li class="list-group-item">更新日時：{{ tip.updated_at }}</li>
-                    <li class="list-group-item">登録日時：{{ tip.created_at }}</li>
-                    <li class="list-group-item">登録者 ：{{ tip.created_by.username }}</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <!--お気に入り表示-->
-    {% if tip.public_set == 'public' %}
-        <div class="mb-3">
-            <small>{{ object.like_count }}人がお気に入りに入れています。</small>
-            {% if tip.created_by != request.user %}
-                {% if is_liked %}
-                    <a
-                    href="{% url 'app:delete_like' tip.pk %}"
-                    class="btn"
-                    style="background-color: #FFCC33; color: white;">お気に入りから外す</a>
-                {% else %}
-                    <a
-                        href="{% url 'app:add_like' tip.pk %}"
-                        class="btn"
-                        style="background-color: hotpink; color: white;">お気に入りに入れる</a>
-                {% endif %}
-            {% endif %}
-        </div>
-    {% endif %}
-    <!--//お気に入り表示-->
-    <div class="mb-3">
-        <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
-        {% if tip.created_by == request.user %}
-            <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-primary">更新</a>
-            <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-danger">削除</a>
-        {% endif %}
-    </div>
-    <!--コメント表示-->
-    {% if tip.public_set == 'public' %}
-        <div class="ui segment">
-            {% for comment in tip.comments.all %}
-                <div class="ui segment secondary" style="color: grey;">
-                    <p>{{ comment.no }}.
-                        {{ comment.created_by.username }}<br>{{ comment.created_at}}</p>
-                    <p>{{comment.text}}</p>
+            <div class="row mb-3">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-body">
+                            <label>
+                                <strong style="border-bottom: solid 1px;">説明</strong>
+                            </label>
+                            <p>{{ tip.description|linebreaks }}</p>
+                        </div>
+                    </div>
                 </div>
-                <hr>
-                {% empty %}
-                <div class="ui warning message">
-                    <p>まだコメントはありません</p>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <div class="card">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">ファイル：
+                                {% if tip.uploadfile %}
+                                    <a href="{{ tip.uploadfile.url }}">{{ tip.uploadfile|get_filename }}</a>
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item">ＵＲＬ&emsp;：
+                                {% if tip.url %}
+                                    {{ tip.url|urlizetrunc:30 }}
+                                {% endif %}
+                            </li>
+                            <li class="list-group-item">公開範囲：{{ tip.public_set }}</li>
+                        </ul>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-        <!--//コメント表示-->
-        <!--コメント投稿-->
-        <h4>コメント投稿</h4>
-        <div class="mb-3">
-            <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
-                {% csrf_token %}
+                <div class="col-md-6">
+                    <div class="card">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">更新日時：{{ tip.updated_at }}</li>
+                            <li class="list-group-item">登録日時：{{ tip.created_at }}</li>
+                            <li class="list-group-item">
+                                登録者&emsp;：
+                                {% if tip.created_by.icon %}
+                                    <img src="{{ tip.created_by.icon.url }}" class="icon-display">
+                                {% endif %}
+                                {{ tip.created_by.username }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!--お気に入り表示-->
+            {% if tip.public_set == 'public' %}
                 <div class="mb-3">
-                    <p>名前：{{ request.user.username }}</p>
-                    <p>コメント</p>
-                    {% render_field form.text class="form-control" %}
-                    {% for error in form.text.errors %}
-                        <p class="text-danger">{{ error }}</p>
+                    <small>{{ object.like_count }}人がお気に入りに入れています。</small>
+                    {% if tip.created_by != request.user %}
+                        {% if is_liked %}
+                            <a
+                            href="{% url 'app:delete_like' tip.pk %}"
+                            class="btn"
+                            style="background-color: #FFCC33; color: white;">お気に入りから外す</a>
+                        {% else %}
+                            <a
+                                href="{% url 'app:add_like' tip.pk %}"
+                                class="btn"
+                                style="background-color: hotpink; color: white;">お気に入りに入れる</a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            {% endif %}
+            <!--//お気に入り表示-->
+            <div class="mb-3">
+                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
+                {% if tip.created_by == request.user %}
+                    <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-primary">更新</a>
+                    <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-danger">削除</a>
+                {% endif %}
+            </div>
+            <!--コメント表示-->
+            {% if tip.public_set == 'public' %}
+                <div class="ui segment">
+                    {% for comment in tip.comments.all %}
+                        <div class="ui segment secondary" style="color: grey;">
+                            <p>{{ comment.no }}.
+                                {% if comment.created_by.icon %}
+                                    <img src="{{ comment.created_by.icon.url }}" class="icon-display">
+                                {% endif %}
+                                {{ comment.created_by.username }}<br>
+                                {{ comment.created_at}}</p>
+                            <p>{{comment.text}}</p>
+                        </div>
+                        <hr>
+                        {% empty %}
+                        <div class="ui warning message">
+                            <p>まだコメントはありません</p>
+                        </div>
                     {% endfor %}
                 </div>
-                <button type="submit" class="btn btn-success">投稿</button>
-            </form>
+                <!--//コメント表示-->
+                <!--コメント投稿-->
+                <h4>コメント投稿</h4>
+                <div class="mb-3">
+                    <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <p>名前：
+                                {% if request.user.icon %}
+                                    <img src="{{ request.user.icon.url }}" class="icon-display">
+                                {% endif %}
+                                {{ request.user.username }}</p>
+                            <p>コメント</p>
+                            {% render_field form.text class="form-control" %}
+                            {% for error in form.text.errors %}
+                                <p class="text-danger">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-success">投稿</button>
+                    </form>
+                </div>
+                <!--//コメント投稿-->
+            {% endif %}
         </div>
-        <!--//コメント投稿-->
-    {% endif %}
+    </div>
 
 {% endblock %}
 

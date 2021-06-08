@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
+{% load static %}
 
 {% block content %}
     <h2 class="my-3">{{ title }}</h2>
@@ -99,7 +100,11 @@
                         <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
                     </div>
                     <div class="card-footer text-muted text-center">
-                        <small>by&nbsp;{{ tip.created_by.username }}&nbsp;at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}
+                        <small>by&nbsp;
+                            {% if tip.created_by.icon %}
+                                <img src="{{ tip.created_by.icon.url }}" class="icon-display">
+                            {% endif %}
+                            {{ tip.created_by.username }}<br>at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}
                             {% if tip.public_set == 'private' %}
                                 <span class="text-danger">&nbsp;Private</span>
                             {% else %}
