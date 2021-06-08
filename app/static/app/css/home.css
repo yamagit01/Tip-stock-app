@@ -58,23 +58,23 @@ about
 }
 
 /*==============================
-course
+menu
 ==============================*/
-.course {
+.menu {
     background-color: #e3fcf4;
 }
 
-.course-wrapper {
+.menu-wrapper {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
 }
 
-.course-item {
+.menu-item {
     width: 30%;
 }
 
-.course-title {
+.menu-title {
     text-align: center;
 }
 
@@ -177,9 +177,9 @@ footer
     }
 
     /*==============================
-    course
+    menu
     ==============================*/
-    .course-item {
+    .menu-item {
         width: 100%;
         margin-bottom: 20px;
     }
