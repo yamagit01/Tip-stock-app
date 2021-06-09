@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     
     # Django added apps
     'django.forms',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +86,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'app.context_processors.tips_count'
+                'app.context_processors.tips_count',
+                'app.context_processors.notifications_count',
             ],
         },
     },
@@ -200,7 +202,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = 86400
 
 # privateのTipの投稿制限回数
-PRIVATE_TIPS_LIMIT = 20
+PRIVATE_TIPS_MAXNUM = 20
 
 # classが正しく設定されないメッセージのmessages.tagsの設定
 MESSAGE_TAGS = {

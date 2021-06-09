@@ -17,4 +17,5 @@ urlpatterns = [
     path('delete_like/<int:pk>/', views.delete_like, name='delete_like'),
     path('contact/', views.ContactView.as_view(), name='contact'),
     path('thanks/', views.ThanksView.as_view(), name='thanks'),
+    path('notifications/', views.notifications, name='notifications'),
 ]

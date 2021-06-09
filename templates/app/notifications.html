@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% load query %}
+
+{% block content %}
+    <h2 class="my-3 me-3">お知らせ</h2>
+    <div class="d-inline-flex mb-3">
+        <form action="{% url 'app:notifications' %}" method="get">
+            <button type="submit" name="display" value="unread" class="btn btn-outline-success">未確認のみ</button>
+            <button type="submit" name="display" value="all" class="btn btn-outline-secondary">全て</button>
+        </form>
+        <form action="{% url 'app:notifications' %}" method="get" class="ms-5" id="all-read">
+            <button type="button" class="btn btn-outline-danger" id="read-button">全て確認済にする</button>
+            <input type="hidden" name="all-read" value="done">
+            <input type="hidden" name="display" value="{{ request.build_absolute_uri|get_query:'display' }}">
+        </form>
+    </div>
+    {% if not notifications %}
+        <p>新しいお知らせはありません。</p>
+    {% endif %}
+
+    {% for notification in notifications %}
+        <div
+            class="card my-4 {% if notification.is_read %}already-read{% endif %}"
+            style="max-width: 800px;">
+            <div class="row">
+                <div class="col-2 px-0 d-flex align-items-center justify-content-center">
+                    {% if notification.category == 'event' %}
+                        <img src="{% static 'app/img/event.png' %}" width="64" height="64" style="object-fit: contain;">
+                    {% else %}
+                        <img
+                            src="
+                            {% if notification.created_by.icon %}
+                                {{ notification.created_by.icon.url }}
+                            {% else %}
+                                {% static 'accounts/img/noimage.png' %}
+                            {% endif %}"
+                            width="64"
+                            height="64"
+                            style="object-fit: contain;">
+                    {% endif %}
+                </div>
+                <div class="col-10 px-0">
+                    <div class="card-body">
+                        <p class="card-text">
+                            {% if notification.category == 'comment' %}
+                                <a href="{% url 'app:notifications' %}?goto=comment&notification={{ notification.id }}">
+                                    <strong>{{ notification.created_by.username }}</strong>
+                                    さんがあなたの「{{ notification.tip.title|truncatechars:15 }}」にコメントしました。</a><br>
+                                <small class="text-muted">受信:{{ notification.created_at|naturaltime }}</small>
+                                {% if notification.is_read %}
+                                    <small class="text-dark">確認済</small>
+                                {% else %}
+                                    <small class="text-danger">未確認</small>
+                                {% endif %}
+                            {% elif notification.category == 'event' %}
+                                <a href="{% url 'app:notifications' %}?goto=event&notification={{ notification.id }}">
+                                    「{{ notification.tip.title|truncatechars:15 }}」が<strong>{{ notification.content }}</strong><br>
+                                    <small class="text-muted">{{ notification.created_at|naturaltime }}</small>
+                                </a>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        $(function () {
+
+            $("#read-button").click(function () {
+                swal("全て既読にしてもよろしいですか？", {
+                    buttons: {
+                        yes: "はい",
+                        cancel: "キャンセル",
+                    },
+                })
+                .then((value) => {
+                    switch (value) {
+                    
+                        case "yes":
+                            $('#all-read').submit();
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                });
+            })
+        });
+    </script>
+
+{% endblock %}

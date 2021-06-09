@@ -14,7 +14,8 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView, View)
 
 from .forms import CommentForm, ContactForm, TipForm
-from .models import Like, Tip
+from .models import Like, Notification, Tip
+from .utilities import create_notification
 
 
 # tip作成者のみ処理可能
@@ -57,7 +58,7 @@ class TipDetail(LoginRequiredMixin, DetailView):
     def get_object(self):
         obj = super().get_object()
         # created_by!=request.user and private は表示不可
-        if obj.created_by != self.request.user and obj.public_set == 'private':
+        if obj.created_by != self.request.user and obj.public_set == Tip.PRIVATE:
             raise PermissionDenied('そのページは非公開です。')
         return obj
     
@@ -83,7 +84,7 @@ class TipList(LoginRequiredMixin, ListView):
                 Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
             )
         elif 'tip_public_list' in path:
-            queryset = Tip.objects.filter(public_set='public')
+            queryset = Tip.objects.filter(public_set=Tip.PUBLIC)
         else:
             raise Http404("そのページは存在しません。")
 
@@ -159,12 +160,18 @@ class TipDelete(OnlyMyTipMixin, DeleteView):
 @login_required
 def add_comment(request, pk):
     tip = get_object_or_404(Tip, pk=pk)
-    if tip.public_set == 'private':
+    if tip.public_set == Tip.PRIVATE:
             raise PermissionDenied('そのページにはコメントできません。')
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
             form.save_with_otherfields(tip, request.user)
+            
+            # Tip作成者以外がコメントを追加した場合、Tip作成者にお知らせ追加
+            # TODO 現状Tip作成者にのみお知らせを追加しているが、作成者からのコメント時等も検討
+            if request.user != tip.created_by:
+                create_notification(request, to_user=tip.created_by, category=Notification.COMMENT, tip=tip)
+            
             messages.success(request, 'コメントを追加しました。')
             return redirect('app:tip_detail', pk=pk)
         else:
@@ -180,7 +187,7 @@ def add_comment(request, pk):
 @login_required
 def add_like(request, pk):
     tip = get_object_or_404(Tip, pk=pk)
-    if tip.public_set == 'private' or tip.created_by == request.user:
+    if tip.public_set == Tip.PRIVATE or tip.created_by == request.user:
             raise PermissionDenied('そのページをお気に入りに追加することはできません。')
     like = Like.objects.filter(created_by=request.user).filter(tip=tip)
     if like.exists():
@@ -200,7 +207,7 @@ def add_like(request, pk):
 @login_required
 def delete_like(request, pk):
     tip = get_object_or_404(Tip, pk=pk)
-    if tip.public_set == 'private' or tip.created_by == request.user:
+    if tip.public_set == Tip.PRIVATE or tip.created_by == request.user:
             raise PermissionDenied('そのページからお気に入りを削除することはできません。')
     like = Like.objects.filter(created_by=request.user).filter(tip=tip)
     if not like.exists():
@@ -225,7 +232,7 @@ class ContactView(View):
             name = form.cleaned_data['name']
             email = form.cleaned_data['email']
             message = form.cleaned_data['message']
-            subject = '[Tip Stock]お問い合わせありがとうございます。'
+            subject = '[TipStock]お問い合わせありがとうございます。'
             contact = textwrap.dedent('''
                 ※このメールはシステムからの自動返信です。
 
@@ -268,3 +275,54 @@ class ContactView(View):
 
 class ThanksView(TemplateView):
     template_name = 'app/thanks.html'
+
+
+@login_required
+def notifications(request):
+    goto = request.GET.get('goto', '')
+    notification_id = request.GET.get('notification', 0)
+    notifications = Notification.objects.filter(to_user=request.user)
+
+    # お知らせをクリック
+    if goto != '':
+        try:
+            notification = notifications.get(pk=notification_id)
+        except Notification.DoesNotExist:
+            # url指定で自分以外のお知らせにアクセスしようとした場合
+            raise PermissionDenied('そのお知らせへのアクセスは禁止されています。')
+
+        if notification.is_read == False:
+            notification.is_read = True
+            notification.save()
+
+        if notification.category == Notification.COMMENT:
+            return redirect('app:tip_detail', pk=notification.tip.pk)
+        elif notification.category == Notification.EVENT:
+            return redirect('app:tip_detail', pk=notification.tip.pk)
+
+        # TODO 今後機能を追加した場合追加
+        # elif notification.category == Notification.MESSAGE:
+        #     return redirect('app:message', username=notification.created_by.username)
+        # elif notification.category == Notification.FOLLOW:
+        #     return redirect('app:follow', username=notification.to_user.username)
+
+    # 全て既読をクリック
+    all_read = request.GET.get('all-read', '')
+
+    if all_read == 'done':
+        update_notifications = []
+        for notification in notifications:
+            if notification.is_read == False:
+                notification.is_read = True
+                update_notifications.append(notification)
+        Notification.objects.bulk_update(update_notifications, fields=['is_read'])
+
+    # 全てをクリック
+    display = request.GET.get('display', '')
+
+    if display != 'all':
+        notifications = notifications.filter(is_read=False)
+
+    return render(request, 'app/notifications.html', {
+        'notifications': notifications
+    })

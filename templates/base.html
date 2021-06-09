@@ -20,12 +20,12 @@
             crossorigin="anonymous">
         <link rel="stylesheet" href="{% static 'app/css/style.css' %}">
         {% block extra_css%}{% endblock %}
-        <title>{% block title %}Tip Stock{% endblock %}</title>
+        <title>{% block title %}TipStock{% endblock %}</title>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a href="/" class="navbar-brand">Tip Stock</a>
+                <a href="/" class="navbar-brand">TipStock</a>
                 <button
                     class="navbar-toggler"
                     type="button"
@@ -43,13 +43,16 @@
                         </li>
                         {% if user.is_authenticated %}
                             <li class="nav-item">
-                                <a href="{% url 'app:tip_create' %}" class="nav-link">Tip Form</a>
+                                <a href="{% url 'app:tip_create' %}" class="nav-link">TipForm</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{% url 'app:tip_list' %}" class="nav-link">My Tips</a>
+                                <a href="{% url 'app:tip_list' %}" class="nav-link">MyTips</a>
                             </li>
                             <li class="nav-item">
-                                <a href="{% url 'app:tip_public_list' %}" class="nav-link">Public Tips</a>
+                                <a href="{% url 'app:tip_public_list' %}" class="nav-link">PublicTips</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'app:notifications' %}" class="nav-link">お知らせ ({{ notifications_count }})</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{% url 'accounts:profile' %}" class="nav-link">プロフィール</a>
@@ -88,7 +91,7 @@
         </main>
 
         <footer class="py-2 bg-dark">
-            <p class="m-0 text-center text-white copyright">Copyright &copy; Tip Stock 2021</p>
+            <p class="m-0 text-center text-white copyright">Copyright &copy; TipStock 2021</p>
         </footer>
 
         <script

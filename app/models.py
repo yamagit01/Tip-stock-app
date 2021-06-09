@@ -22,7 +22,6 @@ class Tip(models.Model):
     title = models.CharField(max_length=25)
     description = models.TextField()
     tags = TaggableManager()
-    # TODO filenameを変更(ハッシュ化, uuid)
     uploadfile = models.FileField(upload_to=_tip_uploadfile_upload_to, blank=True, null=True)
     url = models.URLField(blank=True, null=True)
     created_by = models.ForeignKey(get_user_model(), related_name='created_tip', on_delete=models.CASCADE)
@@ -100,3 +99,29 @@ class Like(models.Model):
     def get_absolute_url(self):
         return reverse('app:tip_detail', kwargs={'pk': self.tip.pk})
 
+
+class Notification(models.Model):
+    COMMENT = 'comment'
+    EVENT = 'event'
+    
+    # TODO 今後機能を追加したときに追加
+    # MESSAGE = 'message'
+    # FOLLOW = 'follow'
+
+    CHOICES = (
+        (COMMENT, 'コメント'),
+        (EVENT, 'イベント'),
+        # (MESSAGE, 'メッセージ'),
+        # (FOLLOW, 'フォロー'),
+    )
+
+    to_user = models.ForeignKey(get_user_model(), related_name='notification_to', on_delete=models.CASCADE)
+    category = models.CharField(max_length=20, choices=CHOICES)
+    tip = models.ForeignKey(Tip, related_name='notifications', on_delete=models.CASCADE, blank=True, null=True)
+    content = models.CharField(max_length=100, blank=True, null=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(get_user_model(), related_name='created_notification', on_delete=models.CASCADE, blank=True, null=True)
+
+    class Meta:
+        ordering =('is_read', '-created_at')

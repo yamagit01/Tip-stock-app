@@ -4,7 +4,7 @@
 {% block content %}{% autoescape off %}{% user_display user as user_display %}
 ユーザ名  {{ user_display }}  様
 
-Tip Stock サービスをご利用いただきありがとうございます。
+TipStock サービスをご利用いただきありがとうございます。
 本メールは、サービスへの本登録を実施していただくために送付しております。
 以下のリンクをクリックし、本登録を実施してください。
 

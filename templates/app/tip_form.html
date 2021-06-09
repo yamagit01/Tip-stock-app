@@ -3,13 +3,13 @@
 {% load static %}
 
 {% block extra_css%}
-<link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
-<link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
 {% endblock %}
 
 {% block content %}
-    <div class="row  justify-content-center">
-        <div class="col-9">
+    <div class="row">
+        <div class="col-10">
             <h2 class="my-3">Tip Form</h2>
             <form action="" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -22,12 +22,16 @@
                 </div>
                 <div class="form-group mb-3" id="code-form">
                     {{ form.formset.management_form }}
-                    <label>コード<span class="text-danger">（必須）</span><small>(ファイル名は任意)</small></label>
+                    <label>コード<span class="text-danger">（必須）</span>
+                        <small>(ファイル名は任意)</small>
+                    </label>
                     <button class="btn btn-outline-secondary add-code my-2">コードを追加</button>
-                    <p><span class="text-danger">※保存できるコードはTip１つにつき最大５つです。</span><br>
-                    <small>
-                        Formには５つ以上表示可能ですが、保存時にエラーとなります。<br>削除のチェックを入れるとカウントの対象外となります。
-                    </small></p>
+                    <p>
+                        <span class="text-danger">※保存できるコードはTip１つにつき最大５つです。</span><br>
+                        <small>
+                            Formには５つ以上表示可能ですが、保存時にエラーとなります。<br>削除のチェックを入れるとカウントの対象外となります。
+                        </small>
+                    </p>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         {% for formset_form in form.formset %}
                             {% for hidden in formset_form.hidden_fields %}
@@ -89,7 +93,8 @@
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>タグ<span class="text-danger">（必須）</span><small>(複数タグはカンマ(,)区切り)</small>
+                        <label>タグ<span class="text-danger">（必須）</span>
+                            <small>(複数タグはカンマ(,)区切り)</small>
                         </label>
                         {% render_field form.tags class="form-control" %}
                         {% for error in form.tags.errors %}
@@ -116,166 +121,175 @@
                             {{ radio.tag}}
                             <label class="me-3">{{ radio.choice_label }}
                                 {% if radio.choice_label == 'Private' %}
-                                    <span>(最大{{ private_tips_limit }}個)</span>
-                                {% endif%}
-                            </label>
-                        {% endfor %}
-                        {% for error in form.public_set.errors %}
-                            <p class="text-danger">{{ error }}</p>
-                        {% endfor %}
+                                    <span>(最大{{ private_tips_maxnum }}個)</span>
+                                    {% endif%}
+                                </label>
+                            {% endfor %}
+                            {% for error in form.public_set.errors %}
+                                <p class="text-danger">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                        {# non_field_errorを表示 #}
+                        {% include 'form_alert.html' %}
+                        <button type="submit" class="btn btn-primary">保存</button>
                     </div>
-                    {# non_field_errorを表示 #}
-                    {% include 'form_alert.html' %}
-                    <button type="submit" class="btn btn-primary">保存</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
 
-{% endblock %}
+    {% endblock %}
 
-{% block extra_js %}
-    <!-- CodeMirror用js -->
-    <script src="{% static 'app/js/codemirror/lib/codemirror.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/mode/meta.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/keymap/sublime.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/addon/display/autorefresh.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/addon/mode/loadmode.js' %}"></script>
+    {% block extra_js %}
+        <!-- CodeMirror用js -->
+        <script src="{% static 'app/js/codemirror/lib/codemirror.js' %}"></script>
+        <script src="{% static 'app/js/codemirror/mode/meta.js' %}"></script>
+        <script src="{% static 'app/js/codemirror/keymap/sublime.js' %}"></script>
+        <script src="{% static 'app/js/codemirror/addon/display/autorefresh.js' %}"></script>
+        <script src="{% static 'app/js/codemirror/addon/mode/loadmode.js' %}"></script>
 
-    <!-- tab追加用js -->
-    <script type="text/html" id="code-tab-template">
-        <li class="nav-item" role="presentation" style="width: 140px;">
-            <a
-                class="px-2 nav-link tab-color"
-                id="code-__prefix__-tab"
-                data-bs-toggle="tab"
-                href="#code-__prefix__"
-                role="tab"
-                aria-controls="code-__prefix__"
-                aria-selected="false"
-                draggable="false"
-                style="text-decoration: none">
-                {% render_field form.formset.empty_form.filename class="form-control code-tab", placeholder="ファイル名" %}
-            </a>
-        </li>
-    </script>
-    <script type="text/html" id="code-content-template">
-        <div
-            class="tab-pane fade"
-            id="code-__prefix__"
-            role="tabpanel"
-            aria-labelledby="code-__prefix__-tab">
-            {% render_field form.formset.empty_form.content class="form-control code-content" %}
-            <span class="ms-2">{% render_field form.formset.empty_form.DELETE class="code-delete" %}
-                （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
-        </div>
-    </script>
-    <script>
-        $(function () {
-            // 初期表示処理
-            CodeMirror.modeURL = "/static/app/js/codemirror/mode/%N/%N.js";
-            var code_editor_array = []
-            let code_tab = document.getElementsByClassName('code-tab');
-            let tab_pane = document.getElementsByClassName('tab-pane');
-            let code_delete = document.getElementsByClassName('code-delete');
-            for (var count = 0; count < code_tab.length; count++) {
-                // CodeMirror初期設定
-                let code_content = tab_pane[count].querySelector('.code-content');
-                var editor = CodeMirror.fromTextArea(code_content,
-                {
-                    lineNumbers: true,  // 行番号を表示する
-                    fixedGutter: true,  // 水平カーソル移動時、行番号表示
-                    autoRefresh: true,  // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
-                    keyMap: "sublime",  //  keymap設定
-                    theme: "mdn-like",  //  theme設定
+        <!-- tab追加用js -->
+        <script type="text/html" id="code-tab-template">
+            <li class="nav-item" role="presentation" style="width: 140px;">
+                <a
+                    class="px-2 nav-link tab-color"
+                    id="code-__prefix__-tab"
+                    data-bs-toggle="tab"
+                    href="#code-__prefix__"
+                    role="tab"
+                    aria-controls="code-__prefix__"
+                    aria-selected="false"
+                    draggable="false"
+                    style="text-decoration: none">
+                    {% render_field form.formset.empty_form.filename class="form-control code-tab", placeholder="ファイル名" %}
+                </a>
+            </li>
+        </script>
+        <script type="text/html" id="code-content-template">
+            <div
+                class="tab-pane fade"
+                id="code-__prefix__"
+                role="tabpanel"
+                aria-labelledby="code-__prefix__-tab">
+                {% render_field form.formset.empty_form.content class="form-control code-content" %}
+                <span class="ms-2">{% render_field form.formset.empty_form.DELETE class="code-delete" %}
+                    （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
+            </div>
+        </script>
+        <script>
+            $(function () {
+                // 初期表示処理
+                CodeMirror.modeURL = "/static/app/js/codemirror/mode/%N/%N.js";
+                var code_editor_array = []
+                let code_tab = document.getElementsByClassName('code-tab');
+                let tab_pane = document.getElementsByClassName('tab-pane');
+                let code_delete = document.getElementsByClassName('code-delete');
+                for (var count = 0; count < code_tab.length; count++) {
+                    // CodeMirror初期設定
+                    let code_content = tab_pane[count].querySelector('.code-content');
+                    var editor = CodeMirror.fromTextArea(code_content, {
+                        lineNumbers: true, // 行番号を表示する
+                        fixedGutter: true, // 水平カーソル移動時、行番号表示
+                        autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
+                        keyMap: "sublime", //  keymap設定
+                        theme: "mdn-like", //  theme設定
+                    });
+
+                    // ファイル名(拡張子)から対象の言語を判定
+                    let text = code_tab[count].value;
+                    console.log(text)
+                    var filename_info = CodeMirror.findModeByFileName(text);
+
+                    if (filename_info) {
+                        editor.setOption("mode", filename_info.mode);
+                        CodeMirror.autoLoadMode(editor, filename_info.mode);
+                    } else {
+                        // 判定できない場合、null(PlainText)モード
+                        editor.setOption("mode", "null");
+                    }
+
+                    code_editor_array.push(editor)
+
+                    // 削除チェック時にコードの入力エリアをグレー(網掛け)表示(エラー時にチェックがついた状態でのリターンケースで必要)
+                    let code_mirror_content = tab_pane[count].querySelector(".CodeMirror");
+                    if ($(code_delete[count]).prop('checked')) {
+                        code_tab[count]
+                            .classList
+                            .add('delete-color')
+                        code_mirror_content
+                            .classList
+                            .add('delete-color')
+                    }
+                }
+
+                // 変更時処理 追加ボタン処理
+                $('.add-code').click(function (e) {
+                    // tab追加処理(totalのform数を基にid等を編集して追加)
+                    e.preventDefault();
+                    var form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
+                    var tmpl_tab = $('#code-tab-template').html();
+                    var tmpl_content = $('#code-content-template').html();
+                    var new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
+                    var new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
+                    $('#myTab').append(new_tag_form);
+                    $('#myTabContent').append(new_content_form);
+                    $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
+
+                    // CodeMirror初期設定
+                    var editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`), {
+                        lineNumbers: true, // 行番号を表示する
+                        fixedGutter: true, // 水平カーソル移動時、行番号表示
+                        autoRefresh: true, // 描画後にリフレッシュ(初期表示時は座標が取得できず表示がうまくいかない)
+                        keyMap: "sublime", //  keymap設定
+                        theme: "mdn-like", //  theme設定
+                    });
+                    code_editor_array.push(editor)
                 });
 
-                // ファイル名(拡張子)から対象の言語を判定
-                let text = code_tab[count].value;
-                console.log(text)
-                var filename_info = CodeMirror.findModeByFileName(text);
+                // ファイル名の拡張子に応じてCodeMirrorのmode変更処理
+                $(document).on('change', '.code-tab', function (e) {
+                    // tabのファイル名を変更した要素のeditorを取得
+                    let id = e.target.id;
+                    let id_num = id.replace(/[^0-9]/g, '');
+                    let target_editor = code_editor_array[Number(id_num)];
 
-                if (filename_info){
-                    editor.setOption("mode", filename_info.mode);
-                    CodeMirror.autoLoadMode(editor, filename_info.mode);
-                } else {
-                    // 判定できない場合、null(PlainText)モード
-                    editor.setOption("mode", "null");
-                }
+                    // ファイル名(拡張子)から対象の言語を判定
+                    let text = $(e.target).val();
+                    var filename_info = CodeMirror.findModeByFileName(text);
 
-                code_editor_array.push(editor)
-
-                // 削除チェック時にコードの入力エリアをグレー(網掛け)表示(エラー時にチェックがついた状態でのリターンケースで必要)
-                let code_mirror_content = tab_pane[count].querySelector(".CodeMirror");
-                if( $(code_delete[count]).prop('checked') ){
-                    code_tab[count].classList.add('delete-color')
-                    code_mirror_content.classList.add('delete-color')
-                }
-            }
-
-            // 変更時処理
-            // 追加ボタン処理
-            $('.add-code').click(function (e) {
-                // tab追加処理(totalのform数を基にid等を編集して追加)
-                e.preventDefault();
-                var form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
-                var tmpl_tab = $('#code-tab-template').html();
-                var tmpl_content = $('#code-content-template').html();
-                var new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
-                var new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
-                $('#myTab').append(new_tag_form);
-                $('#myTabContent').append(new_content_form);
-                $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
-
-                // CodeMirror初期設定
-                var editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`),
-                {
-                    lineNumbers: true,  // 行番号を表示する
-                    fixedGutter: true,  // 水平カーソル移動時、行番号表示
-                    autoRefresh: true,  // 描画後にリフレッシュ(初期表示時は座標が取得できず表示がうまくいかない)
-                    keyMap: "sublime",  //  keymap設定
-                    theme: "mdn-like",  //  theme設定
+                    if (filename_info) {
+                        target_editor.setOption("mode", filename_info.mode);
+                        CodeMirror.autoLoadMode(target_editor, filename_info.mode);
+                    } else {
+                        // 判定できない場合、null(PlainText)モード
+                        target_editor.setOption("mode", "null");
+                    }
                 });
-                code_editor_array.push(editor)
-            });
+                // 削除チェック時にコードの入力エリアをグレー(網掛け)表示
+                $(document).on('change', '.code-delete', function (e) {
+                    let id = e.target.id;
+                    let id_num = id.replace(/[^0-9]/g, '');
 
-            // ファイル名の拡張子に応じてCodeMirrorのmode変更処理
-            $(document).on('change', '.code-tab', function(e) {
-                // tabのファイル名を変更した要素のeditorを取得
-                let id = e.target.id;
-                let id_num = id.replace(/[^0-9]/g, '');
-                let target_editor = code_editor_array[Number(id_num)];
+                    let tab = document.getElementById(`id_codes-${id_num}-filename`);
+                    let content = document.querySelector(`#code-${id_num} .CodeMirror`);
+                    if ($(e.target).prop('checked')) {
+                        tab
+                            .classList
+                            .add('delete-color')
+                        content
+                            .classList
+                            .add('delete-color')
+                    } else {
+                        tab
+                            .classList
+                            .remove('delete-color')
+                        content
+                            .classList
+                            .remove('delete-color')
+                    }
 
-                // ファイル名(拡張子)から対象の言語を判定
-                let text = $(e.target).val();
-                var filename_info = CodeMirror.findModeByFileName(text);
-
-                if (filename_info){
-                    target_editor.setOption("mode", filename_info.mode);
-                    CodeMirror.autoLoadMode(target_editor, filename_info.mode);
-                } else {
-                    // 判定できない場合、null(PlainText)モード
-                    target_editor.setOption("mode", "null");
-                }
-            });
-            // 削除チェック時にコードの入力エリアをグレー(網掛け)表示
-            $(document).on('change', '.code-delete', function(e) {
-                let id = e.target.id;
-                let id_num = id.replace(/[^0-9]/g, '');
-
-                let tab = document.getElementById(`id_codes-${id_num}-filename`);
-                let content = document.querySelector(`#code-${id_num} .CodeMirror`);
-                if( $(e.target).prop('checked') ){
-                    tab.classList.add('delete-color')
-                    content.classList.add('delete-color')
-                }else{
-                    tab.classList.remove('delete-color')
-                    content.classList.remove('delete-color')
-                }
+                });
 
             });
+        </script>
 
-        });
-    </script>
-
-{% endblock %}
+    {% endblock %}

@@ -10,22 +10,23 @@
     <section class="top">
         <div>
             <p class="top-title">
-                Tip Stock
+                TipStock
             </p>
             <p class="top-subtitle">
-                コードをTipに保存して<br>すぐ見つけ出せるようにしよう！<br><small>(改善点・要望はお問い合わせから)</small>
+                コードをTipに保存して<br>すぐ見つけ出せるようにしよう！<br>
+                <small>(改善点・要望はお問い合わせから)</small>
             </p>
         </div>
     </section>
 
     <section class="about section">
         <div class="clear">
-            <h2 class="section-title">Tip Stockとは</h2>
+            <h2 class="section-title">TipStockとは</h2>
             <div class="about-left">
-                <img src="{% static 'app/img/about.png' %}" alt="Tip Stockとは">
+                <img src="{% static 'app/img/about.png' %}" alt="TipStockとは">
             </div>
             <div class="about-right">
-                <p>「Tip Stock」はコードをTipとして保存しておくことで、後からいつでも確認できるシンプルなサービスです。</p>
+                <p>「TipStock」はコードをTipとして保存しておくことで、後からいつでも確認できるシンプルなサービスです。</p>
                 <p>コーディングしている時、「ここのコードどう書くんだったっけ？」のような、書いたことはあるけど思い出せないようなことはありませんか。私自身よくあります。
                     その際、参考書やWeb検索などで調べるわけですが、たった数行でも意外と時間がかかったします。
                     コードを見ればこれだ！とわかるのに、そのコードになかなか辿りつけない。これは、コード以外の情報量が多いからだと感じました。</p>
@@ -33,7 +34,8 @@
                     本サービスは本当にちょっとしたコードを対象にし、基本的には個人が見返すための利用を考えています。
                     ただ、情報共有することは私を含めた困っている人達の大きな手助けとなるため、保存したTipは公開(*)を前提としています。</p>
                 <p>TipをどんどんStockして効率的に開発をしていきましょう。</p>
-                <p><small>(*)Tip毎に公開・非公開を選択できますが、公開を推奨したいため非公開の保存数を制限しています。({{ private_tips_limit }}個)</small></p>
+                <p><small>(*)Tip毎に公開・非公開を選択できますが、公開を推奨したいため非公開の保存数を制限しています。({{ private_tips_maxnum }}個)</small>
+                </p>
             </div>
         </div>
     </section>
