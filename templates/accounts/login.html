@@ -37,16 +37,16 @@
                     {% endfor %}
                 </div>
                 <div class="button mx-auto text-center">
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">ログイン</button>
+                    <button class="btn btn-custom btn-lg btn-primary btn-block" type="submit">ログイン</button>
                 </div>
             </form>
         </div>
         <p class="mx-auto mb-1">ソーシャルアカウントでログイン</p>
         <div class="button-social mx-auto mb-2">
-            <a href="{% provider_login_url 'google' %}" class="btn btn-social btn-google"><span class="fab fa-google"></span>Googleでログイン</a>
+            <a href="{% provider_login_url 'google' %}" class="btn btn-custom btn-social btn-google"><span class="fab fa-google"></span>Googleでログイン</a>
         </div>
         <div class="button-social mx-auto  mb-4">
-            <a href="{% provider_login_url 'github' %}" class="btn btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでログイン</a>
+            <a href="{% provider_login_url 'github' %}" class="btn btn-custom btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでログイン</a>
         </div>
         <div class="mx-auto mb-1 text-center">
             <p>ユーザ登録したい方は <a href="{{ signup_url }}">ここから登録</a></p>

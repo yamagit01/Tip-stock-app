@@ -307,7 +307,7 @@ def notifications(request):
         #     return redirect('app:follow', username=notification.to_user.username)
 
     # 全て既読をクリック
-    all_read = request.GET.get('all-read', '')
+    all_read = request.GET.get('allRead', '')
 
     if all_read == 'done':
         update_notifications = []

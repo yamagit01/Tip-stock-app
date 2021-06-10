@@ -42,7 +42,7 @@
                 {% include 'form_alert.html' %}
                 <p><small>サインアップすると仮登録されます。<br>入力したメールアドレスに本登録用のメールを送信しますので、引き続き本登録を実施してください。</small></p>
                 <div class="button mx-auto text-center">
-                    <button class="btn btn-lg btn-primary btn-block" type="submit">サインアップ</button>
+                    <button class="btn btn-custom btn-lg btn-primary btn-block" type="submit">サインアップ</button>
                 </div>
             </form>
         </div>
@@ -51,10 +51,10 @@
             <p><small>（GitHubは仮登録(メール認証が必要)となります）</small></p>
         </div>
         <div class="button-social mx-auto mb-2">
-            <a href="{% provider_login_url 'google' %}" class="btn btn-social btn-google"><span class="fab fa-google"></span>Googleでサインアップ</a>
+            <a href="{% provider_login_url 'google' %}" class="btn btn-custom btn-social btn-google"><span class="fab fa-google"></span>Googleでサインアップ</a>
         </div>
         <div class="button-social mx-auto  mb-2">
-            <a href="{% provider_login_url 'github' %}" class="btn btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでサインアップ</a>
+            <a href="{% provider_login_url 'github' %}" class="btn btn-custom btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでサインアップ</a>
         </div>
             <p class="mt-2 text-center">既にアカウントを持っている方は<br><a href="{{ login_url }}">ここからログイン</a>してください.</p>
     </div>

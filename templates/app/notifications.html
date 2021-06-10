@@ -7,12 +7,12 @@
     <h2 class="my-3 me-3">お知らせ</h2>
     <div class="d-inline-flex mb-3">
         <form action="{% url 'app:notifications' %}" method="get">
-            <button type="submit" name="display" value="unread" class="btn btn-outline-success">未確認のみ</button>
-            <button type="submit" name="display" value="all" class="btn btn-outline-secondary">全て</button>
+            <button type="submit" name="display" value="unread" class="btn btn-custom btn-outline-success">未確認のみ</button>
+            <button type="submit" name="display" value="all" class="btn btn-custom btn-outline-secondary">全て</button>
         </form>
         <form action="{% url 'app:notifications' %}" method="get" class="ms-5" id="all-read">
-            <button type="button" class="btn btn-outline-danger" id="read-button">全て確認済にする</button>
-            <input type="hidden" name="all-read" value="done">
+            <button type="button" class="btn btn-custom btn-outline-danger" id="read-button">全て確認済にする</button>
+            <input type="hidden" name="allRead" value="done">
             <input type="hidden" name="display" value="{{ request.build_absolute_uri|get_query:'display' }}">
         </form>
     </div>

@@ -11,7 +11,7 @@
                 <form method="post">
                     {% csrf_token %}
                     <p>以下の内容を本当に削除しますか？</p>
-                    <input type="submit" class="btn btn-danger" value="削除する">
+                    <input type="submit" class="btn btn-custom btn-danger" value="削除する">
                 </form>
             </div>
 
@@ -22,7 +22,7 @@
             <p>説明</p>
             {{ tip.description|linebreaks }}
             <div class="my-3">
-                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
+                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-custom btn-outline-dark">戻る</a>
             </div>
 
         </div>

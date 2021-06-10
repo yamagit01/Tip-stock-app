@@ -11,6 +11,7 @@ top
 .top {
     background-image: url(../img/home-bg.jpg);
     background-size: cover;
+    background-position: center top;
     padding: 80px 0;
 }
 

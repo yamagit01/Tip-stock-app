@@ -126,10 +126,10 @@
             {% endif %}
             <!--//お気に入り表示-->
             <div class="mb-3">
-                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-outline-dark">戻る</a>
+                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-custom btn-outline-dark">戻る</a>
                 {% if tip.created_by == request.user %}
-                    <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-primary">更新</a>
-                    <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-danger">削除</a>
+                    <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-custom btn-primary">更新</a>
+                    <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-custom btn-danger">削除</a>
                 {% endif %}
             </div>
             <!--コメント表示-->
@@ -170,7 +170,7 @@
                                 <p class="text-danger">{{ error }}</p>
                             {% endfor %}
                         </div>
-                        <button type="submit" class="btn btn-success">投稿</button>
+                        <button type="submit" class="btn btn-custom btn-success">投稿</button>
                     </form>
                 </div>
                 <!--//コメント投稿-->

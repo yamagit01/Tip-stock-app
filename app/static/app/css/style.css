@@ -44,7 +44,7 @@ a {
     max-width: 200px;
 }
 
-.btn {
+.btn-custom {
     font-size: 80%;
     border-radius: 5rem;
     font-weight: bold;
@@ -157,12 +157,55 @@ a {
     background-color: lightgray;
 }
 
-#dialog {
-    width: 250px;
-    margin: auto;
-    padding: 30px 20px;
-    display: none;
-    text-align: center;
-    border: 1px solid #aaa;
-    box-shadow: 2px 2px 4px #888;
+.display-order {
+    display: inline;
+}
+
+.search-target {
+    display: inline;
+}
+
+.search-form {
+    display: inline;
+}
+
+.query-search {
+    width: 200px;
+    display: inline;
+
+}
+
+.tag-search {
+    width: 150px;
+    display: inline;
+}
+
+
+@media only screen and (max-width:767px) {
+
+    .profile_table .header,
+    .profile_table .data{
+        display: block;
+        max-width: 100%;
+    }
+
+    .display-order {
+        display: block;
+    }
+
+    .search-target {
+        display: block;
+    }
+
+    .query-search {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 13px;
+    }
+
+    .tag-search {
+        display: block;
+        font-size: 13px;
+    }
+
 }
