@@ -183,6 +183,10 @@ a {
 
 @media only screen and (max-width:767px) {
 
+    .profile_table {
+        table-layout: fixed;
+    }
+
     .profile_table .header,
     .profile_table .data{
         display: block;
