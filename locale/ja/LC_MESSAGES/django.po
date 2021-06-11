@@ -31,3 +31,7 @@ msgid ""
 msgstr ""
 "%sアカウントで使用されているこのメールアドレスは既に使用されています。"
 "確認してください。"
+
+#: templates/account/messages/password_set.txt:2
+msgid "Password successfully set."
+msgstr "パスワードの設定が完了しました。"

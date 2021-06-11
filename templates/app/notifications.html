@@ -10,8 +10,8 @@
             <button type="submit" name="display" value="unread" class="btn btn-custom btn-outline-success">未確認のみ</button>
             <button type="submit" name="display" value="all" class="btn btn-custom btn-outline-secondary">全て</button>
         </form>
-        <form action="{% url 'app:notifications' %}" method="get" class="ms-5" id="all-read">
-            <button type="button" class="btn btn-custom btn-outline-danger" id="read-button">全て確認済にする</button>
+        <form action="{% url 'app:notifications' %}" method="get" class="ms-4" id="all-read">
+            <button type="button" class="btn btn-custom btn-warning" id="read-button">全て確認済にする</button>
             <input type="hidden" name="allRead" value="done">
             <input type="hidden" name="display" value="{{ request.build_absolute_uri|get_query:'display' }}">
         </form>
@@ -25,9 +25,9 @@
             class="card my-4 {% if notification.is_read %}already-read{% endif %}"
             style="max-width: 800px;">
             <div class="row">
-                <div class="col-2 px-0 d-flex align-items-center justify-content-center">
+                <div class="col-3 col-md-2 px-0 d-flex align-items-center justify-content-center">
                     {% if notification.category == 'event' %}
-                        <img src="{% static 'app/img/event.png' %}" width="64" height="64" style="object-fit: contain;">
+                        <img src="{% static 'app/img/event.png' %}" class="notification-icon">
                     {% else %}
                         <img
                             src="
@@ -36,13 +36,11 @@
                             {% else %}
                                 {% static 'accounts/img/noimage.png' %}
                             {% endif %}"
-                            width="64"
-                            height="64"
-                            style="object-fit: contain;">
+                            class="notification-icon">
                     {% endif %}
                 </div>
-                <div class="col-10 px-0">
-                    <div class="card-body">
+                <div class="col-9 col-md-10 px-0">
+                    <div class="card-body notification-body">
                         <p class="card-text">
                             {% if notification.category == 'comment' %}
                                 <a href="{% url 'app:notifications' %}?goto=comment&notification={{ notification.id }}">

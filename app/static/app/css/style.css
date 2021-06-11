@@ -110,6 +110,10 @@ a {
     border-radius: 2rem;
 }
 
+.public-set-form {
+    display: inline;
+}
+
 .tab-color {
     color: black !important;
     border: solid 0.5px !important;
@@ -197,6 +201,18 @@ a {
 	opacity: 0.6;
 }
 
+.notification-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.auth-message-title,
+.auth-message-content {
+    text-align: center;
+}
+
+
 @media only screen and (max-width:767px) {
 
     .profile_table {
@@ -207,6 +223,10 @@ a {
     .profile_table .data{
         display: block;
         max-width: 100%;
+    }
+
+    .public-set-form {
+        display: block;
     }
 
     .display-order {
@@ -220,12 +240,35 @@ a {
     .query-search {
         display: block;
         margin-bottom: 5px;
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .tag-search {
         display: block;
-        font-size: 13px;
+        font-size: 14px;
+    }
+
+    .notification-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .notification-body {
+        padding: 16px;
+        font-size: 14px;
+    }
+
+    .auth-message-title {
+        font-size: 18px;
+    }
+
+    .auth-message-content {
+        text-align: left;
+        font-size: 14px;
+    }
+
+    .password-set {
+        font-size: 14px;
     }
 
 }

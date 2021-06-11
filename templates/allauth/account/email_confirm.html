@@ -7,8 +7,8 @@
 
     <div class="card card-profile my-5 mx-auto">
         <div class="card-body">
-            <div class="card-title text-center">ユーザ本登録</div>
-            <div class="text-center">
+            <div class="card-title auth-message-title">ユーザ本登録</div>
+            <div class="auth-message-content">
                 {% if confirmation %}
                     {% user_display confirmation.email_address.user as user_display %}
                     <p>{{ confirmation.email_address.email }}は{{ user_display }}さんのメールアドレスで間違いありませんか。

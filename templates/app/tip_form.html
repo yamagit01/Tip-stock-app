@@ -116,26 +116,28 @@
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label class="me-3">公開範囲</label>
-                        {% for radio in form.public_set %}
-                            {{ radio.tag}}
-                            <label class="me-3">{{ radio.choice_label }}
-                                {% if radio.choice_label == 'Private' %}
-                                    <span>(最大{{ private_tips_maxnum }}個)</span>
+                        <label class="me-3 ">公開範囲</label>
+                        <div class="public-set-form">
+                            {% for radio in form.public_set %}
+                                {{ radio.tag }}
+                                <label class="me-3">{{ radio.choice_label }}
+                                    {% if radio.choice_label == 'Private' %}
+                                        <span>(最大{{ private_tips_maxnum }}個)</span>
                                     {% endif%}
                                 </label>
                             {% endfor %}
-                            {% for error in form.public_set.errors %}
-                                <p class="text-danger">{{ error }}</p>
-                            {% endfor %}
                         </div>
-                        {# non_field_errorを表示 #}
-                        {% include 'form_alert.html' %}
-                        <button type="submit" class="btn btn-custom btn-primary">保存</button>
+                        {% for error in form.public_set.errors %}
+                            <p class="text-danger">{{ error }}</p>
+                        {% endfor %}
                     </div>
-                </form>
-            </div>
+                    {# non_field_errorを表示 #}
+                    {% include 'form_alert.html' %}
+                    <button type="submit" class="btn btn-custom btn-primary">保存</button>
+                </div>
+            </form>
         </div>
+    </div>
 
     {% endblock %}
 

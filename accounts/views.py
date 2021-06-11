@@ -3,6 +3,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.views import View
 
 from accounts.forms import ProfileForm
@@ -60,3 +61,11 @@ def logout_view(request):
 
 class SignupView(views.SignupView):
     template_name = 'accounts/signup.html'
+
+
+class PasswordChangeView(LoginRequiredMixin, views.PasswordChangeView):
+    success_url = reverse_lazy('accounts:profile')
+
+
+class PasswordSetView(LoginRequiredMixin, views.PasswordSetView):
+    success_url = reverse_lazy('accounts:profile')
