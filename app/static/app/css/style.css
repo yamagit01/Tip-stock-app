@@ -1,3 +1,5 @@
+@charset"utf-8";
+
 * {
     margin: 0;
     padding: 0;
@@ -10,8 +12,14 @@ body {
     flex-flow: column;
     min-height: 100vh;
     color: #082b48;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-family:  -apple-system, BlinkMacSystemFont, Roboto, "Segoe UI",
+    "Helvetica Neue", HelveticaNeue, YuGothic, "Yu Gothic Medium", "Yu Gothic", Verdana, Meiryo, sans-serif;
     line-height: 1.5;
+}
+
+b, strong, .bold{
+	font-family: -apple-system, BlinkMacSystemFont, Roboto, "Segoe UI semibold", "Helvetica Neue",
+    HelveticaNeue, YuGothic, "Yu Gothic", "Segoe UI", Verdana, Meiryo, sans-serif;
 }
 
 main {
@@ -180,6 +188,14 @@ a {
     display: inline;
 }
 
+.card-effect{
+    box-shadow: 0px 6px 8px #999;
+}
+
+.card-effect:hover {
+	box-shadow: 0px 1px 2px #aaa;
+	opacity: 0.6;
+}
 
 @media only screen and (max-width:767px) {
 

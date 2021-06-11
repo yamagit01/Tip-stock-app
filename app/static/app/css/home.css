@@ -1,9 +1,4 @@
-.clear::after {
-    content: "";
-    clear: both;
-    display: block;
-}
-
+@charset"utf-8";
 
 /*==============================
 top
@@ -56,6 +51,12 @@ about
 .about-right {
     float: right;
     width: 48%;
+}
+
+.clear::after {
+    content: "";
+    clear: both;
+    display: block;
 }
 
 /*==============================

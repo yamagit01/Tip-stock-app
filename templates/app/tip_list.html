@@ -57,20 +57,20 @@
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
         {% for tip in object_list %}
             <div class="col">
-                <div class="card h-80">
+                <div class="card h-80 card-effect">
                     <div class="card-header">
                         {% for tag in tip.tags.all|slice:":3" %}
                             {% if forloop.counter == 3%}
                                 etc
                             {% else %}
-                                <span class="tag">{{ tag }}</span>
+                                <span class="tag">{{ tag|truncatechars:10 }}</span>
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <div class="card-body py-3">
+                    <div class="card-body p-3">
                         <div class="card-text">
-                            <p><strong>{{ tip.title|truncatechars:15 }}</strong></p>
-                            <p><small>{{ tip.description|truncatechars:50 }}</small></p>
+                            <p class="mb-1"><strong>{{ tip.title|truncatechars:15 }}</strong></p>
+                            <p class="mb-1"><small>{{ tip.description|truncatechars:50 }}</small></p>
                         </div>
                         <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
                     </div>
@@ -79,16 +79,15 @@
                             {% if tip.created_by.icon %}
                                 <img src="{{ tip.created_by.icon.url }}" class="icon-display">
                             {% endif %}
-                            {{ tip.created_by.username }}<br>at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}
+                            {{ tip.created_by.username|truncatechars:20 }}<br>at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}&nbsp;
                             {% if tip.public_set == 'private' %}
-                                <span class="text-danger">&nbsp;Private</span>
+                                <span class="text-danger">Private</span>
                             {% else %}
                                 <i class="fas fa-heart" style="color: pink;"></i>&nbsp;{{ tip.like_count }}
                             {% endif %}
                         </small>
                     </div>
                 </div>
-                <br>
             </div>
 
             {% empty %}
