@@ -19,7 +19,7 @@ class Tip(models.Model):
         (PUBLIC, 'Public'),
     )
 
-    title = models.CharField(max_length=25)
+    title = models.CharField(max_length=50)
     description = models.TextField()
     tags = TaggableManager()
     uploadfile = models.FileField(upload_to=_tip_uploadfile_upload_to, blank=True, null=True)
@@ -51,7 +51,7 @@ class Tip(models.Model):
 
 class Code(models.Model):
     tip = models.ForeignKey(Tip, related_name='codes', on_delete=models.CASCADE)
-    filename = models.CharField(max_length=25, blank=True, null=True)
+    filename = models.CharField(max_length=30, blank=True, null=True)
     content = models.TextField()
 
     class Meta:
