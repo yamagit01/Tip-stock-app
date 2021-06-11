@@ -71,9 +71,10 @@
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
     <script>
         $(function () {
-
+            // 全て既読ボタンクリック時のダイアログ表示
             $("#read-button").click(function () {
                 swal("全て既読にしてもよろしいですか？", {
+                    icon: 'warning',
                     buttons: {
                         yes: "はい",
                         cancel: "キャンセル",

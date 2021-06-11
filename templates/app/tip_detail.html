@@ -10,7 +10,7 @@
 
 {% block content %}
 
-    <div class="row justify-content-center my-3">
+    <div class="row my-3">
         <div class="col-md-10">
             <div class="row my-3">
                 <div class="col">
@@ -113,12 +113,12 @@
                         {% if is_liked %}
                             <a
                             href="{% url 'app:delete_like' tip.pk %}"
-                            class="btn"
-                            style="background-color: #FFCC33; color: white;">お気に入りから外す</a>
+                            class="btn btn-sm"
+                            style="background-color: orange; color: white;">お気に入りから外す</a>
                         {% else %}
                             <a
                                 href="{% url 'app:add_like' tip.pk %}"
-                                class="btn"
+                                class="btn btn-sm"
                                 style="background-color: hotpink; color: white;">お気に入りに入れる</a>
                         {% endif %}
                     {% endif %}
@@ -129,7 +129,10 @@
                 <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-custom btn-outline-dark">戻る</a>
                 {% if tip.created_by == request.user %}
                     <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-custom btn-primary">更新</a>
-                    <a href="{% url 'app:tip_delete' tip.pk %}" class="btn btn-custom btn-danger">削除</a>
+                    <form method="post" action="{% url 'app:tip_delete' tip.pk %}" id="delete-form" class="d-inline">
+                        {% csrf_token %}
+                        <button type="button" class="btn btn-custom btn-danger" id="delete-button">削除</button>
+                    </form>
                 {% endif %}
             </div>
             <!--コメント表示-->
@@ -186,6 +189,7 @@
     <script src="{% static 'app/js/codemirror/mode/meta.js' %}"></script>
     <script src="{% static 'app/js/codemirror/addon/display/autorefresh.js' %}"></script>
     <script src="{% static 'app/js/codemirror/addon/mode/loadmode.js' %}"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
         $(function () {
@@ -212,6 +216,28 @@
                     CodeMirror.autoLoadMode(editor, filename_info.mode);
                 }
             }
+
+            // 削除ボタンクリック時のダイアログ表示
+            $("#delete-button").click(function () {
+                swal("本当に削除にしてもよろしいですか？", {
+                    icon: 'warning',
+                    buttons: {
+                        yes: "はい",
+                        cancel: "キャンセル",
+                    },
+                })
+                .then((value) => {
+                    switch (value) {
+                    
+                        case "yes":
+                            $("#delete-form").submit();
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                });
+            })
         });
     </script>
 
