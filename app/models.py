@@ -86,6 +86,8 @@ class Comment(models.Model):
 class Like(models.Model):
     tip = models.ForeignKey(Tip, related_name='likes', on_delete=models.CASCADE)
     created_by = models.ForeignKey(get_user_model(), related_name='created_like', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     
     class Meta:
         db_table = 'like'
