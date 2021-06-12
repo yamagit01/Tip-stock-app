@@ -1,11 +1,5 @@
 @charset"utf-8";
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
 body {
     background: #f1f1f1;
     display: flex;
@@ -35,6 +29,10 @@ a {
     width: 90%;
     max-width: 980px;
     margin: auto;
+}
+
+.copyright {
+    font-size: 12px;
 }
 
 .card-profile {
@@ -214,6 +212,10 @@ a {
 
 
 @media only screen and (max-width:767px) {
+
+    .copyright {
+        font-size: 10px;
+    }
 
     .profile_table {
         table-layout: fixed;

@@ -73,7 +73,7 @@ class TipDetail(LoginRequiredMixin, DetailView):
 
 class TipList(LoginRequiredMixin, ListView):
     model = Tip
-    paginate_by = 9
+    paginate_by = 12
 
     def get_queryset(self):
         path = self.request.path_info
