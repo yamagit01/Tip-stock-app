@@ -35,7 +35,7 @@ class ProfileEditView(LoginRequiredMixin, View):
         
     def post(self, request, *args, **kwargs):
         user_data = User.objects.get(id=request.user.id)
-        form = ProfileForm(request.POST or None, instance=user_data)
+        form = ProfileForm(request.POST or None, request.FILES or None, instance=user_data)
 
         if form.is_valid():
             user_data.username = form.cleaned_data.get('username')

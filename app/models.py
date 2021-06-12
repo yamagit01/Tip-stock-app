@@ -5,6 +5,8 @@ from django.db import models
 from django.urls import reverse
 from taggit.managers import TaggableManager
 
+from .validators import FileSizeValidator
+
 
 def _tip_uploadfile_upload_to(instance, filename):
     return f'uploadfiles/{str(uuid.uuid4())}-{filename}'
@@ -22,7 +24,8 @@ class Tip(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
     tags = TaggableManager()
-    uploadfile = models.FileField(upload_to=_tip_uploadfile_upload_to, blank=True, null=True)
+    uploadfile = models.FileField(upload_to=_tip_uploadfile_upload_to, blank=True, null=True,
+                                  validators=[FileSizeValidator(val=3, byte_type="mb")])
     url = models.URLField(blank=True, null=True)
     created_by = models.ForeignKey(get_user_model(), related_name='created_tip', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

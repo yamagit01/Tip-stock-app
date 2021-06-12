@@ -93,8 +93,8 @@
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>タグ (言語やフレームワーク等)<span class="text-danger">（必須）</span>
-                            <small>(複数タグはカンマ(,)区切り)</small>
+                        <label>タグ<span class="text-danger">（必須）</span>
+                            <small>(言語やフレームワーク等。複数タグはカンマ(,)区切り)</small>
                         </label>
                         {% render_field form.tags class="form-control" %}
                         {% for error in form.tags.errors %}
@@ -102,7 +102,7 @@
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label class="d-block">ファイル（任意）</label>
+                        <label class="d-block">ファイル（任意）<small class="text-danger">(3MB未満)</small></label>
                         {% render_field form.uploadfile class="form-control" %}
                         {% for error in form.uploadfile.errors %}
                             <p class="text-danger">{{ error }}</p>

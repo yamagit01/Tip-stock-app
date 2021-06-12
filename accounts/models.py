@@ -1,5 +1,6 @@
 import uuid
 
+from app.validators import FileSizeValidator
 from django.apps import apps
 from django.contrib import auth
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -117,7 +118,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         },
     )
     
-    icon = models.ImageField(upload_to=_user_profile_icon_upload_to, blank=True, null=True)
+    icon = models.ImageField(upload_to=_user_profile_icon_upload_to, blank=True, null=True,
+                             validators=[FileSizeValidator(val=500, byte_type="kb")])
     
     is_staff = models.BooleanField(
         _('staff status'),
