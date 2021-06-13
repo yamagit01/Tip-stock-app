@@ -73,3 +73,8 @@ LOGGING = {
 # Email settings
 EMAIL_CONFIG = env.email_url('EMAIL_URL')
 vars().update(EMAIL_CONFIG)
+
+# axes settings
+AXES_META_PRECEDENCE_ORDER = [
+    'HTTP_X_FORWARDED_FOR',
+]

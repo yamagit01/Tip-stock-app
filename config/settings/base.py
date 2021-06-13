@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.google',
     'taggit',
+    'axes',
     
     # My applications
     'accounts.apps.AccountsConfig',
@@ -71,6 +72,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'axes.middleware.AxesMiddleware',  # django-axes を追加
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -157,6 +159,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # django-allauthの設定
 AUTHENTICATION_BACKENDS = (
+    'axes.backends.AxesBackend',  # django-axes を追加
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',  # django-allauth を追加
 )
@@ -215,3 +218,8 @@ LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
 
 # ウィジェットのテンプレートの探索を通常のテンプレートの探索と同様にする
 FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
+
+# axes(アカウントロック)の設定
+AXES_FAILURE_LIMIT = 5  # 試行回数
+AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
+AXES_RESET_ON_SUCCESS = True

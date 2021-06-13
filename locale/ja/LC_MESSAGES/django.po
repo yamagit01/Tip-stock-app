@@ -35,3 +35,7 @@ msgstr ""
 #: templates/account/messages/password_set.txt:2
 msgid "Password successfully set."
 msgstr "パスワードの設定が完了しました。"
+
+#: account/adapter.py:51
+msgid "Too many failed login attempts. Try again later."
+msgstr "ログイン試行回数が規定回数を超えたため、アクセスがロックされています。お問い合わせよりご連絡ください。"
