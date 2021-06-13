@@ -14,7 +14,7 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   TemplateView, UpdateView, View)
 
 from .forms import CommentForm, ContactForm, TipForm
-from .models import Like, Notification, Tip
+from .models import Code, Comment, Like, Notification, Tip
 from .utilities import create_notification
 
 
@@ -68,7 +68,15 @@ class TipDetail(LoginRequiredMixin, DetailView):
         context['form'] = CommentForm()
         # お気に入り済み判定を設定
         context['is_liked'] = self.object.is_liked_by_user(self.request.user)
+        # コメントとコードを設定
+        context['comments'] = Comment.objects.filter(tip=self.object).select_related('created_by')
+        context['codes'] = Code.objects.filter(tip=self.object)
         return context
+
+    def get_queryset(self):
+        queryset = Tip.objects.all().annotate(like_count=Count("likes")).prefetch_related('tags')
+        
+        return queryset
 
 
 class TipList(LoginRequiredMixin, ListView):
@@ -82,9 +90,9 @@ class TipList(LoginRequiredMixin, ListView):
         if 'tip_list' in path:
             queryset = Tip.objects.filter(
                 Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
-            )
+            ).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
         elif 'tip_public_list' in path:
-            queryset = Tip.objects.filter(public_set=Tip.PUBLIC)
+            queryset = Tip.objects.filter(public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
         else:
             raise Http404("そのページは存在しません。")
 
@@ -281,7 +289,7 @@ class ThanksView(TemplateView):
 def notifications(request):
     goto = request.GET.get('goto', '')
     notification_id = request.GET.get('notification', 0)
-    notifications = Notification.objects.filter(to_user=request.user)
+    notifications = Notification.objects.filter(to_user=request.user).select_related('tip', 'created_by')
 
     # お知らせをクリック
     if goto != '':
