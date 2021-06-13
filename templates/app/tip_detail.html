@@ -77,12 +77,20 @@
                         <ul class="list-group list-group-flush">
                             <li class="list-group-item">ファイル：
                                 {% if tip.uploadfile %}
-                                    <a href="{{ tip.uploadfile.url }}">{{ tip.uploadfile|get_filename }}</a>
+                                    {% if tip.created_by == request.user %}
+                                        <a href="{{ tip.uploadfile.url }}">{{ tip.uploadfile|get_filename }}</a>
+                                    {% else %}
+                                        <span>{{ tip.uploadfile|get_filename }}</span>
+                                    {% endif %}
                                 {% endif %}
                             </li>
                             <li class="list-group-item">ＵＲＬ&emsp;：
                                 {% if tip.url %}
-                                    {{ tip.url|urlizetrunc:30 }}
+                                    {% if tip.created_by == request.user %}
+                                            {{ tip.url|urlizetrunc:30 }}
+                                        {% else %}
+                                            <small>{{ tip.url }}</small>
+                                    {% endif %}
                                 {% endif %}
                             </li>
                             <li class="list-group-item">公開範囲：{{ tip.public_set }}</li>
