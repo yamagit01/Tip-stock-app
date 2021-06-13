@@ -37,9 +37,9 @@
                             {% for hidden in formset_form.hidden_fields %}
                                 {{ hidden }}
                             {% endfor %}
-                            <li class="nav-item" role="presentation" style="width: 140px;">
+                            <li class="nav-item form-tab-list" role="presentation">
                                 <a
-                                    class="px-2 nav-link tab-color {% if forloop.first %}active{% endif %} "
+                                    class="px-2 nav-link form-tab-text {% if forloop.first %}active{% endif %} "
                                     id="code-{{ forloop.counter0 }}-tab"
                                     data-bs-toggle="tab"
                                     href="#code-{{ forloop.counter0 }}"
@@ -102,7 +102,8 @@
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label class="d-block">ファイル（任意）<small class="text-danger">(3MB未満)</small></label>
+                        <label class="d-block">ファイル（任意）<small class="text-danger">(3MB未満)</small>
+                        </label>
                         {% render_field form.uploadfile class="form-control" %}
                         {% for error in form.uploadfile.errors %}
                             <p class="text-danger">{{ error }}</p>
@@ -123,21 +124,21 @@
                                 <label class="me-3">{{ radio.choice_label }}
                                     {% if radio.choice_label == 'Private' %}
                                         <span>(最大{{ private_tips_maxnum }}個)</span>
-                                    {% endif%}
-                                </label>
+                                        {% endif%}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                            {% for error in form.public_set.errors %}
+                                <p class="text-danger">{{ error }}</p>
                             {% endfor %}
                         </div>
-                        {% for error in form.public_set.errors %}
-                            <p class="text-danger">{{ error }}</p>
-                        {% endfor %}
+                        {# non_field_errorを表示 #}
+                        {% include 'form_alert.html' %}
+                        <button type="submit" class="btn btn-custom btn-primary">保存</button>
                     </div>
-                    {# non_field_errorを表示 #}
-                    {% include 'form_alert.html' %}
-                    <button type="submit" class="btn btn-custom btn-primary">保存</button>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
 
     {% endblock %}
 
@@ -151,9 +152,9 @@
 
         <!-- tab追加用js -->
         <script type="text/html" id="code-tab-template">
-            <li class="nav-item" role="presentation" style="width: 140px;">
+            <li class="nav-item form-tab-list" role="presentation">
                 <a
-                    class="px-2 nav-link tab-color"
+                    class="px-2 nav-link form-tab-text"
                     id="code-__prefix__-tab"
                     data-bs-toggle="tab"
                     href="#code-__prefix__"

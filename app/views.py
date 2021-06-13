@@ -104,8 +104,8 @@ class TipList(LoginRequiredMixin, ListView):
 
         if query:
             queryset = queryset.filter(
-                Q(title__icontains=query) | Q(description__icontains=query)
-            )
+                Q(title__icontains=query) | Q(description__icontains=query) | Q(codes__filename__icontains=query) | Q(codes__content__icontains=query)
+            ).distinct()
         if tagquery:
             queryset = queryset.filter(tags__name__icontains=tagquery)
 

@@ -112,13 +112,24 @@ a {
     display: inline;
 }
 
-.tab-color {
+.detail-card-title {
+    border-bottom: solid 1px;
+}
+
+.form-tab-list,
+.detail-tab-list {
+    width: 140px;
+}
+
+.form-tab-text,
+.detail-tab-text {
     color: black !important;
     border: solid 0.5px !important;
     border-color: #ced4da  !important;
 }
 
-.tab-color.active {
+.form-tab-text.active,
+.detail-tab-text.active {
     background-color: rgba(0, 83, 159, 0.15) !important;
 }
 
@@ -180,7 +191,7 @@ a {
 }
 
 .query-search {
-    width: 200px;
+    width: 250px;
     display: inline;
 
 }
@@ -225,6 +236,36 @@ a {
     .profile_table .data{
         display: block;
         max-width: 100%;
+    }
+
+    .form-tab-list {
+        width: 100px;
+    }
+    
+    .form-tab-text {
+        padding: 5px;
+    }
+
+    .code-tab {
+        padding: 6px;
+        font-size: 14px !important;
+    }
+
+    .detail-tab-list {
+        width: 85px;
+    }
+    
+    .detail-tab-text {
+        font-size: 14px;
+        padding: 5px;
+    }
+
+    .detail-card-body {
+        padding: 16px;
+    }
+
+    .detail-list {
+        font-size: 14px;
     }
 
     .public-set-form {

@@ -4,8 +4,8 @@
 {% load static %}
 
 {% block extra_css%}
-<link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
-<link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
+    <link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -17,7 +17,9 @@
                     <div class="card">
                         <div class="card-header">
                             <h3>{{ tip.title }}</h3>
-                            <div>Tag：{% for tag in tip.tags.all %}<span class="tag me-2">{{ tag }}</span>{% endfor %}</div>
+                            <div>Tag：{% for tag in tip.tags.all %}
+                                    <span class="tag me-2">{{ tag }}</span>{% endfor %}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -25,22 +27,25 @@
             <div class="row mb-3">
                 <div class="col">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body detail-card-body">
                             <label class="mb-2">
-                                <strong style="border-bottom: solid 1px;">コード</strong>
+                                <strong class="detail-card-title">コード</strong>
                             </label>
                             <ul class="nav nav-tabs" id="myTab" role="tablist">
                                 {% for code in tip.codes.all %}
-                                    <li class="nav-item" role="presentation" style="width: 140px;">
+                                    <li class="nav-item detail-tab-list" role="presentation">
                                         <a
-                                            class="nav-link tab-color code-tab {% if forloop.first %}active{% endif %} "
+                                            class="nav-link detail-tab-text code-tab {% if forloop.first %}active{% endif %} "
                                             style="overflow-x: scroll;"
                                             id="code-{{ forloop.counter0 }}-tab"
                                             data-bs-toggle="tab"
                                             href="#code-{{ forloop.counter0 }}"
                                             role="tab"
                                             aria-controls="code-{{ forloop.counter0 }}"
-                                            aria-selected="true"><span style="white-space:nowrap">{% if code.filename %}{{ code.filename }}{% else %}No filename{% endif %}</span></a>
+                                            aria-selected="true">
+                                            <span style="white-space:nowrap">
+                                                {% if code.filename %}{{ code.filename }}
+                                                {% else %}No filename{% endif %}</span></a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -51,7 +56,7 @@
                                         id="code-{{ forloop.counter0 }}"
                                         role="tabpanel"
                                         aria-labelledby="code-{{ forloop.counter0 }}-tab">
-                                        <textarea class="code-content" readonly style="display:none;">{{ code.content }}</textarea>
+                                        <textarea class="code-content" readonly="readonly" style="display:none;">{{ code.content }}</textarea>
                                     </div>
                                 {% endfor %}
                             </div>
@@ -62,16 +67,16 @@
             <div class="row mb-3">
                 <div class="col">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body detail-card-body">
                             <label>
-                                <strong style="border-bottom: solid 1px;">説明</strong>
+                                <strong class="detail-card-title">説明</strong>
                             </label>
                             <p>{{ tip.description|linebreaks }}</p>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row mb-3">
+            <div class="row mb-3 detail-list">
                 <div class="col-md-6">
                     <div class="card">
                         <ul class="list-group list-group-flush">
@@ -87,9 +92,9 @@
                             <li class="list-group-item">ＵＲＬ&emsp;：
                                 {% if tip.url %}
                                     {% if tip.created_by == request.user %}
-                                            {{ tip.url|urlizetrunc:30 }}
-                                        {% else %}
-                                            <small>{{ tip.url }}</small>
+                                        {{ tip.url|urlizetrunc:30 }}
+                                    {% else %}
+                                        <small>{{ tip.url }}</small>
                                     {% endif %}
                                 {% endif %}
                             </li>
@@ -120,9 +125,9 @@
                     {% if tip.created_by != request.user %}
                         {% if is_liked %}
                             <a
-                            href="{% url 'app:delete_like' tip.pk %}"
-                            class="btn btn-sm"
-                            style="background-color: orange; color: white;">お気に入りから外す</a>
+                                href="{% url 'app:delete_like' tip.pk %}"
+                                class="btn btn-sm"
+                                style="background-color: orange; color: white;">お気に入りから外す</a>
                         {% else %}
                             <a
                                 href="{% url 'app:add_like' tip.pk %}"
@@ -134,7 +139,10 @@
             {% endif %}
             <!--//お気に入り表示-->
             <div class="mb-3">
-                <a href="javascript:void(0);" onclick="window.history.back();" class="btn btn-custom btn-outline-dark">戻る</a>
+                <a
+                    href="javascript:void(0);"
+                    onclick="window.history.back();"
+                    class="btn btn-custom btn-outline-dark">戻る</a>
                 {% if tip.created_by == request.user %}
                     <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-custom btn-primary">更新</a>
                     <form method="post" action="{% url 'app:tip_delete' tip.pk %}" id="delete-form" class="d-inline">
@@ -207,19 +215,18 @@
             let code_content = document.getElementsByClassName('code-content');
             for (var count = 0; count < code_tab.length; count++) {
 
-                var editor = CodeMirror.fromTextArea(code_content[count],
-                {
-                    lineNumbers: true,  // 行番号を表示する
-                    fixedGutter: true,  // 水平カーソル移動時、行番号表示
+                var editor = CodeMirror.fromTextArea(code_content[count], {
+                    lineNumbers: true, // 行番号を表示する
+                    fixedGutter: true, // 水平カーソル移動時、行番号表示
                     readOnly: true,
-                    autoRefresh: true,  // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
-                    theme: "mdn-like",  //  theme設定
+                    autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
+                    theme: "mdn-like", //  theme設定
                 });
 
                 let text = code_tab[count].textContent
                 var filename_info = CodeMirror.findModeByFileName(text);
 
-                if (filename_info){
+                if (filename_info) {
                     editor.setOption("mode", filename_info.mode);
                     CodeMirror.autoLoadMode(editor, filename_info.mode);
                 }
@@ -231,16 +238,15 @@
                     icon: 'warning',
                     buttons: {
                         yes: "はい",
-                        cancel: "キャンセル",
-                    },
-                })
-                .then((value) => {
+                        cancel: "キャンセル"
+                    }
+                }).then((value) => {
                     switch (value) {
-                    
+
                         case "yes":
                             $("#delete-form").submit();
                             break;
-                    
+
                         default:
                             break;
                     }
