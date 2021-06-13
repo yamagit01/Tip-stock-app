@@ -74,7 +74,7 @@ class TipDetail(LoginRequiredMixin, DetailView):
         return context
 
     def get_queryset(self):
-        queryset = Tip.objects.all().annotate(like_count=Count("likes")).prefetch_related('tags')
+        queryset = Tip.objects.all().annotate(like_count=Count("likes"))
         
         return queryset
 
