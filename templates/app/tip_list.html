@@ -61,7 +61,7 @@
                     <div class="card-header">
                         {% for tag in tip.tags.all|slice:":3" %}
                             {% if forloop.counter == 3%}
-                                etc
+                                <small>...</small>
                             {% else %}
                                 <span class="tag">{{ tag|truncatechars:10 }}</span>
                             {% endif %}

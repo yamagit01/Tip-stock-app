@@ -11,69 +11,53 @@
 {% block content %}
 
     <div class="row my-3">
-        <div class="col-md-10">
-            <div class="row my-3">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>{{ tip.title }}</h3>
-                            <div>Tag：{% for tag in tip.tags.all %}
-                                    <span class="tag me-2">{{ tag }}</span>{% endfor %}
+        <div class="col-md-10" style="word-break: break-word;">
+            <h2>{{ tip.title }}</h2>
+            <div class="my-2">タグ：{% for tag in tip.tags.all %}
+                <span class="tag me-2">{{ tag }}</span>{% endfor %}
+            </div>
+            <div class="card mb-3">
+                <div class="card-body detail-card-body">
+                    <label class="mb-2">
+                        <strong class="detail-card-title">コード</strong>
+                    </label>
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                        {% for code in codes %}
+                            <li class="nav-item detail-tab-list" role="presentation">
+                                <a
+                                    class="nav-link detail-tab-text code-tab {% if forloop.first %}active{% endif %} "
+                                    style="overflow-x: scroll;"
+                                    id="code-{{ forloop.counter0 }}-tab"
+                                    data-bs-toggle="tab"
+                                    href="#code-{{ forloop.counter0 }}"
+                                    role="tab"
+                                    aria-controls="code-{{ forloop.counter0 }}"
+                                    aria-selected="true">
+                                    <span style="white-space:nowrap">
+                                        {% if code.filename %}{{ code.filename }}
+                                        {% else %}No filename{% endif %}</span></a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                        {% for code in codes %}
+                            <div
+                                class="tab-pane fade{% if forloop.first %}show active{% endif %}"
+                                id="code-{{ forloop.counter0 }}"
+                                role="tabpanel"
+                                aria-labelledby="code-{{ forloop.counter0 }}-tab">
+                                <textarea class="code-content" readonly="readonly" style="display:none;">{{ code.content }}</textarea>
                             </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
-            <div class="row mb-3">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body detail-card-body">
-                            <label class="mb-2">
-                                <strong class="detail-card-title">コード</strong>
-                            </label>
-                            <ul class="nav nav-tabs" id="myTab" role="tablist">
-                                {% for code in codes %}
-                                    <li class="nav-item detail-tab-list" role="presentation">
-                                        <a
-                                            class="nav-link detail-tab-text code-tab {% if forloop.first %}active{% endif %} "
-                                            style="overflow-x: scroll;"
-                                            id="code-{{ forloop.counter0 }}-tab"
-                                            data-bs-toggle="tab"
-                                            href="#code-{{ forloop.counter0 }}"
-                                            role="tab"
-                                            aria-controls="code-{{ forloop.counter0 }}"
-                                            aria-selected="true">
-                                            <span style="white-space:nowrap">
-                                                {% if code.filename %}{{ code.filename }}
-                                                {% else %}No filename{% endif %}</span></a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                            <div class="tab-content" id="myTabContent">
-                                {% for code in codes %}
-                                    <div
-                                        class="tab-pane fade{% if forloop.first %}show active{% endif %}"
-                                        id="code-{{ forloop.counter0 }}"
-                                        role="tabpanel"
-                                        aria-labelledby="code-{{ forloop.counter0 }}-tab">
-                                        <textarea class="code-content" readonly="readonly" style="display:none;">{{ code.content }}</textarea>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col">
-                    <div class="card">
-                        <div class="card-body detail-card-body">
-                            <label>
-                                <strong class="detail-card-title">説明</strong>
-                            </label>
-                            <p>{{ tip.description|linebreaks }}</p>
-                        </div>
-                    </div>
+            <div class="card mb-3">
+                <div class="card-body detail-card-body">
+                    <label>
+                        <strong class="detail-card-title">説明</strong>
+                    </label>
+                    <p>{{ tip.description|linebreaks }}</p>
                 </div>
             </div>
             <div class="row mb-3 detail-list">
@@ -92,13 +76,13 @@
                             <li class="list-group-item">ＵＲＬ&emsp;：
                                 {% if tip.url %}
                                     {% if tip.created_by == request.user %}
-                                        {{ tip.url|urlizetrunc:30 }}
+                                        {{ tip.url|urlize }}
                                     {% else %}
                                         <small>{{ tip.url }}</small>
                                     {% endif %}
                                 {% endif %}
                             </li>
-                            <li class="list-group-item">公開範囲：{{ tip.public_set }}</li>
+                            <li class="list-group-item">公開範囲：{{ tip.public_set|title }}</li>
                         </ul>
                     </div>
                 </div>
