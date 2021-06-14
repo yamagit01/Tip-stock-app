@@ -27,8 +27,8 @@
                     </label>
                     <button class="btn btn-custom btn-outline-secondary add-code my-2">コードを追加</button>
                     <p>
-                        <span class="text-danger">※保存できるコードはTip１つにつき最大５つです。</span><br>
                         <small>
+                            <span class="text-danger">※保存できるコードはTip１つに最大５つです。</span><br>
                             Formには５つ以上表示可能ですが、保存時にエラーとなります。<br>削除のチェックを入れるとカウントの対象外となります。
                         </small>
                     </p>
@@ -94,7 +94,7 @@
                     </div>
                     <div class="form-group mb-3">
                         <label>タグ<span class="text-danger">（必須）</span>
-                            <small>(言語やフレームワーク等。複数タグはカンマ(,)区切り)</small>
+                            <small class="form-tag-label">(<span class="text-danger">最大5つ。</span>言語やフレームワーク等。複数タグはカンマ(,)区切り)</small>
                         </label>
                         {% render_field form.tags class="form-control" %}
                         {% for error in form.tags.errors %}

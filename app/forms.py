@@ -66,6 +66,12 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
             if private_count >= settings.PRIVATE_TIPS_MAXNUM:
                 self.add_error('public_set', 'PrivateのTipの数が制限回数(20回)に達しています。')
         return public_set
+    
+    def clean_tags(self):
+        tags = self.cleaned_data.get('tags', [])
+        if len(tags) > 5:
+            self.add_error('tags', 'タグは5個以下にしてください。')
+        return tags
 
 
 class CommentForm(forms.ModelForm):

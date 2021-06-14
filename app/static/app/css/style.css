@@ -246,6 +246,10 @@ a {
         padding: 5px;
     }
 
+    .form-tag-label {
+        display: block;
+    }
+
     .code-tab {
         padding: 6px;
         font-size: 14px !important;
