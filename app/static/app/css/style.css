@@ -62,6 +62,7 @@ a {
     border-radius:8px;
     border-collapse: separate;
     overflow: hidden;
+    table-layout: fixed;
 }
 
 .profile_table .header {
@@ -131,6 +132,10 @@ a {
 .form-tab-text.active,
 .detail-tab-text.active {
     background-color: rgba(0, 83, 159, 0.15) !important;
+}
+
+.detail-comment-to {
+    overflow: scroll;
 }
 
 .tab-pane {
@@ -269,6 +274,10 @@ a {
     }
 
     .detail-list {
+        font-size: 14px;
+    }
+
+    .detail-comment-to {
         font-size: 14px;
     }
 

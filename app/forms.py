@@ -1,8 +1,11 @@
 from django import forms
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.forms.models import inlineformset_factory
 
-from .models import Code, Comment, Tip
+from .models import Code, Comment, Notification, Tip
+from .utilities import create_notification
 from .widgets import FileInputByOnlyfilename
 
 
@@ -79,13 +82,18 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ('text',)
 
-    # saveメソッド
-    def save_with_otherfields(self, tip, user, commit=True):
-        comment = self.save(commit=False)
-        comment.tip = tip
-        comment.created_by = user
-        comment.no = Comment.objects.filter(tip=tip).count() + 1
-        if commit:
+    # saveメソッド(to_usersにnotification作成)
+    def save_with_otherfields(self, request, tip, to_users_id=None):
+        with transaction.atomic():
+            comment = self.save(commit=False)
+            comment.tip = tip
+            comment.created_by = request.user
+            comment.no = Comment.objects.filter(tip=tip).count() + 1
+            comment.save()
+            for to_user_id in (to_users_id or []):
+                to_user = get_user_model().objects.get(id=to_user_id)
+                comment.to_users.add(to_user)
+                create_notification(request, to_user=to_user, category=Notification.COMMENT, tip=tip)
             comment.save()
         return comment
     

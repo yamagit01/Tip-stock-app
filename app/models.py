@@ -67,6 +67,7 @@ class Code(models.Model):
 class Comment(models.Model):
     tip = models.ForeignKey(Tip, related_name='comments', on_delete=models.CASCADE)
     no = models.IntegerField(default=0)
+    to_users = models.ManyToManyField(get_user_model(), related_name='comment_to', blank=True)
     text = models.TextField()
     created_by = models.ForeignKey(get_user_model(), related_name='created_comment', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -125,4 +126,11 @@ class Notification(models.Model):
     created_by = models.ForeignKey(get_user_model(), related_name='created_notification', on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
+        db_table = 'notification'
         ordering =('is_read', '-created_at')
+        
+    def __str__(self):
+        return f'{self.to_user} - {self.created_at}'
+
+    def get_absolute_url(self):
+        return reverse('app:notifications')

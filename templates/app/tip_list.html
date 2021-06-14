@@ -24,7 +24,7 @@
             <div class="mb-2">
                 <label>表示順(降順)：</label>
                 <div class="display-order">
-                    <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                    <div class="btn-group btn-group-sm" role="group">
                         <input type="radio" class="btn-check" name="displayOrder" id="displayOrder1" autocomplete="off" value="updated"
                             {% if request.GET.displayOrder != 'liked' %}checked="checked"{% endif %}>
                         <label class="btn btn-outline-secondary" for="displayOrder1">更新年月日</label>
@@ -38,7 +38,7 @@
                 <div class="mb-2">
                     <label>検索対象：</label>
                     <div class="search-target">
-                        <div class="btn-group btn-group-sm" role="group" aria-label="Basic radio toggle button group">
+                        <div class="btn-group btn-group-sm" role="group">
                             <input type="radio" class="btn-check" name="searchTarget" id="searchTarget1" autocomplete="off" value="all"
                                 {% if request.GET.searchTarget != 'my' and  request.GET.searchTarget != 'other' %}checked="checked"{% endif %}>
                             <label class="btn btn-outline-secondary" for="searchTarget1">全体</label>

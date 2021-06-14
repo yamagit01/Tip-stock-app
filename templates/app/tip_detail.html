@@ -167,12 +167,32 @@
                                     <img src="{{ request.user.icon.url }}" class="icon-display">
                                 {% endif %}
                                 {{ request.user.username }}</p>
+                            <span>宛先(お知らせが届く対象)：</span>
+                            <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple>
+                                {% if tip.created_by == request.user %}
+                                    <option selected value="no">なし(コメントがない場合はこの選択のみ)</option>
+                                    {% for comment in comments_distinct %}
+                                        {% if comment.created_by_id != request.user.id %}
+                                            <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    <option selected value="{{ tip.created_by.id }}">登録者:{{ tip.created_by.username }}</option>
+                                    {% for comment in comments_distinct %}
+                                        {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
+                                        <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
                             <p>コメント</p>
                             {% render_field form.text class="form-control" %}
                             {% for error in form.text.errors %}
                                 <p class="text-danger">{{ error }}</p>
                             {% endfor %}
                         </div>
+                        {# non_field_errorを表示 #}
+                        {% include 'form_alert.html' %}
                         <button type="submit" class="btn btn-custom btn-success">投稿</button>
                     </form>
                 </div>

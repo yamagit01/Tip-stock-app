@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import BadHeaderError, EmailMessage
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse
@@ -69,7 +69,9 @@ class TipDetail(LoginRequiredMixin, DetailView):
         # お気に入り済み判定を設定
         context['is_liked'] = self.object.is_liked_by_user(self.request.user)
         # コメントとコードを設定
-        context['comments'] = Comment.objects.filter(tip=self.object).select_related('created_by')
+        comments = Comment.objects.filter(tip=self.object).select_related('created_by')
+        context['comments'] = comments
+        context['comments_distinct'] = comments.order_by('created_by_id').distinct().values('created_by_id', 'created_by__username')
         context['codes'] = Code.objects.filter(tip=self.object)
         return context
 
@@ -97,7 +99,7 @@ class TipList(LoginRequiredMixin, ListView):
             raise Http404("そのページは存在しません。")
 
         # 表示対象で抽出
-        search_target = self.request.GET.get('searchTarget')
+        search_target = self.request.GET.get('searchTarget','')
 
         if search_target == 'my':
             queryset = queryset.filter(created_by=self.request.user)
@@ -107,8 +109,8 @@ class TipList(LoginRequiredMixin, ListView):
             pass
 
         # 検索内容で抽出
-        query = self.request.GET.get('query')
-        tagquery = self.request.GET.get('tagQuery')
+        query = self.request.GET.get('query','')
+        tagquery = self.request.GET.get('tagQuery','')
 
         if query:
             queryset = queryset.filter(
@@ -118,7 +120,7 @@ class TipList(LoginRequiredMixin, ListView):
             queryset = queryset.filter(tags__name__icontains=tagquery)
 
         # 表示順で並び替え
-        display_order = self.request.GET.get('displayOrder')
+        display_order = self.request.GET.get('displayOrder','')
 
         if display_order == 'liked':
             queryset = queryset.annotate(num_likes=Count('likes')).order_by('-num_likes')
@@ -173,13 +175,16 @@ def add_comment(request, pk):
     if request.method == "POST":
         form = CommentForm(request.POST)
         if form.is_valid():
-            form.save_with_otherfields(tip, request.user)
-            
-            # Tip作成者以外がコメントを追加した場合、Tip作成者にお知らせ追加
-            # TODO 現状Tip作成者にのみお知らせを追加しているが、作成者からのコメント時等も検討
-            if request.user != tip.created_by:
-                create_notification(request, to_user=tip.created_by, category=Notification.COMMENT, tip=tip)
-            
+            to_users_id = request.POST.getlist('toUsersId',[])
+            if to_users_id:
+                if 'no' in to_users_id:
+                    form.save_with_otherfields(request=request, tip=tip)
+                else:
+                    form.save_with_otherfields(request=request, tip=tip, to_users_id=to_users_id)
+
+            else:
+                raise ValidationError('宛先が指定されていません。')
+
             messages.success(request, 'コメントを追加しました。')
             return redirect('app:tip_detail', pk=pk)
         else:
