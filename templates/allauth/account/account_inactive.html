@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}アカウント無効{% endblock %}
+
+{% block content %}
+
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <div class="card-title auth-message-title">アカウント無効</div>
+            <div class="auth-message-content">
+                <p>このアカウントは現在無効です。</p>
+                <p>再登録する場合は<a href="{% url 'accounts:reregistration' %}">こちら</a></p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

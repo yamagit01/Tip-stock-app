@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied
 from django.core.mail import BadHeaderError, EmailMessage
 from django.db.models import Count, Q
 from django.http import Http404, HttpResponse
@@ -15,7 +15,6 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 
 from .forms import CommentForm, ContactForm, TipForm
 from .models import Code, Comment, Like, Notification, Tip
-from .utilities import create_notification
 
 
 # tip作成者のみ処理可能
@@ -65,7 +64,9 @@ class TipDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # コメントformを設定
-        context['form'] = CommentForm()
+        # コメント入力エラー時はsessionにrequest.POSTが保存されているため、それを使用してコメントの内容を復元
+        session_comment_form_data = self.request.session.pop('comment_form_data', None)
+        context['form'] = CommentForm(session_comment_form_data)
         # お気に入り済み判定を設定
         context['is_liked'] = self.object.is_liked_by_user(self.request.user)
         # コメントとコードを設定
@@ -182,18 +183,22 @@ def add_comment(request, pk):
                 else:
                     form.save_with_otherfields(request=request, tip=tip, to_users_id=to_users_id)
 
+                messages.success(request, 'コメントを追加しました。')
+                return redirect('app:tip_detail', pk=pk)
             else:
-                raise ValidationError('宛先が指定されていません。')
-
-            messages.success(request, 'コメントを追加しました。')
-            return redirect('app:tip_detail', pk=pk)
+                # select文の宛先が選択されていないケース(通常ありえない)
+                messages.error(request, 'コメントに宛先が指定されていません。')
         else:
-            #  formのエラーを表示
-            return render(request, 'app/tip_detail.html', context={
-                'object': tip,
-                'form': form,
-            })
-
+            # TODO 現状form.is_validでのエラーは表示されない。フォームがコメント欄しかないので現状そこまで問題ない。
+                # return renderにするとformは設定できるが、TipDetailで実施しているcommentやcodeをcontextに設定する必要がある。viewに書きすぎ？
+                # sessionの設定をPickleSerializerにすればformをsessionに設定可能？(現状はnot JSON serializableでエラー)
+            # formのエラーケース
+            messages.error(request, 'コメントの作成に失敗しました。')
+        
+        # redirect先でコメントの入力内容を保持するため、sessionにPOSTを設定
+        request.session['comment_form_data'] = request.POST
+        return redirect('app:tip_detail', pk=pk)
+        
     return redirect('app:tip_detail', pk=pk)
 
 

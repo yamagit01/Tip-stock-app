@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}ユーザ再登録{% endblock %}
+
+{% block content %}
+
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <div class="card-title auth-message-title">ユーザ再登録</div>
+            <div class="auth-message-content">
+                <p>退会済みのユーザを再登録するためには、本登録を実施する必要があります。<br>
+                    メールアドレスを入力し送信ボタンをクリックしてください。<br>
+                    本登録実施のためのメールが送信されます。</p>
+            </div>
+            <form method="POST" action="{% url 'accounts:reregistration' %}">
+                {% csrf_token %}
+                <table class="profile_table mb-4">
+                    <tbody>
+                        <tr>
+                            <th class="header">{{ form.email.label }}</th>
+                            <td class="data">
+                                {% render_field form.email class="form-control" placeholder='' %}
+                                {% for error in form.email.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {# non_field_errorを表示 #}
+                {% include 'form_alert.html' %}
+                <div class="button mx-auto text-center my-2">
+                    <button class="btn btn-custom btn-lg btn-primary btn-block" type="submit">メール送信</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}

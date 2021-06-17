@@ -15,3 +15,11 @@ class ProfileForm(forms.ModelForm):
 
 class SignupUserForm(SignupForm):
     pass
+
+
+class WithdrawalForm(forms.Form):
+    private_tip_has_left = forms.BooleanField(label='PrivateのTipを残す', initial=False ,required=False)
+    
+    
+class ReRegistrationForm(forms.Form):
+    email = forms.EmailField(label='メールアドレス')

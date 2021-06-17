@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}ユーザ退会{% endblock %}
+
+{% block content %}
+
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <div class="card-title auth-message-title">ユーザ退会</div>
+            <div class="auth-message-content mb-5">
+                <p>本ページはユーザ退会のページとなります。<br>
+                    下記の注意事項をご確認の上、退会する場合は退会ボタンをクリックしてください。</p>
+                
+                <p class="fw-bold">退会における注意事項</p>
+                <p>退会処理におけるデータの削除処理については以下の通りとなります。</p>
+                <table class="table table-sm table-bordered">
+                    <thead>
+                        <tr class="table-light">
+                            <th scope="col">削除しない<br>(全体共有データ)</th>
+                            <th scope="col">削除する<br>(個人データ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>公開範囲がPublicのTip</td>
+                            <td>公開範囲がPrivateのTip</td>
+                        </tr>
+                        <tr>
+                            <td>コメント</td>
+                            <td>お知らせ</td>
+                        </tr>
+                        <tr>
+                            <td>お気に入り登録</td>
+                            <td>ユーザアイコン</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="text-start">
+                    「PublicのTip」については本サービスの大きな資産である為、基本的には残していただきたいと考えております。
+                    ただし、どうしても削除したいTipがある場合は個別に削除していただいてから退会処理を実施してください。
+                </p>
+                <p class="text-start">
+                    「PrivateのTip」については他人に見せないという観点から削除することにしておりますが、
+                    以下の「PrivateのTipを残す」にチェックを入れて処理を実行していただくと削除いたしません。
+                    退会処理を行うとユーザアカウントが無効となりますが、登録時のメールアドレスで再登録を実施することで
+                    削除しなかったデータについては退会時の状態を引き継いだ形で始められるため、残すことも可能としております。
+                </p>
+                <p class="text-start">
+                    「コメント」「お気に入り登録」は削除しない対象ですが、PrivateのTipを削除するとした場合は紐づく「コメント」「お気に入り登録」のデータもあわせて削除いたします。<br>
+                    （通常PrivateのTipは「コメント」「お気に入り登録」は不可ですが、Publicにしていた期間がある場合はデータが存在するケースがあります。）
+                </p>
+            </div>
+            <div class="text-center">
+                <form method="POST" action="{% url 'accounts:withdrawal' %}" class="d-inline" id="withdrawal-form">
+                    {% csrf_token %}
+                    {{ form.private_tip_has_left }}
+                    {{ form.private_tip_has_left.label }}
+                    {% for error in form.private_tip_has_left.errors %}
+                        <p class="text-danger">{{ error }}</p>
+                    {% endfor %}
+                    <div class="my-3">
+                        <button class="btn btn-custom btn-lg btn-danger me-3" type="button" id="withdrawal-button">退会</button>
+                        <a
+                        href="javascript:void(0);"
+                        onclick="window.history.back();"
+                        class="btn btn-custom  btn-lg btn-outline-dark">戻る</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        $(function () {
+            // 退会ボタンクリック時のダイアログ表示
+            $("#withdrawal-button").click(function () {
+                swal({
+                    title: "本当に退会してもよろしいですか？",
+                    text: "「PrivateのTipを残す」のチェックは忘れていませんか？",
+                    icon: 'warning',
+                    buttons: {
+                        yes: "退会する",
+                        cancel: "キャンセル",
+                    },
+                })
+                .then((value) => {
+                    switch (value) {
+                    
+                        case "yes":
+                            $('#withdrawal-form').submit();
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                });
+            })
+        });
+    </script>
+
+{% endblock %}

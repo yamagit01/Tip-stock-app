@@ -56,7 +56,8 @@
         <div class="button-social mx-auto  mb-2">
             <a href="{% provider_login_url 'github' %}" class="btn btn-custom btn-block btn-social btn-github"><span class="fab fa-github"></span>GitHubでサインアップ</a>
         </div>
-            <p class="mt-2 text-center">既にアカウントを持っている方は<br><a href="{{ login_url }}">ここからログイン</a>してください.</p>
+        <p class="mb-2 text-center">既にアカウントを持っている方は<br><a href="{{ login_url }}">ここからログイン</a>してください.</p>
+        <p class="text-center">退会ユーザの再登録は<a href="{% url 'accounts:reregistration' %}">こちら</a></p>
     </div>
 
 {% endblock %}
