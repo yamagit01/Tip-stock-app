@@ -5,7 +5,7 @@ from django.db import transaction
 from django.forms.models import inlineformset_factory
 
 from .models import Code, Comment, Notification, Tip
-from .utilities import create_notification
+from .utils import create_notification
 from .widgets import FileInputByOnlyfilename
 
 

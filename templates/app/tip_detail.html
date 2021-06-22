@@ -105,7 +105,7 @@
             <!--お気に入り表示-->
             {% if tip.public_set == 'public' %}
                 <div class="mb-3">
-                    <small>{{ object.like_count }}人がお気に入りに入れています。</small>
+                    <small>{{ tip.like_count }}人がお気に入りに入れています。</small>
                     {% if tip.created_by != request.user %}
                         {% if is_liked %}
                             <a
@@ -144,7 +144,14 @@
                                 {% if comment.created_by.icon %}
                                     <img src="{{ comment.created_by.icon.url }}" class="icon-display">
                                 {% endif %}
-                                {{ comment.created_by.username }}<br>
+                                {{ comment.created_by.username }}&emsp;
+                                <small>宛先:
+                                    {% for to_user in comment.to_users.all %}
+                                        [{{ to_user.username }}]
+                                    {% empty %}
+                                        なし
+                                    {% endfor %}
+                                </small><br>
                                 {{ comment.created_at}}</p>
                             <p>{{comment.text}}</p>
                         </div>

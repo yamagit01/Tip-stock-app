@@ -24,16 +24,29 @@ class OnlyMyTipMixin(UserPassesTestMixin):
         try:
             tip = Tip.objects.get(id = self.kwargs['pk'])
         except Tip.DoesNotExist:
-            raise Http404(_("No %(verbose_name)s found matching the query") %
-                        {'verbose_name': Tip._meta.verbose_name})
+            raise PermissionDenied('そのページは非公開です。')
         return tip.created_by == self.request.user
+
+
+def get_detail_context(user, tip, context):
+    """detail.html表示時に必要なtipに紐づくデータをcontextに格納"""
+    # お気に入り済み判定を設定
+    context['is_liked'] = tip.is_liked_by_user(user)
+    # コメントを設定
+    comments = Comment.objects.filter(tip=tip).select_related('created_by').prefetch_related('to_users')
+    context['comments'] = comments
+    context['comments_distinct'] = comments.order_by('created_by_id').distinct().values('created_by_id', 'created_by__username')
+    # コードを設定
+    context['codes'] = Code.objects.filter(tip=tip)
+    
+    return context
 
 
 class IndexView(TemplateView):
     template_name = 'app/index.html'
 
 
-class TipCreate(LoginRequiredMixin, CreateView):
+class TipCreateView(LoginRequiredMixin, CreateView):
     model = Tip
     form_class = TipForm
 
@@ -51,7 +64,7 @@ class TipCreate(LoginRequiredMixin, CreateView):
         return resolve_url('app:tip_list')
 
 
-class TipDetail(LoginRequiredMixin, DetailView):
+class TipDetailView(LoginRequiredMixin, DetailView):
     model = Tip
     
     def get_object(self):
@@ -64,16 +77,8 @@ class TipDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # コメントformを設定
-        # コメント入力エラー時はsessionにrequest.POSTが保存されているため、それを使用してコメントの内容を復元
-        session_comment_form_data = self.request.session.pop('comment_form_data', None)
-        context['form'] = CommentForm(session_comment_form_data)
-        # お気に入り済み判定を設定
-        context['is_liked'] = self.object.is_liked_by_user(self.request.user)
-        # コメントとコードを設定
-        comments = Comment.objects.filter(tip=self.object).select_related('created_by')
-        context['comments'] = comments
-        context['comments_distinct'] = comments.order_by('created_by_id').distinct().values('created_by_id', 'created_by__username')
-        context['codes'] = Code.objects.filter(tip=self.object)
+        context['form'] = CommentForm()
+        context = get_detail_context(self.request.user, self.object, context)
         return context
 
     def get_queryset(self):
@@ -82,7 +87,7 @@ class TipDetail(LoginRequiredMixin, DetailView):
         return queryset
 
 
-class TipList(LoginRequiredMixin, ListView):
+class TipListView(LoginRequiredMixin, ListView):
     model = Tip
     paginate_by = 12
 
@@ -146,7 +151,7 @@ class TipList(LoginRequiredMixin, ListView):
         return context
 
 
-class TipUpdate(OnlyMyTipMixin, UpdateView):
+class TipUpdateView(OnlyMyTipMixin, UpdateView):
     model = Tip
     form_class = TipForm
 
@@ -160,8 +165,12 @@ class TipUpdate(OnlyMyTipMixin, UpdateView):
         return resolve_url('app:tip_detail', pk=self.kwargs['pk'])
 
 
-class TipDelete(OnlyMyTipMixin, DeleteView):
+class TipDeleteView(OnlyMyTipMixin, DeleteView):
     model = Tip
+    
+    def get(self, request, *args, **kwargs):
+        # DeleteViewの確認ページへの遷移をなくし、getしてきた場合はdetailページにリダイレクト
+        return redirect('app:tip_detail', pk=self.kwargs['pk'])
 
     def get_success_url(self):
         messages.info(self.request, 'Tipを削除しました。')
@@ -170,11 +179,18 @@ class TipDelete(OnlyMyTipMixin, DeleteView):
 
 @login_required
 def add_comment(request, pk):
-    tip = get_object_or_404(Tip, pk=pk)
+    tips = Tip.objects.filter(pk=pk).annotate(like_count=Count("likes"))
+    
+    if tips.exists():
+        tip = tips[0]
+    else:
+        raise Http404("そのページは存在しません。")
+    
     if tip.public_set == Tip.PRIVATE:
             raise PermissionDenied('そのページにはコメントできません。')
+        
+    form = CommentForm(request.POST or None)
     if request.method == "POST":
-        form = CommentForm(request.POST)
         if form.is_valid():
             to_users_id = request.POST.getlist('toUsersId',[])
             if to_users_id:
@@ -189,17 +205,17 @@ def add_comment(request, pk):
                 # select文の宛先が選択されていないケース(通常ありえない)
                 messages.error(request, 'コメントに宛先が指定されていません。')
         else:
-            # TODO 現状form.is_validでのエラーは表示されない。フォームがコメント欄しかないので現状そこまで問題ない。
-                # return renderにするとformは設定できるが、TipDetailで実施しているcommentやcodeをcontextに設定する必要がある。viewに書きすぎ？
-                # sessionの設定をPickleSerializerにすればformをsessionに設定可能？(現状はnot JSON serializableでエラー)
             # formのエラーケース
             messages.error(request, 'コメントの作成に失敗しました。')
-        
-        # redirect先でコメントの入力内容を保持するため、sessionにPOSTを設定
-        request.session['comment_form_data'] = request.POST
-        return redirect('app:tip_detail', pk=pk)
-        
-    return redirect('app:tip_detail', pk=pk)
+
+    # renderでreturnする(formのエラーを返すため)ので、TipDetailViewと同様のcontextを設定
+    context = {}
+    context['tip'] = tip
+    #getでアクセスした場合、空のformを返す
+    context['form'] = form
+    context = get_detail_context(request.user, tip, context)
+
+    return render(request, 'app/tip_detail.html', context)
 
 
 @login_required
@@ -232,7 +248,7 @@ def delete_like(request, pk):
         messages.info(request, 'すでにお気に入りから削除済みです。')
         return redirect('app:tip_detail', pk=pk)
 
-    like.first().delete()
+    like.delete()
     messages.success(request, 'お気に入りから削除しました。')
     return redirect('app:tip_detail', pk=pk)
 
@@ -298,13 +314,13 @@ class ThanksView(TemplateView):
 @login_required
 def notifications(request):
     goto = request.GET.get('goto', '')
-    notification_id = request.GET.get('notification', 0)
+    notification_pk = request.GET.get('notification', 0)
     notifications = Notification.objects.filter(to_user=request.user).select_related('tip', 'created_by')
 
     # お知らせをクリック
     if goto != '':
         try:
-            notification = notifications.get(pk=notification_id)
+            notification = notifications.get(pk=notification_pk)
         except Notification.DoesNotExist:
             # url指定で自分以外のお知らせにアクセスしようとした場合
             raise PermissionDenied('そのお知らせへのアクセスは禁止されています。')

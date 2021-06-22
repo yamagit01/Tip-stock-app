@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
 
-@deconstructible 
+@deconstructible
 class FileSizeValidator:
     def __init__(self, val, byte_type="mb"):
         assert byte_type in ["b", "kb", "mb", "gb"]

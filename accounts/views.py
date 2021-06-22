@@ -94,7 +94,7 @@ class WithdrawalView(LoginRequiredMixin, View):
         
     def post(self, request, *args, **kwargs):
         user_data = User.objects.get(id=request.user.id)
-        form = WithdrawalForm(request.POST or None)
+        form = WithdrawalForm(request.POST)
 
         if form.is_valid():
             private_tip_has_left = form.cleaned_data.get('private_tip_has_left')
@@ -131,6 +131,7 @@ class WithdrawalView(LoginRequiredMixin, View):
                 message = EmailMessage(subject=subject, body=contact,to=to_list, bcc=bcc_list)
                 message.send()
             except BadHeaderError:
+                # TODO この時点でログアウトしており、loginページredirectになる？
                 return HttpResponse('無効なヘッダが検出されました。')
 
             # 退会完了ページに移動

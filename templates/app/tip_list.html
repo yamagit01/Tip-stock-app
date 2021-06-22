@@ -34,24 +34,22 @@
                     </div>
                 </div>
             </div>
-            {% if 'tip_list' in request.path_info %}
-                <div class="mb-2">
-                    <label>検索対象：</label>
-                    <div class="search-target">
-                        <div class="btn-group btn-group-sm" role="group">
-                            <input type="radio" class="btn-check" name="searchTarget" id="searchTarget1" autocomplete="off" value="all"
-                                {% if request.GET.searchTarget != 'my' and  request.GET.searchTarget != 'other' %}checked="checked"{% endif %}>
-                            <label class="btn btn-outline-secondary" for="searchTarget1">全体</label>
-                            <input type="radio" class="btn-check" name="searchTarget" id="searchTarget2" autocomplete="off" value="my"
-                                {% if request.GET.searchTarget == 'my' %}checked="checked"{% endif %}>
-                            <label class="btn btn-outline-secondary" for="searchTarget2">自分のTips</label>
-                            <input type="radio" class="btn-check" name="searchTarget" id="searchTarget3" autocomplete="off" value="other"
-                                {% if request.GET.searchTarget == 'other' %}checked="checked"{% endif %}>
-                            <label class="btn btn-outline-secondary" for="searchTarget3">自分以外のTips</label>
-                        </div>
+            <div class="mb-2">
+                <label>検索対象：</label>
+                <div class="search-target">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="searchTarget" id="searchTarget1" autocomplete="off" value="all"
+                            {% if request.GET.searchTarget != 'my' and  request.GET.searchTarget != 'other' %}checked="checked"{% endif %}>
+                        <label class="btn btn-outline-secondary" for="searchTarget1">全体</label>
+                        <input type="radio" class="btn-check" name="searchTarget" id="searchTarget2" autocomplete="off" value="my"
+                            {% if request.GET.searchTarget == 'my' %}checked="checked"{% endif %}>
+                        <label class="btn btn-outline-secondary" for="searchTarget2">自分のTips</label>
+                        <input type="radio" class="btn-check" name="searchTarget" id="searchTarget3" autocomplete="off" value="other"
+                            {% if request.GET.searchTarget == 'other' %}checked="checked"{% endif %}>
+                        <label class="btn btn-outline-secondary" for="searchTarget3">自分以外のTips</label>
                     </div>
                 </div>
-            {% endif %}
+            </div>
         </div>
     </form>
     <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">

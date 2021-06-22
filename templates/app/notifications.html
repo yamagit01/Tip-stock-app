@@ -43,7 +43,7 @@
                     <div class="card-body notification-body">
                         <p class="card-text">
                             {% if notification.category == 'comment' %}
-                                <a href="{% url 'app:notifications' %}?goto=comment&notification={{ notification.id }}">
+                                <a href="{% url 'app:notifications' %}?goto=comment&notification={{ notification.pk }}">
                                     <strong>{{ notification.created_by.username }}</strong>
                                     さんがあなたの「{{ notification.tip.title|truncatechars:15 }}」にコメントしました。</a><br>
                                 <small class="text-muted">受信:{{ notification.created_at|naturaltime }}</small>
@@ -53,7 +53,7 @@
                                     <small class="text-danger">未確認</small>
                                 {% endif %}
                             {% elif notification.category == 'event' %}
-                                <a href="{% url 'app:notifications' %}?goto=event&notification={{ notification.id }}">
+                                <a href="{% url 'app:notifications' %}?goto=event&notification={{ notification.pk }}">
                                     「{{ notification.tip.title|truncatechars:15 }}」が<strong>{{ notification.content }}</strong><br>
                                     <small class="text-muted">{{ notification.created_at|naturaltime }}</small>
                                 </a>

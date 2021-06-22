@@ -16,7 +16,7 @@ class Tip(models.Model):
     PRIVATE = 'private'
     PUBLIC = 'public'
     
-    CHOICES_TYPE = (
+    PUBLIC_SET_CHOICES = (
         (PRIVATE, 'Private'),
         (PUBLIC, 'Public'),
     )
@@ -30,7 +30,7 @@ class Tip(models.Model):
     created_by = models.ForeignKey(get_user_model(), related_name='created_tip', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    public_set = models.CharField(max_length=20, choices=CHOICES_TYPE, default=PRIVATE)
+    public_set = models.CharField(max_length=20, choices=PUBLIC_SET_CHOICES, default=PRIVATE)
     
 
     class Meta:
@@ -110,7 +110,7 @@ class Notification(models.Model):
     # MESSAGE = 'message'
     # FOLLOW = 'follow'
 
-    CHOICES = (
+    CATEGORY_CHOICES = (
         (COMMENT, 'コメント'),
         (EVENT, 'イベント'),
         # (MESSAGE, 'メッセージ'),
@@ -118,7 +118,7 @@ class Notification(models.Model):
     )
 
     to_user = models.ForeignKey(get_user_model(), related_name='notification_to', on_delete=models.CASCADE)
-    category = models.CharField(max_length=20, choices=CHOICES)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     tip = models.ForeignKey(Tip, related_name='notifications', on_delete=models.CASCADE, blank=True, null=True)
     content = models.CharField(max_length=100, blank=True, null=True)
     is_read = models.BooleanField(default=False)
