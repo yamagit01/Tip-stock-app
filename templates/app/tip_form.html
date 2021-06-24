@@ -181,7 +181,7 @@
         <script>
             $(function () {
                 // 初期表示処理
-                CodeMirror.modeURL = "/static/app/js/codemirror/mode/%N/%N.js";
+                CodeMirror.modeURL = "{% static 'app/js/codemirror/mode' %}/%N/%N.js";
                 var code_editor_array = []
                 let code_tab = document.getElementsByClassName('code-tab');
                 let tab_pane = document.getElementsByClassName('tab-pane');

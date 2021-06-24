@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', e => {
             if (initialURL) {
                 img.src = initialURL;
             } else {
-                img.src = '/static/accounts/img/noimage.png';
+                img.src = $('#pic-src').val();
             }
         }
     }

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% load widget_tweaks %}
 
 {% block content %}
@@ -31,6 +32,8 @@
                         </tr>
                     </tbody>
                 </table>
+                <!-- icon未設定時のプレビューのimage(jsで読み込む用) -->
+                <input type="hidden" id="pic-src" value="{% static 'accounts/img/noimage.png' %}">
                 {# non_field_errorを表示 #}
                 {% include 'form_alert.html' %}
                 <div class="button mx-auto text-center">

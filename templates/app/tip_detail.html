@@ -221,7 +221,7 @@
     <script>
         $(function () {
             // CodeMirror初期表示処理
-            CodeMirror.modeURL = "/static/app/js/codemirror/mode/%N/%N.js";
+            CodeMirror.modeURL = "{% static 'app/js/codemirror/mode' %}/%N/%N.js";
             let code_tab = document.getElementsByClassName('code-tab');
             let code_content = document.getElementsByClassName('code-content');
             for (var count = 0; count < code_tab.length; count++) {
