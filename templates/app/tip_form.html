@@ -182,14 +182,14 @@
             $(function () {
                 // 初期表示処理
                 CodeMirror.modeURL = "{% static 'app/js/codemirror/mode' %}/%N/%N.js";
-                var code_editor_array = []
+                let code_editor_array = []
                 let code_tab = document.getElementsByClassName('code-tab');
                 let tab_pane = document.getElementsByClassName('tab-pane');
                 let code_delete = document.getElementsByClassName('code-delete');
-                for (var count = 0; count < code_tab.length; count++) {
+                for (let count = 0; count < code_tab.length; count++) {
                     // CodeMirror初期設定
                     let code_content = tab_pane[count].querySelector('.code-content');
-                    var editor = CodeMirror.fromTextArea(code_content, {
+                    let editor = CodeMirror.fromTextArea(code_content, {
                         lineNumbers: true, // 行番号を表示する
                         fixedGutter: true, // 水平カーソル移動時、行番号表示
                         autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
@@ -198,9 +198,8 @@
                     });
 
                     // ファイル名(拡張子)から対象の言語を判定
-                    let text = code_tab[count].value;
-                    console.log(text)
-                    var filename_info = CodeMirror.findModeByFileName(text);
+                    let text = $.trim(code_tab[count].value);
+                    let filename_info = CodeMirror.findModeByFileName(text);
 
                     if (filename_info) {
                         editor.setOption("mode", filename_info.mode);
@@ -228,17 +227,17 @@
                 $('.add-code').click(function (e) {
                     // tab追加処理(totalのform数を基にid等を編集して追加)
                     e.preventDefault();
-                    var form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
-                    var tmpl_tab = $('#code-tab-template').html();
-                    var tmpl_content = $('#code-content-template').html();
-                    var new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
-                    var new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
+                    let form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
+                    let tmpl_tab = $('#code-tab-template').html();
+                    let tmpl_content = $('#code-content-template').html();
+                    let new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
+                    let new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
                     $('#myTab').append(new_tag_form);
                     $('#myTabContent').append(new_content_form);
                     $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
 
                     // CodeMirror初期設定
-                    var editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`), {
+                    let editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`), {
                         lineNumbers: true, // 行番号を表示する
                         fixedGutter: true, // 水平カーソル移動時、行番号表示
                         autoRefresh: true, // 描画後にリフレッシュ(初期表示時は座標が取得できず表示がうまくいかない)
@@ -256,8 +255,8 @@
                     let target_editor = code_editor_array[Number(id_num)];
 
                     // ファイル名(拡張子)から対象の言語を判定
-                    let text = $(e.target).val();
-                    var filename_info = CodeMirror.findModeByFileName(text);
+                    let text = $.trim($(e.target).val());
+                    let filename_info = CodeMirror.findModeByFileName(text);
 
                     if (filename_info) {
                         target_editor.setOption("mode", filename_info.mode);

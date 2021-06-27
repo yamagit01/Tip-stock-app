@@ -14,7 +14,7 @@
         <div class="col-md-10" style="word-break: break-word;">
             <h2>{{ tip.title }}</h2>
             <div class="my-2">タグ：{% for tag in tip.tags.all %}
-                <span class="tag me-2">{{ tag }}</span>{% endfor %}
+                    <span class="tag me-2">{{ tag }}</span>{% endfor %}
             </div>
             <div class="card mb-3">
                 <div class="card-body detail-card-body">
@@ -175,19 +175,19 @@
                                 {% endif %}
                                 {{ request.user.username }}</p>
                             <span>宛先(お知らせが届く対象)：</span>
-                            <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple>
+                            <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple="multiple">
                                 {% if tip.created_by == request.user %}
-                                    <option selected value="no">なし(コメントがない場合はこの選択のみ)</option>
+                                    <option selected="selected" value="no">なし(コメントがない場合はこの選択のみ)</option>
                                     {% for comment in comments_distinct %}
                                         {% if comment.created_by_id != request.user.id %}
                                             <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    <option selected value="{{ tip.created_by.id }}">登録者:{{ tip.created_by.username }}</option>
+                                    <option selected="selected" value="{{ tip.created_by.id }}">登録者:{{ tip.created_by.username }}</option>
                                     {% for comment in comments_distinct %}
                                         {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
-                                        <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                            <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -224,9 +224,9 @@
             CodeMirror.modeURL = "{% static 'app/js/codemirror/mode' %}/%N/%N.js";
             let code_tab = document.getElementsByClassName('code-tab');
             let code_content = document.getElementsByClassName('code-content');
-            for (var count = 0; count < code_tab.length; count++) {
+            for (let count = 0; count < code_tab.length; count++) {
 
-                var editor = CodeMirror.fromTextArea(code_content[count], {
+                let editor = CodeMirror.fromTextArea(code_content[count], {
                     lineNumbers: true, // 行番号を表示する
                     fixedGutter: true, // 水平カーソル移動時、行番号表示
                     readOnly: true,
@@ -234,9 +234,8 @@
                     theme: "mdn-like", //  theme設定
                 });
 
-                let text = code_tab[count].textContent
-                var filename_info = CodeMirror.findModeByFileName(text);
-
+                let text = $.trim(code_tab[count].textContent)
+                let filename_info = CodeMirror.findModeByFileName(text);
                 if (filename_info) {
                     editor.setOption("mode", filename_info.mode);
                     CodeMirror.autoLoadMode(editor, filename_info.mode);
