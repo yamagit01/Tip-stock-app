@@ -3,8 +3,18 @@
 {% load static %}
 
 {% block extra_css%}
-    <link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css"
+        integrity="sha512-xIf9AdJauwKIVtrVRZ0i4nHP61Ogx9fSRAkCLecmE2dL/U8ioWpDvFCAy4dcfecN72HHB9+7FfQj3aiO68aaaw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"/>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/theme/mdn-like.min.css"
+        integrity="sha512-d1mnXGBFE/kEcVYDWOvqqRQov8YZhS5Eg5i6kX8smrEcMFcFIYpXW000lKxquKR4KdheA0+IE6xSmsmumGYNiA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"/>
 {% endblock %}
 
 {% block content %}
@@ -144,11 +154,31 @@
 
     {% block extra_js %}
         <!-- CodeMirror用js -->
-        <script src="{% static 'app/js/codemirror/lib/codemirror.js' %}"></script>
-        <script src="{% static 'app/js/codemirror/mode/meta.js' %}"></script>
-        <script src="{% static 'app/js/codemirror/keymap/sublime.js' %}"></script>
-        <script src="{% static 'app/js/codemirror/addon/display/autorefresh.js' %}"></script>
-        <script src="{% static 'app/js/codemirror/addon/mode/loadmode.js' %}"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"
+            integrity="sha512-i9pd5Q6ntCp6LwSgAZDzsrsOlE8SN+H5E0T5oumSXWQz5l1Oc4Kb5ZrXASfyjjqtc6Mg6xWbu+ePbbmiEPJlDg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/meta.min.js"
+            integrity="sha512-lA8XNUlWXrCvwl1kuDZKrlftWjM8/G6p7UH3Q9SzUC6YYy59qVLtYBSkOvmmR5O7zrKlXCm6Lo/HFhqyF1Y83A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/autorefresh.min.js"
+            integrity="sha512-vAsKB7xXQAWMn5kcwda0HkFVKUxSYwrmrGprVhmbGFNAG1Ij+2epT3zzdwjHTJyDsKXsiEdrUdhIxh7loHyX+A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/mode/loadmode.min.js"
+            integrity="sha512-oGyW28fDClI1MCVFG1N1hC3OCoYAzOUGkK5XJ1PxibLkCVXcUlqj9Fbrdy8hoVJ2xDKF3SBhOgWkgzxICt9s6A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/keymap/sublime.min.js"
+            integrity="sha512-CB1k89Ilzxp1upm9MpHjWR0Ec2wg/OzDfWC/pmjJkDnxmXMl4AhgZ4bYPdkWjlL6NoLfoZppxHf55hunUgg8wQ=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
 
         <!-- tab追加用js -->
         <script type="text/html" id="code-tab-template">
@@ -181,7 +211,7 @@
         <script>
             $(function () {
                 // 初期表示処理
-                CodeMirror.modeURL = "{% static 'app/js/codemirror/mode' %}/%N/%N.js";
+                CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/%N/%N.min.js";
                 let code_editor_array = []
                 let code_tab = document.getElementsByClassName('code-tab');
                 let tab_pane = document.getElementsByClassName('tab-pane');
