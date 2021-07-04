@@ -99,13 +99,16 @@ class TestTipCreateView(TestCase):
                     'codes-0-content': form_content,
                 }
                 response = self.client.post(self.url, form_data, follow=True)
+                
         
         self.assertRedirects(response, reverse('app:tip_list'), status_code=302, target_status_code=200)
         messages = list(response.context['messages'])
         self.assertEqual(len(messages), 1)
         self.assertEqual(str(messages[0]), 'Tipを登録しました。')
         
-        tip = Tip.objects.get(pk=1)
+        tips = Tip.objects.all()
+        self.assertEqual(tips.count(), 1)
+        tip = tips.first()
         code = Code.objects.get(tip=tip)
 
         self.assertEqual(tip.title, form_title)
@@ -662,7 +665,7 @@ class TestTipUpdateView(TestCase):
                     'codes-INITIAL_FORMS': 1,
                     'codes-MIN_NUM_FORMS': 1,
                     'codes-MAX_NUM_FORMS': 5,
-                    'codes-0-id': '1',
+                    'codes-0-id': self.code.id,
                     'codes-0-filename': '',
                     'codes-0-content': '',
                     'codes-0-DELETE': 'on',
