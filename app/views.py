@@ -219,6 +219,24 @@ def add_comment(request, pk):
 
 
 @login_required
+def delete_comment(request, pk, comment_no):
+    tip = get_object_or_404(Tip, pk=pk)
+    
+    if tip.public_set == Tip.PRIVATE:
+            raise PermissionDenied('そのページにはアクセスできません。')
+    try:
+        comment = Comment.objects.get(tip=tip, no=comment_no, created_by=request.user)
+    except Comment.DoesNotExist:
+        raise PermissionDenied('そのコメントは存在しません。')
+    
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, 'コメントを削除しました。')
+        
+    return redirect('app:tip_detail', pk=pk)
+
+
+@login_required
 def add_like(request, pk):
     tip = get_object_or_404(Tip, pk=pk)
     if tip.public_set == Tip.PRIVATE or tip.created_by == request.user:

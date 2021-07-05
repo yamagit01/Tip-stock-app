@@ -88,7 +88,7 @@ class CommentForm(forms.ModelForm):
             comment = self.save(commit=False)
             comment.tip = tip
             comment.created_by = request.user
-            comment.no = Comment.objects.filter(tip=tip).count() + 1
+            comment.no = Comment.objects.filter(tip=tip).order_by('-no').first().no + 1
             comment.save()
             for to_user_id in (to_users_id or []):
                 to_user = get_user_model().objects.get(id=to_user_id)

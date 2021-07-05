@@ -79,7 +79,12 @@
                             {% if tip.created_by.icon %}
                                 <img src="{{ tip.created_by.icon.url }}" class="icon-display">
                             {% endif %}
-                            {{ tip.created_by.username|truncatechars:20 }}<br>at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}&nbsp;
+                            {% if tip.created_by.is_active %}
+                                {{ tip.created_by.username|truncatechars:20 }}
+                            {% else %}
+                                Inactive User
+                            {% endif %}
+                            <br>at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}&nbsp;
                             {% if tip.public_set == 'private' %}
                                 <span class="text-danger">Private</span>
                             {% else %}

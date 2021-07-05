@@ -108,7 +108,11 @@
                                 {% if tip.created_by.icon %}
                                     <img src="{{ tip.created_by.icon.url }}" class="icon-display">
                                 {% endif %}
-                                {{ tip.created_by.username }}
+                                {% if tip.created_by.is_active %}
+                                    {{ tip.created_by.username }}
+                                {% else %}
+                                    Inactive User
+                                {% endif %}
                             </li>
                         </ul>
                     </div>
@@ -141,9 +145,9 @@
                     class="btn btn-custom btn-outline-dark">戻る</a>
                 {% if tip.created_by == request.user %}
                     <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-custom btn-primary">更新</a>
-                    <form method="post" action="{% url 'app:tip_delete' tip.pk %}" id="delete-form" class="d-inline">
+                    <form method="post" action="{% url 'app:tip_delete' tip.pk %}" id="tip-delete-form" class="d-inline">
                         {% csrf_token %}
-                        <button type="button" class="btn btn-custom btn-danger" id="delete-button">削除</button>
+                        <button type="button" class="btn btn-custom btn-danger" id="tip-delete-button">削除</button>
                     </form>
                 {% endif %}
             </div>
@@ -156,16 +160,35 @@
                                 {% if comment.created_by.icon %}
                                     <img src="{{ comment.created_by.icon.url }}" class="icon-display">
                                 {% endif %}
-                                {{ comment.created_by.username }}&emsp;
+                                {% if comment.created_by.is_active %}
+                                    {{ comment.created_by.username }}
+                                {% else %}
+                                    Inactive User
+                                {% endif %}
+                                &emsp;
                                 <small>宛先:
                                     {% for to_user in comment.to_users.all %}
-                                        [{{ to_user.username }}]
-                                        {% empty %}
+                                        {% if to_user.is_active %}
+                                            [{{ to_user.username }}]
+                                        {% else %}
+                                            [Inactive User]
+                                        {% endif %}
+                                    {% empty %}
                                         なし
                                     {% endfor %}
-                                </small><br>
-                                {{ comment.created_at}}</p>
+                                </small>
+                                <br>
+                                {{ comment.created_at}}
+                            </p>
                             <p>{{comment.text}}</p>
+                            {% if comment.created_by == request.user %}
+                                <form action="{% url 'app:delete_comment' tip.pk comment.no %}" method="POST" id="comment-delete-form">
+                                    {% csrf_token %}
+                                    <div class="text-end">
+                                        <button type="button" class="btn btn-custom btn-secondary" id="comment-delete-button">削除</button>
+                                    </div>
+                                </form>
+                            {% endif %}
                         </div>
                         <hr>
                         {% empty %}
@@ -192,14 +215,25 @@
                                     <option selected="selected" value="no">なし(コメントがない場合はこの選択のみ)</option>
                                     {% for comment in comments_distinct %}
                                         {% if comment.created_by_id != request.user.id %}
-                                            <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                            {% if comment.created_by__is_active %}
+                                                <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 {% else %}
-                                    <option selected="selected" value="{{ tip.created_by.id }}">登録者:{{ tip.created_by.username }}</option>
+                                    <option selected="selected" value="{{ tip.created_by.id }}">
+                                        登録者:
+                                        {% if tip.created_by.is_active %}
+                                            {{ tip.created_by.username }}
+                                        {% else %}
+                                            Inactive User
+                                        {% endif %}
+                                    </option>
                                     {% for comment in comments_distinct %}
                                         {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
-                                            <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                            {% if comment.created_by__is_active %}
+                                                <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -270,9 +304,9 @@
                 }
             }
 
-            // 削除ボタンクリック時のダイアログ表示
-            $("#delete-button").click(function () {
-                swal("本当に削除にしてもよろしいですか？", {
+            // Tip削除ボタンクリック時のダイアログ表示
+            $("#tip-delete-button").click(function () {
+                swal("本当にこのTipを削除してもよろしいですか？", {
                     icon: 'warning',
                     buttons: {
                         yes: "はい",
@@ -282,7 +316,28 @@
                     switch (value) {
 
                         case "yes":
-                            $("#delete-form").submit();
+                            $("#tip-delete-form").submit();
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
+            })
+
+            // コメント削除ボタンクリック時のダイアログ表示
+            $("#comment-delete-button").click(function () {
+                swal("本当にこのコメントを削除してもよろしいですか？", {
+                    icon: 'warning',
+                    buttons: {
+                        yes: "はい",
+                        cancel: "キャンセル"
+                    }
+                }).then((value) => {
+                    switch (value) {
+
+                        case "yes":
+                            $("#comment-delete-form").submit();
                             break;
 
                         default:
