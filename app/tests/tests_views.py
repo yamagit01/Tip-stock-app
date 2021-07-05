@@ -264,7 +264,7 @@ class TestTipDetailView(TestCase):
         self.assertContains(response, '1人がお気に入りに入れています。')
         self.assertContains(response, 'お気に入りから外す')
         self.assertNotContains(response, '更新</a>')
-        self.assertNotContains(response, '削除</button>')
+        self.assertNotContains(response, 'id="tip-delete-button">削除</button>')
         
     def test_display_public_tip_with_comment_and_like_to_create_user(self):
 
@@ -279,7 +279,7 @@ class TestTipDetailView(TestCase):
         self.assertNotContains(response, 'お気に入りから外す')
         self.assertNotContains(response, 'お気に入りに入れる')
         self.assertContains(response, '更新</a>')
-        self.assertContains(response, '削除</button>')
+        self.assertContains(response, 'id="tip-delete-button">削除</button>')
         
     def test_display_private_tip(self):
 
@@ -292,7 +292,7 @@ class TestTipDetailView(TestCase):
         self.assertNotContains(response, 'お気に入りから外す')
         self.assertNotContains(response, 'お気に入りに入れる')
         self.assertContains(response, '更新</a>')
-        self.assertContains(response, '削除</button>')
+        self.assertContains(response, 'id="tip-delete-button">削除</button>')
         
 
 class TestTipListView(TestCase):
