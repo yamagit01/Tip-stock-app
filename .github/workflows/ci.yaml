@@ -52,6 +52,8 @@ jobs:
       #   run: pycodestyle --statistics .
       - name: Run Migrations # run migrations to create table in side car db container
         run: python manage.py migrate --settings config.settings.ci_settings
+      - name: Run Collectstatic # run collectstatic
+        run: python manage.py collectstatic --settings config.settings.ci_settings --no-input --clear
       - name: Run Test # running tests
         run: python manage.py test --settings config.settings.ci_settings
 
