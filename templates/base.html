@@ -60,8 +60,27 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a href="/" class="nav-link">ホーム</a>
+                        <li class="nav-item dropdown">
+                            <a
+                                class="nav-link dropdown-toggle"
+                                href="#"
+                                id="navbarDropdown-home"
+                                role="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                ホーム
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown-home">
+                                <li>
+                                    <a class="dropdown-item" href="/">ホーム</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'app:terms' %}">利用規約</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'app:policy' %}">プライバシーポリシー</a>
+                                </li>
+                            </ul>
                         </li>
                         {% if user.is_authenticated %}
                             <li class="nav-item">
@@ -80,13 +99,13 @@
                                 <a
                                     class="nav-link dropdown-toggle"
                                     href="#"
-                                    id="navbarDropdown"
+                                    id="navbarDropdown-user"
                                     role="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false">
                                     ユーザ
                                 </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown-user">
                                     <li>
                                         <a class="dropdown-item" href="{% url 'accounts:profile' %}">プロフィール</a>
                                     </li>

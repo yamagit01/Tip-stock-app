@@ -378,3 +378,11 @@ def notifications(request):
     return render(request, 'app/notifications.html', {
         'notifications': notifications
     })
+
+
+class TermsView(TemplateView):
+    template_name = 'app/terms.html'
+    
+    
+class PolicyView(TemplateView):
+    template_name = 'app/policy.html'
