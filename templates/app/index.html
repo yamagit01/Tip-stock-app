@@ -49,22 +49,50 @@
                     <h5 class="menu-title">
                         <strong>Tip Form</strong>
                     </h5>
-                    <p>Tip FormからTip(コード)を登録します。特定のファイルに対するコードを登録できるよう、ファイル名とコードをセットで入力することができます。</p>
+                    <p>
+                        Tip FormからTip(コード)を登録します。特定のファイルに対するコードを登録できるよう、ファイル名とコードをセットで入力することができます。<br>
+                        ファイル名(拡張子)から言語を特定することで、コードが言語に応じたハイライト表示となります。
+                    </p>
                 </div>
                 <div class="menu-item">
                     <h5 class="menu-title">
                         <strong>My Tips</strong>
                     </h5>
-                    <p>My Tipsでは自身が登録したTipの一覧を検索・確認することができ、各Tipを選択することで登録内容の確認・更新・削除を実施することができます。</p>
+                    <p>
+                        My Tipsでは自身が登録したTipの一覧を検索・確認することができ、各Tipを選択することで登録内容の確認・更新・削除を実施することができます。<br>
+                        Public TipsからTipをお気に入り登録すると、My Tipでも表示されるようになります。
+                    </p>
                 </div>
                 <div class="menu-item">
                     <h5 class="menu-title">
                         <strong>Public Tips</strong>
                     </h5>
-                    <p>Public Tipsでは、Tipの公開範囲がPublicとなっているTipの一覧が表示され、自分以外のTipを検索・確認することができます。<br>
-                        Tipに対してお気に入り登録やコメントをすることができ、お気に入り登録したTipはMyTipでも表示されるようになります。</p>
+                    <p>
+                        Public Tipsでは、Tipの公開範囲がPublicとなっているTipの一覧が表示され、他の人が投稿したTipも検索・確認することができます。<br>
+                        Tipに対してお気に入り登録やコメント投稿をすることができます。
+                    </p>
                 </div>
             </div>
+            <h5 class="menu-title">
+                <strong>その他</strong>
+            </h5>
+            <ul>
+                <li>
+                    ユーザのプロフィール画面よりユーザ名、アイコン、パスワードの設定・変更が可能となります（メールアドレスの変更は不可）。
+                </li>
+                <li>
+                    お気に入り登録はTipを２つ以上登録しないと実行できません。
+                </li>
+                <li>
+                    Tipに登録したファイルおよびURLはセキュリテイの観点から、登録者のみリンクが貼られて表示されます。
+                </li>
+                <li>
+                    お知らせは現時点でコメントを送信した際に宛先指定されたユーザに届きます(リアルタイムではなくページロード時に件数が更新されます)。
+                </li>
+                <li>
+                    今後はメッセージによるコミュニケーション機能やお知らせのメール受信設定機能等は追加していく予定です。
+                </li>
+            </ul>
         </div>
     </section>
     <section class="note section">
@@ -72,7 +100,7 @@
             <h2 class="section-title">注意事項</h2>
             <p class="note-message">本サービスはWeb開発初心者がポートフォリオとして作成したものです。</p>
             <p class="note-message">そのため、不具合等でサービスが利用できない状況に陥ることも十分考えられます。</p>
-            <p class="note-message">その点ご留意の上、利用頂ければと思います。</p>
+            <p class="note-message">その点ご留意の上、ご利用頂きたく存じます。</p>
             <p class="note-message">ご利用時は、<a href="{% url 'app:terms' %}">利用規約</a>  及び <a href="{% url 'app:policy' %}">プライバシーポリシー</a> に同意したこととさせて頂きます。</p>
             <p class="note-message">不備ありましたら、ご連絡頂ければ幸いです。</p>
         </div>

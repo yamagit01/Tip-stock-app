@@ -26,7 +26,7 @@
             <form action="" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="form-group mb-3">
-                    <label>タイトル<span class="text-danger">（必須）</span></label>
+                    <label>タイトル（最大50文字）<span class="text-danger">（必須）</span></label>
                     {% render_field form.title class="form-control" %}
                     {% for error in form.title.errors %}
                         <p class="text-danger">{{ error }}</p>
