@@ -2,6 +2,7 @@ import textwrap
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
@@ -22,7 +23,7 @@ class OnlyMyTipMixin(UserPassesTestMixin):
     raise_exception = True
     def test_func(self):
         try:
-            tip = Tip.objects.get(id = self.kwargs['pk'])
+            tip = Tip.objects.get(id=self.kwargs['pk'])
         except Tip.DoesNotExist:
             raise PermissionDenied('そのページは非公開です。')
         return tip.created_by == self.request.user
@@ -40,6 +41,46 @@ def get_detail_context(user, tip, context):
     context['codes'] = Code.objects.filter(tip=tip)
     
     return context
+
+
+def tips_filter_and_order_by_with_request(request, queryset):
+    """
+    tipのquerysetに対してrequestのパラメータを基に以下の処理をしてquerysetを返す
+    ・検索対象(searchTarget)でfilter
+    ・検索内容(query,tagQuery)でfilter
+    ・表示順(displayOrder)でorder_by
+    """
+
+    # 表示対象で抽出
+    search_target = request.GET.get('searchTarget','')
+
+    if search_target == 'my':
+        queryset = queryset.filter(created_by=request.user)
+    elif search_target == 'other':
+        queryset = queryset.exclude(created_by=request.user)
+    else:
+        pass
+
+    # 検索内容で抽出
+    query = request.GET.get('query','')
+    tagquery = request.GET.get('tagQuery','')
+
+    if query:
+        queryset = queryset.filter(
+            Q(title__icontains=query) | Q(description__icontains=query) | Q(codes__filename__icontains=query) | Q(codes__content__icontains=query)
+        ).distinct()
+    if tagquery:
+        queryset = queryset.filter(tags__name__icontains=tagquery)
+
+    # 表示順で並び替え
+    display_order = request.GET.get('displayOrder','')
+
+    if display_order == 'liked':
+        queryset = queryset.annotate(num_likes=Count('likes')).order_by('-num_likes', '-updated_at')
+    else:
+        queryset = queryset.order_by('-updated_at')
+
+    return queryset
 
 
 class IndexView(TemplateView):
@@ -104,34 +145,9 @@ class TipListView(LoginRequiredMixin, ListView):
         else:
             raise Http404("そのページは存在しません。")
 
-        # 表示対象で抽出
-        search_target = self.request.GET.get('searchTarget','')
-
-        if search_target == 'my':
-            queryset = queryset.filter(created_by=self.request.user)
-        elif search_target == 'other':
-            queryset = queryset.exclude(created_by=self.request.user)
-        else:
-            pass
-
-        # 検索内容で抽出
-        query = self.request.GET.get('query','')
-        tagquery = self.request.GET.get('tagQuery','')
-
-        if query:
-            queryset = queryset.filter(
-                Q(title__icontains=query) | Q(description__icontains=query) | Q(codes__filename__icontains=query) | Q(codes__content__icontains=query)
-            ).distinct()
-        if tagquery:
-            queryset = queryset.filter(tags__name__icontains=tagquery)
-
-        # 表示順で並び替え
-        display_order = self.request.GET.get('displayOrder','')
-
-        if display_order == 'liked':
-            queryset = queryset.annotate(num_likes=Count('likes')).order_by('-num_likes')
-        else:
-            queryset = queryset.order_by('-updated_at')
+        # querysetをrequestの内容でfilterとorder_by
+        if queryset.exists():
+            queryset = tips_filter_and_order_by_with_request(self.request, queryset)
 
         return queryset
 
@@ -386,3 +402,24 @@ class TermsView(TemplateView):
     
 class PolicyView(TemplateView):
     template_name = 'app/policy.html'
+
+
+class UserTipView(LoginRequiredMixin, ListView):
+    model = Tip
+    template_name = 'app/usertip.html'
+    paginate_by = 12
+
+    def get_queryset(self):
+        
+        queryset = Tip.objects.filter(created_by_id=self.kwargs['id'], public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
+        
+        # querysetをrequestの内容でfilterとorder_by
+        if queryset.exists():
+            queryset = tips_filter_and_order_by_with_request(self.request, queryset)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = get_object_or_404(get_user_model(), id=self.kwargs['id'])
+        return context

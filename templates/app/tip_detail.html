@@ -105,14 +105,16 @@
                             <li class="list-group-item">登録日時：{{ tip.created_at }}</li>
                             <li class="list-group-item">
                                 登録者&emsp;：
-                                {% if tip.created_by.icon %}
-                                    <img src="{{ tip.created_by.icon.url }}" class="icon-display">
-                                {% endif %}
-                                {% if tip.created_by.is_active %}
-                                    {{ tip.created_by.username }}
-                                {% else %}
-                                    Inactive User
-                                {% endif %}
+                                <a href="{% url 'app:usertip' tip.created_by_id %}">
+                                    {% if tip.created_by.icon %}
+                                        <img src="{{ tip.created_by.icon.url }}" class="icon-display">
+                                    {% endif %}
+                                    {% if tip.created_by.is_active %}
+                                        {{ tip.created_by.username }}
+                                    {% else %}
+                                        Inactive User
+                                    {% endif %}
+                                </a>
                             </li>
                         </ul>
                     </div>

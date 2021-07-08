@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load static %}
+
+{% block title %}{{ user.username }}さんのTips{% endblock %}
+
+{% block content %}
+    <h2 class="my-3" style="word-break: break-word;">
+        {% if user.icon %}
+            <img src="{{ user.icon.url }}" class="icon-userpage">
+        {% endif %}
+        {{ user.username }}さんのTips
+    </h2>
+    <form method="get" name="searchForm">
+        <div class="mb-3">
+            <div class="mb-2 d-md-flex align-items-center">
+                <label>検索内容：</label>
+                <div class="form-group d-flex">
+                    <div class="me-2">
+                        <input type="search" value="{{ request.GET.query }}" name="query" class="query-search form-control" placeholder="タイトルor説明orコード">
+                        <input
+                            type="search"
+                            value="{{ request.GET.tagQuery }}"
+                            name="tagQuery"
+                            placeholder="タグ"
+                            class="tag-search form-control">
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-outline-primary">Search</button>
+                </div>
+            </div>
+            <div class="mb-2">
+                <label>表示順(降順)：</label>
+                <div class="display-order">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <input type="radio" class="btn-check" name="displayOrder" id="displayOrder1" autocomplete="off" value="updated"
+                            {% if request.GET.displayOrder != 'liked' %}checked="checked"{% endif %}>
+                        <label class="btn btn-outline-secondary" for="displayOrder1">更新年月日</label>
+                        <input type="radio" class="btn-check" name="displayOrder" id="displayOrder2" autocomplete="off" value="liked"
+                            {% if request.GET.displayOrder == 'liked' %}checked="checked"{% endif %}>
+                        <label class="btn btn-outline-secondary" for="displayOrder2">お気に入り数</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row row-cols-1 row-cols-md-3 g-4 mt-3">
+        {% for tip in object_list %}
+            <div class="col">
+                <div class="card h-80 card-effect">
+                    <div class="card-header">
+                        {% for tag in tip.tags.all|slice:":3" %}
+                            {% if forloop.counter == 3%}
+                                <small>...</small>
+                            {% else %}
+                                <span class="tag">{{ tag|truncatechars:10 }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="card-text">
+                            <p class="mb-1"><strong>{{ tip.title|truncatechars:15 }}</strong></p>
+                            <p class="mb-1"><small>{{ tip.description|truncatechars:50 }}</small></p>
+                        </div>
+                        <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
+                    </div>
+                    <div class="card-footer text-muted text-center">
+                        <small>by&nbsp;
+                            {% if tip.created_by.icon %}
+                                <img src="{{ tip.created_by.icon.url }}" class="icon-display">
+                            {% endif %}
+                            {% if tip.created_by.is_active %}
+                                {{ tip.created_by.username|truncatechars:20 }}
+                            {% else %}
+                                Inactive User
+                            {% endif %}
+                            <br>at&nbsp;{{ tip.updated_at|date:"Y/m/d" }}&nbsp;
+                            {% if tip.public_set == 'private' %}
+                                <span class="text-danger">Private</span>
+                            {% else %}
+                                <i class="fas fa-heart" style="color: pink;"></i>&nbsp;{{ tip.like_count }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            {% empty %}
+            <h3>投稿がありません</h3>
+        {% endfor %}
+    </div>
+    {# ページネーションを表示 #}
+    {% include 'app/pagenation.html' %}
+    <br>
+
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        $(function () {
+            // 検索フォームの表示順・検索対象内のいずれかのボタンがクリックされたらsubmit
+            $(document).on('change', '.btn-group', function (e) {
+                document.searchForm.submit();
+            });
+        });
+    </script>
+
+{% endblock %}

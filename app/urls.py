@@ -21,4 +21,5 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('terms/', views.TermsView.as_view(), name='terms'),
     path('policy/', views.PolicyView.as_view(), name='policy'),
+    path('usertip/<int:id>/', views.UserTipView.as_view(), name='usertip'),
 ]
