@@ -55,6 +55,7 @@ class Code(models.Model):
 
     class Meta:
         db_table = 'code'
+        ordering =('tip',)
         
     def __str__(self):
         return f'{self.tip} - {self.filename}'
@@ -91,6 +92,7 @@ class Like(models.Model):
     
     class Meta:
         db_table = 'like'
+        ordering =('tip',)
         constraints = [
             models.UniqueConstraint(fields=['tip', 'created_by'], name='unique_like'),
         ]
@@ -127,7 +129,7 @@ class Notification(models.Model):
 
     class Meta:
         db_table = 'notification'
-        ordering =('is_read', '-created_at')
+        ordering =('to_user', 'is_read', '-created_at')
         
     def __str__(self):
         return f'{self.to_user} - {self.created_at}'
