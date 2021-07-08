@@ -5,12 +5,23 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Django",
+            "name": "Python: Django Runserver",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
             "args": [
                 "runserver"
+            ],
+            "justMyCode": false,
+            "django": true
+        },
+        {
+            "name": "Python: Django Test",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/manage.py",
+            "args": [
+                "test"
             ],
             "justMyCode": false,
             "django": true
