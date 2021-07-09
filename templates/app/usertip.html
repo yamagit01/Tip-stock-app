@@ -2,14 +2,14 @@
 {% load widget_tweaks %}
 {% load static %}
 
-{% block title %}{{ user.username }}さんのTips{% endblock %}
+{% block title %}{{ tip_user.username }}さんのTips{% endblock %}
 
 {% block content %}
     <h2 class="my-3" style="word-break: break-word;">
-        {% if user.icon %}
-            <img src="{{ user.icon.url }}" class="icon-userpage">
+        {% if tip_user.icon %}
+            <img src="{{ tip_user.icon.url }}" class="icon-userpage">
         {% endif %}
-        {{ user.username }}さんのTips
+        {{ tip_user.username }}さんのTips
     </h2>
     <form method="get" name="searchForm">
         <div class="mb-3">

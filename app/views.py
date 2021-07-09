@@ -32,7 +32,8 @@ class OnlyMyTipMixin(UserPassesTestMixin):
 def get_detail_context(user, tip, context):
     """detail.html表示時に必要なtipに紐づくデータをcontextに格納"""
     # お気に入り済み判定を設定
-    context['is_liked'] = tip.is_liked_by_user(user)
+    if user.is_authenticated:
+        context['is_liked'] = tip.is_liked_by_user(user)
     # コメントを設定
     comments = Comment.objects.filter(tip=tip).select_related('created_by').prefetch_related('to_users')
     context['comments'] = comments
@@ -105,7 +106,7 @@ class TipCreateView(LoginRequiredMixin, CreateView):
         return resolve_url('app:tip_list')
 
 
-class TipDetailView(LoginRequiredMixin, DetailView):
+class TipDetailView(DetailView):
     model = Tip
     
     def get_object(self):
@@ -128,41 +129,55 @@ class TipDetailView(LoginRequiredMixin, DetailView):
         return queryset
 
 
-class TipListView(LoginRequiredMixin, ListView):
+class TipPublicListView(ListView):
     model = Tip
     paginate_by = 12
 
     def get_queryset(self):
-        path = self.request.path_info
 
-        # My Tips と Public Tips で表示するTipを変更
-        if 'tip_list' in path:
-            queryset = Tip.objects.filter(
-                Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
-            ).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
-        elif 'tip_public_list' in path:
-            queryset = Tip.objects.filter(public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
-        else:
-            raise Http404("そのページは存在しません。")
+        queryset = Tip.objects.filter(public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
 
         # querysetをrequestの内容でfilterとorder_by
         if queryset.exists():
             queryset = tips_filter_and_order_by_with_request(self.request, queryset)
+        else:
+            # order_byがないとpagenateでwarningが出るためつける
+            queryset = queryset.order_by('-updated_at')
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['title'] = 'Public Tips'
+
+        return context
+
+
+class TipMyListView(LoginRequiredMixin, ListView):
+    model = Tip
+    paginate_by = 12
+
+    def get_queryset(self):
         path = self.request.path_info
 
-        # My Tips と Public Tips で表示するtitleを変更
-        if 'tip_list' in path:
-            context['title'] = 'My Tips'
-        elif 'tip_public_list' in path:
-            context['title'] = 'Public Tips'
+        queryset = Tip.objects.filter(
+            Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
+        ).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
+
+        # querysetをrequestの内容でfilterとorder_by
+        if queryset.exists():
+            queryset = tips_filter_and_order_by_with_request(self.request, queryset)
         else:
-            raise Http404("そのページは存在しません。")
+            # order_byがないとpagenateでwarningが出るためつける
+            queryset = queryset.order_by('-updated_at')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = 'My Tips'
 
         return context
 
@@ -404,10 +419,15 @@ class PolicyView(TemplateView):
     template_name = 'app/policy.html'
 
 
-class UserTipView(LoginRequiredMixin, ListView):
+class UserTipView(ListView):
     model = Tip
     template_name = 'app/usertip.html'
     paginate_by = 12
+    
+    def get(self, request, *args, **kwargs):
+        if request.user.id == self.kwargs['id']:
+            return redirect('app:tip_list')
+        return super().get(request, *args, **kwargs)
 
     def get_queryset(self):
         
@@ -416,10 +436,13 @@ class UserTipView(LoginRequiredMixin, ListView):
         # querysetをrequestの内容でfilterとorder_by
         if queryset.exists():
             queryset = tips_filter_and_order_by_with_request(self.request, queryset)
+        else:
+            # order_byがないとpagenateでwarningが出るためつける
+            queryset = queryset.order_by('-updated_at')
 
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['user'] = get_object_or_404(get_user_model(), id=self.kwargs['id'])
+        context['tip_user'] = get_object_or_404(get_user_model(), id=self.kwargs['id'])
         return context

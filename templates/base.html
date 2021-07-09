@@ -82,15 +82,15 @@
                                 </li>
                             </ul>
                         </li>
-                        {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a href="{% url 'app:tip_public_list' %}" class="nav-link">Public Tips</a>
+                        </li>
+                        {% if request.user.is_authenticated %}
                             <li class="nav-item">
                                 <a href="{% url 'app:tip_create' %}" class="nav-link">Tip Form</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{% url 'app:tip_list' %}" class="nav-link">My Tips</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{% url 'app:tip_public_list' %}" class="nav-link">Public Tips</a>
                             </li>
                             <li class="nav-item">
                                 <a href="{% url 'app:notifications' %}" class="nav-link">お知らせ ({{ notifications_count }})</a>

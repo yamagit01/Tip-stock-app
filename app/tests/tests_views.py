@@ -17,16 +17,49 @@ from django.utils import timezone
 from freezegun import freeze_time
 
 
-class TestIndexView(unittest.TestCase):
+class TestIndexView(TestCase):
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserFactory()
+        cls.url =reverse('app:index')
         
-    def test_get_request(self):
-        """getリクエストの正常確認"""
+    def test_get_request_by_anonymous_user(self):
+        """getリクエストの正常確認（未ログインユーザ）"""
         
-        client = Client()
-        response = client.get(reverse('app:index'))
+        response = self.client.get(self.url)
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.template_name, ['app/index.html'])
+        self.assertContains(response, 'ホーム</a>')
+        self.assertContains(response, 'Public Tips</a>')
+        self.assertContains(response, 'ユーザ登録</a>')
+        self.assertContains(response, 'ログイン</a>')
+        self.assertContains(response, 'お問い合わせ</a>')
+        self.assertNotContains(response, 'Tip Form</a>')
+        self.assertNotContains(response, 'My Tips</a>')
+        self.assertNotContains(response, 'お知らせ (0)</a>')
+        self.assertNotContains(response, 'プロフィール</a>')
+        self.assertNotContains(response, 'ログアウト</a>')
+
+    def test_get_request_by_login_user(self):
+        """getリクエストの正常確認（ログインユーザ）"""
+        
+        self.client.force_login(self.user)
+        response = self.client.get(self.url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.template_name, ['app/index.html'])
+        self.assertContains(response, 'ホーム</a>')
+        self.assertContains(response, 'Public Tips</a>')
+        self.assertNotContains(response, 'ユーザ登録</a>')
+        self.assertNotContains(response, 'ログイン</a>')
+        self.assertContains(response, 'お問い合わせ</a>')
+        self.assertContains(response, 'Tip Form</a>')
+        self.assertContains(response, 'My Tips</a>')
+        self.assertContains(response, 'お知らせ (0)</a>')
+        self.assertContains(response, 'プロフィール</a>')
+        self.assertContains(response, 'ログアウト</a>')
 
 
 class TestTipCreateView(TestCase):
@@ -139,15 +172,23 @@ class TestTipDetailView(TestCase):
         cls.private_tip_url =reverse('app:tip_detail', args=[cls.private_tip.pk])
         cls.public_tip_url =reverse('app:tip_detail', args=[cls.public_tip.pk])
         cls.public_tip2_url =reverse('app:tip_detail', args=[cls.public_tip_no_comment_and_like.pk])
+
+    def test_get_request_to_private_tip_by_anonymous_user(self):
+        """getリクエスト/未ログインユーザ/PrivateTip/403エラー"""
         
-    def test_user_must_be_logged_in(self):
-        """未ログインユーザはログインページにリダイレクト"""
+        response = self.client.get(self.private_tip_url)
         
-        response = self.client.get(self.public_tip_url, follow=True)
-        expected_url = settings.LOGIN_URL + "?next=" + urllib.parse.quote(self.public_tip_url, "")
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, '403.html')
         
-        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+    def test_get_request_to_public_tip_by_anonymous_user(self):
+        """getリクエスト/未ログインユーザ/PublicTip/正常"""
         
+        response = self.client.get(self.public_tip_url)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'app/tip_detail.html')
+
     def test_get_request_to_private_tip_by_cerate_user(self):
         """getリクエスト/Tip作成者/PrivateTip/正常"""
         
@@ -293,6 +334,33 @@ class TestTipDetailView(TestCase):
         self.assertNotContains(response, 'お気に入りに入れる')
         self.assertContains(response, '更新</a>')
         self.assertContains(response, 'id="tip-delete-button">削除</button>')
+
+    def test_display_public_tip_with_no_comment_and_like_to_anonymous_user(self):
+
+        response = self.client.get(self.public_tip2_url)
+        
+        self.assertContains(response, 'まだコメントはありません')
+        self.assertNotContains(response, 'コメント投稿')
+        self.assertContains(response, '0人がお気に入りに入れています。')
+        self.assertNotContains(response, 'お気に入りから外す')
+        self.assertNotContains(response, 'お気に入りに入れる')
+        self.assertNotContains(response, '更新</a>')
+        self.assertNotContains(response, 'id="tip-delete-button">削除</button>')
+        
+    def test_display_public_tip_with_comment_and_like_to_anonymous_user(self):
+
+        response = self.client.get(self.public_tip_url)
+        
+        self.assertContains(response, self.comment.text)
+        self.assertNotContains(response, 'コメント投稿')
+        self.assertNotContains(response, 'なし(コメントがない場合はこの選択のみ)')
+        self.assertNotContains(response, '登録者:')
+        self.assertContains(response, '1人がお気に入りに入れています。')
+        self.assertNotContains(response, 'お気に入りから外す')
+        self.assertNotContains(response, 'お気に入りに入れる')
+        self.assertNotContains(response, '更新</a>')
+        self.assertNotContains(response, 'id="tip-delete-button">削除</button>')
+        
         
 
 class TestTipListView(TestCase):
@@ -303,22 +371,22 @@ class TestTipListView(TestCase):
         cls.user2 = UserFactory()
         cls.tip_list_url =reverse('app:tip_list')
         cls.tip_public_list_url =reverse('app:tip_public_list')
-        
-    def test_user_must_be_logged_in_to_tip_list(self):
-        """未ログインユーザはログインページにリダイレクト(tip_list)"""
+
+    def test_get_request_to_private_tip_by_anonymous_user(self):
+        """getリクエスト/未ログインユーザ/tip_list/ログインページにリダイレクト"""
         
         response = self.client.get(self.tip_list_url, follow=True)
         expected_url = settings.LOGIN_URL + "?next=" + urllib.parse.quote(self.tip_list_url, "")
         
         self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
         
-    def test_user_must_be_logged_in_to_tip_public_list(self):
-        """未ログインユーザはログインページにリダイレクト(tip_public_list)"""
+    def test_get_request_to_public_tip_by_anonymous_user(self):
+        """getリクエスト/未ログインユーザ/tip_public_list/正常"""
         
-        response = self.client.get(self.tip_public_list_url, follow=True)
-        expected_url = settings.LOGIN_URL + "?next=" + urllib.parse.quote(self.tip_public_list_url, "")
+        response = self.client.get(self.tip_public_list_url)
         
-        self.assertRedirects(response, expected_url, status_code=302, target_status_code=200)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'app/tip_list.html')
         
     def test_get_request_to_tip_list(self):
         """getリクエスト(tip_list)の正常確認"""
@@ -564,9 +632,9 @@ class TestTipListView(TestCase):
     def test_get_request_with_pagination(self):
         """getリクエストのpagination確認"""
         
-        from app.views import TipListView
+        from app.views import TipMyListView
         
-        TipFactory.create_batch(TipListView.paginate_by, created_by=self.user1)
+        TipFactory.create_batch(TipMyListView.paginate_by, created_by=self.user1)
         
         self.client.force_login(self.user1)
         response = self.client.get(self.tip_list_url)

@@ -124,7 +124,7 @@
             {% if tip.public_set == 'public' %}
                 <div class="mb-3">
                     <small>{{ tip.like_count }}人がお気に入りに入れています。</small>
-                    {% if tip.created_by != request.user %}
+                    {% if tip.created_by != request.user and request.user.is_authenticated %}
                         {% if is_liked %}
                             <a
                                 href="{% url 'app:delete_like' tip.pk %}"
@@ -200,58 +200,60 @@
                     {% endfor %}
                 </div>
                 <!--//コメント表示-->
-                <!--コメント投稿-->
-                <h4>コメント投稿</h4>
-                <div class="mb-3">
-                    <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <p>名前：
-                                {% if request.user.icon %}
-                                    <img src="{{ request.user.icon.url }}" class="icon-display">
-                                {% endif %}
-                                {{ request.user.username }}</p>
-                            <span>宛先(お知らせが届く対象)：</span>
-                            <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple="multiple">
-                                {% if tip.created_by == request.user %}
-                                    <option selected="selected" value="no">なし(コメントがない場合はこの選択のみ)</option>
-                                    {% for comment in comments_distinct %}
-                                        {% if comment.created_by_id != request.user.id %}
-                                            {% if comment.created_by__is_active %}
-                                                <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                {% if request.user.is_authenticated %}
+                    <!--コメント投稿-->
+                    <h4>コメント投稿</h4>
+                    <div class="mb-3">
+                        <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <p>名前：
+                                    {% if request.user.icon %}
+                                        <img src="{{ request.user.icon.url }}" class="icon-display">
+                                    {% endif %}
+                                    {{ request.user.username }}</p>
+                                <span>宛先(お知らせが届く対象)：</span>
+                                <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple="multiple">
+                                    {% if tip.created_by == request.user %}
+                                        <option selected="selected" value="no">なし(コメントがない場合はこの選択のみ)</option>
+                                        {% for comment in comments_distinct %}
+                                            {% if comment.created_by_id != request.user.id %}
+                                                {% if comment.created_by__is_active %}
+                                                    <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                                {% endif %}
                                             {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <option selected="selected" value="{{ tip.created_by.id }}">
-                                        登録者:
-                                        {% if tip.created_by.is_active %}
-                                            {{ tip.created_by.username }}
-                                        {% else %}
-                                            Inactive User
-                                        {% endif %}
-                                    </option>
-                                    {% for comment in comments_distinct %}
-                                        {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
-                                            {% if comment.created_by__is_active %}
-                                                <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                        {% endfor %}
+                                    {% else %}
+                                        <option selected="selected" value="{{ tip.created_by.id }}">
+                                            登録者:
+                                            {% if tip.created_by.is_active %}
+                                                {{ tip.created_by.username }}
+                                            {% else %}
+                                                Inactive User
                                             {% endif %}
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            </select>
-                            <p>コメント</p>
-                            {% render_field form.text class="form-control" %}
-                            {% for error in form.text.errors %}
-                                <p class="text-danger">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                        {# non_field_errorを表示 #}
-                        {% include 'form_alert.html' %}
-                        <button type="submit" class="btn btn-custom btn-success">投稿</button>
-                    </form>
-                </div>
-                <!--//コメント投稿-->
+                                        </option>
+                                        {% for comment in comments_distinct %}
+                                            {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
+                                                {% if comment.created_by__is_active %}
+                                                    <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                                <p>コメント</p>
+                                {% render_field form.text class="form-control" %}
+                                {% for error in form.text.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {# non_field_errorを表示 #}
+                            {% include 'form_alert.html' %}
+                            <button type="submit" class="btn btn-custom btn-success">投稿</button>
+                        </form>
+                    </div>
+                    <!--//コメント投稿-->
+                {% endif %}
             {% endif %}
         </div>
     </div>
