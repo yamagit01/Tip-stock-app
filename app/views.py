@@ -162,7 +162,7 @@ class TipMyListView(LoginRequiredMixin, ListView):
         path = self.request.path_info
 
         queryset = Tip.objects.filter(
-            Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
+            Q(created_by=self.request.user) | Q(likes__created_by=self.request.user, public_set=Tip.PUBLIC)
         ).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
 
         # querysetをrequestの内容でfilterとorder_by
@@ -335,13 +335,18 @@ class ContactView(View):
                 ■メッセージ
                 {message}
                 -----------------------
+                
+                TipStock
+                https://www.tipstock.info/
+                [お問い合わせページ]
+                https://www.tipstock.info/contact/
                 ''').format(
                     name=name,
                     email=email,
                     message=message,
                 )
             to_list = [email]
-            bcc_list = [settings.EMAIL_HOST_USER]
+            bcc_list = [settings.BCC_EMAIL]
 
             try:
                 message = EmailMessage(subject=subject, body=contact,to=to_list, bcc=bcc_list)
