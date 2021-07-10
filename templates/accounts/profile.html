@@ -24,6 +24,21 @@
                             src="{% if user_data.icon %}{{ user_data.icon.url }}{% else %}{% static 'accounts/img/noimage.png' %}{% endif %}"
                             class="d-block mx-auto default-preview-img"></td>
                     </tr>
+                    <tr>
+                        <th class="header">自己紹介</th>
+                        <td class="data">{{ user_data.self_introduction|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th class="header">データ</th>
+                        <td class="data">
+                            <span style="display: inline-block;">投稿数：Private
+                                {{ private_tips_count }}&emsp;Public
+                                {{ public_tips_count }}&emsp;</span>
+                            <span style="display: inline-block;">
+                                フォロワー：<a href="{% url 'accounts:followers' user_data.pk %}">{{ user_data.followed_by.count }}</a>&emsp; フォロー：<a href="{% url 'accounts:follows' user_data.pk %}">{{ user_data.follows.count }}</a>
+                            </span>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div class="mx-auto text-center">
