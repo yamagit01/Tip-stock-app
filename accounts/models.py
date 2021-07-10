@@ -118,8 +118,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         },
     )
     
-    icon = models.ImageField(upload_to=_user_profile_icon_upload_to, blank=True, null=True,
+    icon = models.ImageField(verbose_name='アイコン', upload_to=_user_profile_icon_upload_to, blank=True, null=True,
                              validators=[FileSizeValidator(val=500, byte_type="kb")])
+    self_introduction = models.CharField(verbose_name='自己紹介', max_length=250, blank=True)
+    follows = models.ManyToManyField('self', verbose_name='フォロー', related_name='followed_by', blank=True, symmetrical=False)
     
     is_staff = models.BooleanField(
         _('staff status'),
