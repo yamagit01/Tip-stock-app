@@ -39,3 +39,4 @@ STATICFILES_STORAGE = 'config.storage_backends.CollectStaticStorage'
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+BCC_EMAIL = 'test@test.com'
