@@ -7,9 +7,10 @@ from .widgets import FileInputWithPreview
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = get_user_model()
-        fields = ('username', 'icon')
+        fields = ('username', 'icon', 'self_introduction')
         widgets = {
             'icon': FileInputWithPreview(),
+            'self_introduction': forms.Textarea(attrs={'rows': 4}),
         }
 
 

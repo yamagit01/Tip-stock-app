@@ -1,0 +1,173 @@
+# name of our workflow test
+name: Django CI/CD Workflow
+
+# triggers for our workflow
+on:
+  # opening a pull request to main branch will be a trigger
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+    paths-ignore:
+      - '.vscode/*'
+      - 'accounts/tests/*'
+      - 'app/tests/*'
+      - 'nginx/*'
+      - '.coveragerc'
+      - '.gitignore'
+      - 'README.md'
+      - 'dev_requirements.txt'
+  # any code pushed to develop branch will also be a trigger
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - '.ecspresso/*'
+      - '.vscode/*'
+      - 'nginx/*'
+      - '.gitignore'
+      - 'Dockerfile'
+      - 'README.md'
+
+# three job definition
+jobs:
+  health-check-job: # health check job for testing and code formatting check
+    runs-on: ubuntu-latest # os for running the job
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+    services:
+      postgres: # we need a postgres docker image to be booted a side car service to run the tests that needs a db
+        image: postgres
+        env: # the environment variable must match with app/settings.py if block of DATBASES variable otherwise test will fail due to connectivity issue.
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: tipstock
+        ports:
+          - 5432:5432 # exposing 5432 port for application to use
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: Checkout code # checking our the code at current commit that triggers the workflow
+        uses: actions/checkout@v2
+      - name: Cache dependency # caching dependency will make our build faster.
+        uses: actions/cache@v2 # for more info checkout pip section documentation at https://github.com/actions/cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Setup python environment # setting python environment to 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' # if you want multiple python version run just use matrix strategy in job config. See the documentation of GitHub Actions
+      - name: Check Python version # checking the python version to see if 3.x is installed.
+        run: python --version
+      - name: Install requirements # install application requirements
+        run: pip install -r dev_requirements.txt
+      # - name: Check Syntax # check code formatting
+      #   run: pycodestyle --statistics .
+      - name: Run Migrations # run migrations to create table in side car db container
+        run: python manage.py migrate --settings config.settings.ci_settings
+      - name: Run Collectstatic # run collectstatic
+        run: python manage.py collectstatic --settings config.settings.ci_settings --no-input --clear
+      - name: Run Test # running tests
+        run: python manage.py test --settings config.settings.ci_settings
+
+  collect-static-job: # collect static job for run collectstatic , publish to AWS S3 and commit and push staticfiles.json
+    runs-on: ubuntu-latest # os for running the job
+    needs: [health-check-job] # will be fired if and only if health-check-job is passed.
+    if: github.event.pull_request.merged == true # will be fired if the trigger event is a pull request merged
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+      REPO: https://${{github.actor}}:${{secrets.GITHUB_TOKEN}}@github.com/${{github.repository}}.git
+    outputs:
+      new_sha: ${{ steps.sha.outputs.SHA }}
+    steps:
+      - name: Checkout code # checking our the code at current commit that triggers the workflow
+        uses: actions/checkout@v2
+        with:
+            ref: ${{github.event.push.head.ref}}
+      - name: Cache dependency # caching dependency will make our build faster.
+        uses: actions/cache@v2 # for more info checkout pip section documentation at https://github.com/actions/cache
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/dev_requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Setup python environment # setting python environment to 3.x
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x' # if you want multiple python version run just use matrix strategy in job config. See the documentation of GitHub Actions
+      - name: Check Python version # checking the python version to see if 3.x is installed.
+        run: python --version
+      - name: Install requirements # install application requirements
+        run: pip install -r dev_requirements.txt
+      - name: Run Collectstatic # run collectstatic
+        run: python manage.py collectstatic --settings config.settings.ci_settings --no-input --clear
+
+      - name: Publish to AWS S3 # publish static folder created in collectstatic to aws s3
+        uses: opspresso/action-s3-sync@master # aws s3 sync
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: "ap-northeast-1"
+          CF_RESET: "false"
+          FROM_PATH: "./static"
+          DEST_PATH: "s3://static.tipstock.info/static/"
+          OPTIONS: "--cache-control 'public,max-age=2592000' --metadata-directive REPLACE --size-only --no-progress --acl public-read"
+      - name: commit manifests and push # commit staticfiles.json and push
+        run: |
+          git config --global user.email "gitaction@git.com"
+          git config --global user.name "gitaction"
+          git add staticfiles.json
+          git commit -m 'modify staticfiles.json' && git push ${REPO} HEAD || true
+      - name: get sha # get commit sha for use in the next job
+        id: sha
+        run: |
+          sha_new=$(git rev-parse HEAD)
+          echo $sha_new
+          echo "::set-output name=SHA::$sha_new"
+
+  deploy-job: # deploy job for building and publishing docker images and deploy to ecs
+    runs-on: ubuntu-latest
+    needs: [collect-static-job] # will be fired if and only if health-check-job is passed.
+    if: github.event.pull_request.merged == true # will be fired if the trigger event is a pull request merged
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ needs.collect-static-job.outputs.new_sha }}
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          DOCKER_BUILDKIT: 1
+          IMAGE_TAG: latest
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: tipstock/app
+        run: |
+          docker build . -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Check if file has changed
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            task-def:
+              - '.ecspresso/ecs-task-def.json'
+      - uses: kayac/ecspresso@v0
+        with:
+          version: v1.1.3
+      - name: Deploy to Amazon ECS # if task has not changed skip task definition and service update
+        run: |
+          ecspresso deploy --config .ecspresso/config.yaml ${{
+            (steps.changes.outputs.task-def == 'false' && '--skip-task-definition --force-new-deployment') || ''
+          }}

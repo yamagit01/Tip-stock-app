@@ -4,9 +4,21 @@
 {% load static %}
 
 {% block extra_css%}
-    <link rel="stylesheet" href="{% static 'app/css/codemirror/lib/codemirror.css' %}">
-    <link rel="stylesheet" href="{% static 'app/css/codemirror/theme/mdn-like.css' %}">
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.css"
+        integrity="sha512-xIf9AdJauwKIVtrVRZ0i4nHP61Ogx9fSRAkCLecmE2dL/U8ioWpDvFCAy4dcfecN72HHB9+7FfQj3aiO68aaaw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"/>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/theme/mdn-like.min.css"
+        integrity="sha512-d1mnXGBFE/kEcVYDWOvqqRQov8YZhS5Eg5i6kX8smrEcMFcFIYpXW000lKxquKR4KdheA0+IE6xSmsmumGYNiA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"/>
 {% endblock %}
+
+{% block title %}{{ tip.title }}{% endblock %}
 
 {% block content %}
 
@@ -93,10 +105,16 @@
                             <li class="list-group-item">登録日時：{{ tip.created_at }}</li>
                             <li class="list-group-item">
                                 登録者&emsp;：
-                                {% if tip.created_by.icon %}
-                                    <img src="{{ tip.created_by.icon.url }}" class="icon-display">
-                                {% endif %}
-                                {{ tip.created_by.username }}
+                                <a href="{% url 'app:usertip' tip.created_by_id %}">
+                                    {% if tip.created_by.icon %}
+                                        <img src="{{ tip.created_by.icon.url }}" class="icon-display">
+                                    {% endif %}
+                                    {% if tip.created_by.is_active %}
+                                        {{ tip.created_by.username }}
+                                    {% else %}
+                                        Inactive User
+                                    {% endif %}
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -106,7 +124,7 @@
             {% if tip.public_set == 'public' %}
                 <div class="mb-3">
                     <small>{{ tip.like_count }}人がお気に入りに入れています。</small>
-                    {% if tip.created_by != request.user %}
+                    {% if tip.created_by != request.user and request.user.is_authenticated %}
                         {% if is_liked %}
                             <a
                                 href="{% url 'app:delete_like' tip.pk %}"
@@ -129,9 +147,13 @@
                     class="btn btn-custom btn-outline-dark">戻る</a>
                 {% if tip.created_by == request.user %}
                     <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-custom btn-primary">更新</a>
-                    <form method="post" action="{% url 'app:tip_delete' tip.pk %}" id="delete-form" class="d-inline">
+                    <form
+                        method="post"
+                        action="{% url 'app:tip_delete' tip.pk %}"
+                        id="tip-delete-form"
+                        class="d-inline">
                         {% csrf_token %}
-                        <button type="button" class="btn btn-custom btn-danger" id="delete-button">削除</button>
+                        <button type="button" class="btn btn-custom btn-danger" id="tip-delete-button">削除</button>
                     </form>
                 {% endif %}
             </div>
@@ -144,16 +166,38 @@
                                 {% if comment.created_by.icon %}
                                     <img src="{{ comment.created_by.icon.url }}" class="icon-display">
                                 {% endif %}
-                                {{ comment.created_by.username }}&emsp;
+                                {% if comment.created_by.is_active %}
+                                    {{ comment.created_by.username }}
+                                {% else %}
+                                    Inactive User
+                                {% endif %}
+                                &emsp;
                                 <small>宛先:
                                     {% for to_user in comment.to_users.all %}
-                                        [{{ to_user.username }}]
+                                        {% if to_user.is_active %}
+                                            [{{ to_user.username }}]
+                                        {% else %}
+                                            [Inactive User]
+                                        {% endif %}
                                     {% empty %}
                                         なし
                                     {% endfor %}
-                                </small><br>
-                                {{ comment.created_at}}</p>
+                                </small>
+                                <br>
+                                {{ comment.created_at}}
+                            </p>
                             <p>{{comment.text}}</p>
+                            {% if comment.created_by == request.user %}
+                                <form
+                                    action="{% url 'app:delete_comment' tip.pk comment.no %}"
+                                    method="POST"
+                                    id="comment-delete-form">
+                                    {% csrf_token %}
+                                    <div class="text-end">
+                                        <button type="button" class="btn btn-custom btn-secondary" id="comment-delete-button">削除</button>
+                                    </div>
+                                </form>
+                            {% endif %}
                         </div>
                         <hr>
                         {% empty %}
@@ -163,47 +207,60 @@
                     {% endfor %}
                 </div>
                 <!--//コメント表示-->
-                <!--コメント投稿-->
-                <h4>コメント投稿</h4>
-                <div class="mb-3">
-                    <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <p>名前：
-                                {% if request.user.icon %}
-                                    <img src="{{ request.user.icon.url }}" class="icon-display">
-                                {% endif %}
-                                {{ request.user.username }}</p>
-                            <span>宛先(お知らせが届く対象)：</span>
-                            <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple="multiple">
-                                {% if tip.created_by == request.user %}
-                                    <option selected="selected" value="no">なし(コメントがない場合はこの選択のみ)</option>
-                                    {% for comment in comments_distinct %}
-                                        {% if comment.created_by_id != request.user.id %}
-                                            <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% else %}
-                                    <option selected="selected" value="{{ tip.created_by.id }}">登録者:{{ tip.created_by.username }}</option>
-                                    {% for comment in comments_distinct %}
-                                        {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
-                                            <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                {% endif %}
-                            </select>
-                            <p>コメント</p>
-                            {% render_field form.text class="form-control" %}
-                            {% for error in form.text.errors %}
-                                <p class="text-danger">{{ error }}</p>
-                            {% endfor %}
-                        </div>
-                        {# non_field_errorを表示 #}
-                        {% include 'form_alert.html' %}
-                        <button type="submit" class="btn btn-custom btn-success">投稿</button>
-                    </form>
-                </div>
-                <!--//コメント投稿-->
+                {% if request.user.is_authenticated %}
+                    <!--コメント投稿-->
+                    <h4>コメント投稿</h4>
+                    <div class="mb-3">
+                        <form action="{% url 'app:add_comment' tip.pk %}" method="POST">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <p>名前：
+                                    {% if request.user.icon %}
+                                        <img src="{{ request.user.icon.url }}" class="icon-display">
+                                    {% endif %}
+                                    {{ request.user.username }}</p>
+                                <span>宛先(お知らせが届く対象)：</span>
+                                <select class="form-select detail-comment-to" name="toUsersId" size="2" multiple="multiple">
+                                    {% if tip.created_by == request.user %}
+                                        <option selected="selected" value="no">なし(コメントがない場合はこの選択のみ)</option>
+                                        {% for comment in comments_distinct %}
+                                            {% if comment.created_by_id != request.user.id %}
+                                                {% if comment.created_by__is_active %}
+                                                    <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <option selected="selected" value="{{ tip.created_by.id }}">
+                                            登録者:
+                                            {% if tip.created_by.is_active %}
+                                                {{ tip.created_by.username }}
+                                            {% else %}
+                                                Inactive User
+                                            {% endif %}
+                                        </option>
+                                        {% for comment in comments_distinct %}
+                                            {% if comment.created_by_id != request.user.id and comment.created_by_id != tip.created_by.id %}
+                                                {% if comment.created_by__is_active %}
+                                                    <option value="{{ comment.created_by_id }}">{{ comment.created_by__username }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                                <p>コメント</p>
+                                {% render_field form.text class="form-control auto-text" %}
+                                {% for error in form.text.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                            {# non_field_errorを表示 #}
+                            {% include 'form_alert.html' %}
+                            <button type="submit" class="btn btn-custom btn-success">投稿</button>
+                        </form>
+                    </div>
+                    <!--//コメント投稿-->
+                {% endif %}
             {% endif %}
         </div>
     </div>
@@ -212,16 +269,32 @@
 
 {% block extra_js %}
     <!-- CodeMirror用js -->
-    <script src="{% static 'app/js/codemirror/lib/codemirror.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/mode/meta.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/addon/display/autorefresh.js' %}"></script>
-    <script src="{% static 'app/js/codemirror/addon/mode/loadmode.js' %}"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"
+        integrity="sha512-i9pd5Q6ntCp6LwSgAZDzsrsOlE8SN+H5E0T5oumSXWQz5l1Oc4Kb5ZrXASfyjjqtc6Mg6xWbu+ePbbmiEPJlDg=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/meta.min.js"
+        integrity="sha512-lA8XNUlWXrCvwl1kuDZKrlftWjM8/G6p7UH3Q9SzUC6YYy59qVLtYBSkOvmmR5O7zrKlXCm6Lo/HFhqyF1Y83A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/autorefresh.min.js"
+        integrity="sha512-vAsKB7xXQAWMn5kcwda0HkFVKUxSYwrmrGprVhmbGFNAG1Ij+2epT3zzdwjHTJyDsKXsiEdrUdhIxh7loHyX+A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/mode/loadmode.min.js"
+        integrity="sha512-oGyW28fDClI1MCVFG1N1hC3OCoYAzOUGkK5XJ1PxibLkCVXcUlqj9Fbrdy8hoVJ2xDKF3SBhOgWkgzxICt9s6A=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
         $(function () {
             // CodeMirror初期表示処理
-            CodeMirror.modeURL = "{% static 'app/js/codemirror/mode' %}/%N/%N.js";
+            CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/%N/%N.min.js";
             let code_tab = document.getElementsByClassName('code-tab');
             let code_content = document.getElementsByClassName('code-content');
             for (let count = 0; count < code_tab.length; count++) {
@@ -242,9 +315,9 @@
                 }
             }
 
-            // 削除ボタンクリック時のダイアログ表示
-            $("#delete-button").click(function () {
-                swal("本当に削除にしてもよろしいですか？", {
+            // Tip削除ボタンクリック時のダイアログ表示
+            $("#tip-delete-button").click(function () {
+                swal("本当にこのTipを削除してもよろしいですか？", {
                     icon: 'warning',
                     buttons: {
                         yes: "はい",
@@ -254,7 +327,7 @@
                     switch (value) {
 
                         case "yes":
-                            $("#delete-form").submit();
+                            $("#tip-delete-form").submit();
                             break;
 
                         default:
@@ -262,6 +335,35 @@
                     }
                 });
             })
+
+            // コメント削除ボタンクリック時のダイアログ表示
+            $("#comment-delete-button").click(function () {
+                swal("本当にこのコメントを削除してもよろしいですか？", {
+                    icon: 'warning',
+                    buttons: {
+                        yes: "はい",
+                        cancel: "キャンセル"
+                    }
+                }).then((value) => {
+                    switch (value) {
+
+                        case "yes":
+                            $("#comment-delete-form").submit();
+                            break;
+
+                        default:
+                            break;
+                    }
+                });
+            })
+            // テキストエリアの高さ自動調整
+            $(".auto-text")
+                .attr("rows", 1)
+                .on("input", e => {
+                    $(e.target)
+                        .height(0)
+                        .innerHeight(e.target.scrollHeight);
+                });
         });
     </script>
 

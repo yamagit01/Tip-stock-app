@@ -205,7 +205,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_COOKIE_AGE = 86400
 
 # privateのTipの投稿制限回数
-PRIVATE_TIPS_MAXNUM = 20
+PRIVATE_TIPS_MAXNUM = 10
 
 # classが正しく設定されないメッセージのmessages.tagsの設定
 MESSAGE_TAGS = {

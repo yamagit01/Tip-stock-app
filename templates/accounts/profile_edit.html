@@ -2,6 +2,8 @@
 {% load static %}
 {% load widget_tweaks %}
 
+{% block title %}プロフィール変更{% endblock %}
+
 {% block content %}
 
     <div class="card card-profile my-5 mx-auto">
@@ -21,11 +23,24 @@
                             </td>
                         </tr>
                         <tr>
-                            <th class="header">アイコン<br><small class="text-danger">(500KB未満)</small></th>
+                            <th class="header">アイコン<br>
+                                <small class="text-danger">(500KB未満)</small>
+                            </th>
                             <td class="data">
                                 {{ form.icon|add_class:"form-control" }}
                                 {{ form.media }}
                                 {% for error in form.icon.errors %}
+                                    <p class="text-danger">{{ error }}</p>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="header">自己紹介<br>
+                                <small class="text-danger">(250文字以内)</small>
+                            </th>
+                            <td class="data">
+                                {% render_field form.self_introduction class="form-control" %}
+                                {% for error in form.self_introduction.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}
                             </td>

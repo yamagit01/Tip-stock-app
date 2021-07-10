@@ -2,17 +2,28 @@
 {% load widget_tweaks %}
 {% load static %}
 
-{% block title %}Tip-{{ title }}{% endblock %}
+{% block title %}{{ tip_user.username }}さんのTips{% endblock %}
 
 {% block content %}
-    <h2 class="my-3">{{ title }}</h2>
+    <h2 class="my-3" style="word-break: break-word;">
+        {% if tip_user.icon %}
+            <img src="{{ tip_user.icon.url }}" class="icon-userpage">
+        {% endif %}
+        <span class="me-3">{{ tip_user.username }}さんのTips</span>
+        <a href="{% url 'accounts:your_profile' tip_user.pk %}" class="btn btn-sm btn-info">プロフィールへ</a>
+    </h2>
     <form method="get" name="searchForm">
         <div class="mb-3">
             <div class="mb-2 d-md-flex align-items-center">
                 <label>検索内容：</label>
                 <div class="form-group d-flex">
                     <div class="me-2">
-                        <input type="search" value="{{ request.GET.query }}" name="query" class="query-search form-control" placeholder="タイトルor説明orコード">
+                        <input
+                            type="search"
+                            value="{{ request.GET.query }}"
+                            name="query"
+                            class="query-search form-control"
+                            placeholder="タイトルor説明orコード">
                         <input
                             type="search"
                             value="{{ request.GET.tagQuery }}"
@@ -27,28 +38,28 @@
                 <label>表示順(降順)：</label>
                 <div class="display-order">
                     <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" name="displayOrder" id="displayOrder1" autocomplete="off" value="updated"
-                            {% if request.GET.displayOrder != 'liked' %}checked="checked"{% endif %}>
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="displayOrder"
+                            id="displayOrder1"
+                            autocomplete="off"
+                            value="updated"
+                            {% if request.GET.displayOrder != 'liked' %}
+                            checked="checked"
+                            {% endif %}>
                         <label class="btn btn-outline-secondary" for="displayOrder1">更新日時</label>
-                        <input type="radio" class="btn-check" name="displayOrder" id="displayOrder2" autocomplete="off" value="liked"
-                            {% if request.GET.displayOrder == 'liked' %}checked="checked"{% endif %}>
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="displayOrder"
+                            id="displayOrder2"
+                            autocomplete="off"
+                            value="liked"
+                            {% if request.GET.displayOrder == 'liked' %}
+                            checked="checked"
+                            {% endif %}>
                         <label class="btn btn-outline-secondary" for="displayOrder2">お気に入り数</label>
-                    </div>
-                </div>
-            </div>
-            <div class="mb-2">
-                <label>検索対象：</label>
-                <div class="search-target">
-                    <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" name="searchTarget" id="searchTarget1" autocomplete="off" value="all"
-                            {% if request.GET.searchTarget != 'my' and  request.GET.searchTarget != 'other' %}checked="checked"{% endif %}>
-                        <label class="btn btn-outline-secondary" for="searchTarget1">全体</label>
-                        <input type="radio" class="btn-check" name="searchTarget" id="searchTarget2" autocomplete="off" value="my"
-                            {% if request.GET.searchTarget == 'my' %}checked="checked"{% endif %}>
-                        <label class="btn btn-outline-secondary" for="searchTarget2">自分のTips</label>
-                        <input type="radio" class="btn-check" name="searchTarget" id="searchTarget3" autocomplete="off" value="other"
-                            {% if request.GET.searchTarget == 'other' %}checked="checked"{% endif %}>
-                        <label class="btn btn-outline-secondary" for="searchTarget3">自分以外のTips</label>
                     </div>
                 </div>
             </div>
@@ -69,8 +80,12 @@
                     </div>
                     <div class="card-body p-3">
                         <div class="card-text">
-                            <p class="mb-1"><strong>{{ tip.title|truncatechars:15 }}</strong></p>
-                            <p class="mb-1"><small>{{ tip.description|truncatechars:50 }}</small></p>
+                            <p class="mb-1">
+                                <strong>{{ tip.title|truncatechars:15 }}</strong>
+                            </p>
+                            <p class="mb-1">
+                                <small>{{ tip.description|truncatechars:50 }}</small>
+                            </p>
                         </div>
                         <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
                     </div>
@@ -110,7 +125,9 @@
         $(function () {
             // 検索フォームの表示順・検索対象内のいずれかのボタンがクリックされたらsubmit
             $(document).on('change', '.btn-group', function (e) {
-                document.searchForm.submit();
+                document
+                    .searchForm
+                    .submit();
             });
         });
     </script>

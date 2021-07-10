@@ -2,6 +2,7 @@ import textwrap
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
@@ -22,7 +23,7 @@ class OnlyMyTipMixin(UserPassesTestMixin):
     raise_exception = True
     def test_func(self):
         try:
-            tip = Tip.objects.get(id = self.kwargs['pk'])
+            tip = Tip.objects.get(id=self.kwargs['pk'])
         except Tip.DoesNotExist:
             raise PermissionDenied('そのページは非公開です。')
         return tip.created_by == self.request.user
@@ -31,7 +32,8 @@ class OnlyMyTipMixin(UserPassesTestMixin):
 def get_detail_context(user, tip, context):
     """detail.html表示時に必要なtipに紐づくデータをcontextに格納"""
     # お気に入り済み判定を設定
-    context['is_liked'] = tip.is_liked_by_user(user)
+    if user.is_authenticated:
+        context['is_liked'] = tip.is_liked_by_user(user)
     # コメントを設定
     comments = Comment.objects.filter(tip=tip).select_related('created_by').prefetch_related('to_users')
     context['comments'] = comments
@@ -40,6 +42,46 @@ def get_detail_context(user, tip, context):
     context['codes'] = Code.objects.filter(tip=tip)
     
     return context
+
+
+def tips_filter_and_order_by_with_request(request, queryset):
+    """
+    tipのquerysetに対してrequestのパラメータを基に以下の処理をしてquerysetを返す
+    ・検索対象(searchTarget)でfilter
+    ・検索内容(query,tagQuery)でfilter
+    ・表示順(displayOrder)でorder_by
+    """
+
+    # 表示対象で抽出
+    search_target = request.GET.get('searchTarget','')
+
+    if search_target == 'my':
+        queryset = queryset.filter(created_by=request.user)
+    elif search_target == 'other':
+        queryset = queryset.exclude(created_by=request.user)
+    else:
+        pass
+
+    # 検索内容で抽出
+    query = request.GET.get('query','')
+    tagquery = request.GET.get('tagQuery','')
+
+    if query:
+        queryset = queryset.filter(
+            Q(title__icontains=query) | Q(description__icontains=query) | Q(codes__filename__icontains=query) | Q(codes__content__icontains=query)
+        ).distinct()
+    if tagquery:
+        queryset = queryset.filter(tags__name__icontains=tagquery)
+
+    # 表示順で並び替え
+    display_order = request.GET.get('displayOrder','')
+
+    if display_order == 'liked':
+        queryset = queryset.annotate(num_likes=Count('likes')).order_by('-num_likes', '-updated_at')
+    else:
+        queryset = queryset.order_by('-updated_at')
+
+    return queryset
 
 
 class IndexView(TemplateView):
@@ -64,7 +106,7 @@ class TipCreateView(LoginRequiredMixin, CreateView):
         return resolve_url('app:tip_list')
 
 
-class TipDetailView(LoginRequiredMixin, DetailView):
+class TipDetailView(DetailView):
     model = Tip
     
     def get_object(self):
@@ -87,50 +129,19 @@ class TipDetailView(LoginRequiredMixin, DetailView):
         return queryset
 
 
-class TipListView(LoginRequiredMixin, ListView):
+class TipPublicListView(ListView):
     model = Tip
     paginate_by = 12
 
     def get_queryset(self):
-        path = self.request.path_info
 
-        # My Tips と Public Tips で表示するTipを変更
-        if 'tip_list' in path:
-            queryset = Tip.objects.filter(
-                Q(created_by=self.request.user) | Q(likes__created_by=self.request.user)
-            ).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
-        elif 'tip_public_list' in path:
-            queryset = Tip.objects.filter(public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
+        queryset = Tip.objects.filter(public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
+
+        # querysetをrequestの内容でfilterとorder_by
+        if queryset.exists():
+            queryset = tips_filter_and_order_by_with_request(self.request, queryset)
         else:
-            raise Http404("そのページは存在しません。")
-
-        # 表示対象で抽出
-        search_target = self.request.GET.get('searchTarget','')
-
-        if search_target == 'my':
-            queryset = queryset.filter(created_by=self.request.user)
-        elif search_target == 'other':
-            queryset = queryset.exclude(created_by=self.request.user)
-        else:
-            pass
-
-        # 検索内容で抽出
-        query = self.request.GET.get('query','')
-        tagquery = self.request.GET.get('tagQuery','')
-
-        if query:
-            queryset = queryset.filter(
-                Q(title__icontains=query) | Q(description__icontains=query) | Q(codes__filename__icontains=query) | Q(codes__content__icontains=query)
-            ).distinct()
-        if tagquery:
-            queryset = queryset.filter(tags__name__icontains=tagquery)
-
-        # 表示順で並び替え
-        display_order = self.request.GET.get('displayOrder','')
-
-        if display_order == 'liked':
-            queryset = queryset.annotate(num_likes=Count('likes')).order_by('-num_likes')
-        else:
+            # order_byがないとpagenateでwarningが出るためつける
             queryset = queryset.order_by('-updated_at')
 
         return queryset
@@ -138,15 +149,35 @@ class TipListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['title'] = 'Public Tips'
+
+        return context
+
+
+class TipMyListView(LoginRequiredMixin, ListView):
+    model = Tip
+    paginate_by = 12
+
+    def get_queryset(self):
         path = self.request.path_info
 
-        # My Tips と Public Tips で表示するtitleを変更
-        if 'tip_list' in path:
-            context['title'] = 'My Tips'
-        elif 'tip_public_list' in path:
-            context['title'] = 'Public Tips'
+        queryset = Tip.objects.filter(
+            Q(created_by=self.request.user) | Q(likes__created_by=self.request.user, public_set=Tip.PUBLIC)
+        ).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
+
+        # querysetをrequestの内容でfilterとorder_by
+        if queryset.exists():
+            queryset = tips_filter_and_order_by_with_request(self.request, queryset)
         else:
-            raise Http404("そのページは存在しません。")
+            # order_byがないとpagenateでwarningが出るためつける
+            queryset = queryset.order_by('-updated_at')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = 'My Tips'
 
         return context
 
@@ -219,6 +250,24 @@ def add_comment(request, pk):
 
 
 @login_required
+def delete_comment(request, pk, comment_no):
+    tip = get_object_or_404(Tip, pk=pk)
+    
+    if tip.public_set == Tip.PRIVATE:
+            raise PermissionDenied('そのページにはアクセスできません。')
+    try:
+        comment = Comment.objects.get(tip=tip, no=comment_no, created_by=request.user)
+    except Comment.DoesNotExist:
+        raise PermissionDenied('そのコメントは存在しません。')
+    
+    if request.method == "POST":
+        comment.delete()
+        messages.success(request, 'コメントを削除しました。')
+        
+    return redirect('app:tip_detail', pk=pk)
+
+
+@login_required
 def add_like(request, pk):
     tip = get_object_or_404(Tip, pk=pk)
     if tip.public_set == Tip.PRIVATE or tip.created_by == request.user:
@@ -286,13 +335,18 @@ class ContactView(View):
                 ■メッセージ
                 {message}
                 -----------------------
+                
+                TipStock
+                https://www.tipstock.info/
+                [お問い合わせページ]
+                https://www.tipstock.info/contact/
                 ''').format(
                     name=name,
                     email=email,
                     message=message,
                 )
             to_list = [email]
-            bcc_list = [settings.EMAIL_HOST_USER]
+            bcc_list = [settings.BCC_EMAIL]
 
             try:
                 message = EmailMessage(subject=subject, body=contact,to=to_list, bcc=bcc_list)
@@ -333,12 +387,12 @@ def notifications(request):
             return redirect('app:tip_detail', pk=notification.tip.pk)
         elif notification.category == Notification.EVENT:
             return redirect('app:tip_detail', pk=notification.tip.pk)
+        elif notification.category == Notification.FOLLOW:
+            return redirect('accounts:your_profile', pk=notification.created_by.pk)
 
         # TODO 今後機能を追加した場合追加
         # elif notification.category == Notification.MESSAGE:
         #     return redirect('app:message', username=notification.created_by.username)
-        # elif notification.category == Notification.FOLLOW:
-        #     return redirect('app:follow', username=notification.to_user.username)
 
     # 全て既読をクリック
     all_read = request.GET.get('allRead', '')
@@ -360,3 +414,40 @@ def notifications(request):
     return render(request, 'app/notifications.html', {
         'notifications': notifications
     })
+
+
+class TermsView(TemplateView):
+    template_name = 'app/terms.html'
+    
+    
+class PolicyView(TemplateView):
+    template_name = 'app/policy.html'
+
+
+class UserTipView(ListView):
+    model = Tip
+    template_name = 'app/usertip.html'
+    paginate_by = 12
+    
+    def get(self, request, *args, **kwargs):
+        if request.user.id == self.kwargs['id']:
+            return redirect('app:tip_list')
+        return super().get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        
+        queryset = Tip.objects.filter(created_by_id=self.kwargs['id'], public_set=Tip.PUBLIC).annotate(like_count=Count("likes")).select_related('created_by').prefetch_related('tags')
+        
+        # querysetをrequestの内容でfilterとorder_by
+        if queryset.exists():
+            queryset = tips_filter_and_order_by_with_request(self.request, queryset)
+        else:
+            # order_byがないとpagenateでwarningが出るためつける
+            queryset = queryset.order_by('-updated_at')
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['tip_user'] = get_object_or_404(get_user_model(), id=self.kwargs['id'])
+        return context

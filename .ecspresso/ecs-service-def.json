@@ -1,0 +1,40 @@
+{
+  "deploymentConfiguration": {
+    "deploymentCircuitBreaker": {
+      "enable": false,
+      "rollback": false
+    },
+    "maximumPercent": 200,
+    "minimumHealthyPercent": 100
+  },
+  "desiredCount": 1,
+  "enableECSManagedTags": true,
+  "enableExecuteCommand": false,
+  "healthCheckGracePeriodSeconds": 0,
+  "launchType": "FARGATE",
+  "loadBalancers": [
+    {
+      "containerName": "tipstcok-nginx",
+      "containerPort": 80,
+      "targetGroupArn": "arn:aws:elasticloadbalancing:ap-northeast-1:733320928955:targetgroup/tipstock-tg/38a97ef8fac524c8"
+    }
+  ],
+  "networkConfiguration": {
+    "awsvpcConfiguration": {
+      "assignPublicIp": "ENABLED",
+      "securityGroups": [
+        "sg-084db6d38e9ccf238"
+      ],
+      "subnets": [
+        "subnet-019daea025961161f",
+        "subnet-07b908573bb0d2b32"
+      ]
+    }
+  },
+  "placementConstraints": [],
+  "placementStrategy": [],
+  "platformVersion": "LATEST",
+  "schedulingStrategy": "REPLICA",
+  "serviceRegistries": [],
+  "tags": []
+}
