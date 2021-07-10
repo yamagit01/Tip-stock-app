@@ -147,7 +147,11 @@
                     class="btn btn-custom btn-outline-dark">戻る</a>
                 {% if tip.created_by == request.user %}
                     <a href="{% url 'app:tip_update' tip.pk %}" class="btn btn-custom btn-primary">更新</a>
-                    <form method="post" action="{% url 'app:tip_delete' tip.pk %}" id="tip-delete-form" class="d-inline">
+                    <form
+                        method="post"
+                        action="{% url 'app:tip_delete' tip.pk %}"
+                        id="tip-delete-form"
+                        class="d-inline">
                         {% csrf_token %}
                         <button type="button" class="btn btn-custom btn-danger" id="tip-delete-button">削除</button>
                     </form>
@@ -184,7 +188,10 @@
                             </p>
                             <p>{{comment.text}}</p>
                             {% if comment.created_by == request.user %}
-                                <form action="{% url 'app:delete_comment' tip.pk comment.no %}" method="POST" id="comment-delete-form">
+                                <form
+                                    action="{% url 'app:delete_comment' tip.pk comment.no %}"
+                                    method="POST"
+                                    id="comment-delete-form">
                                     {% csrf_token %}
                                     <div class="text-end">
                                         <button type="button" class="btn btn-custom btn-secondary" id="comment-delete-button">削除</button>
@@ -242,7 +249,7 @@
                                     {% endif %}
                                 </select>
                                 <p>コメント</p>
-                                {% render_field form.text class="form-control" %}
+                                {% render_field form.text class="form-control auto-text" %}
                                 {% for error in form.text.errors %}
                                     <p class="text-danger">{{ error }}</p>
                                 {% endfor %}
@@ -349,6 +356,14 @@
                     }
                 });
             })
+            // テキストエリアの高さ自動調整
+            $(".auto-text")
+                .attr("rows", 1)
+                .on("input", e => {
+                    $(e.target)
+                        .height(0)
+                        .innerHeight(e.target.scrollHeight);
+                });
         });
     </script>
 

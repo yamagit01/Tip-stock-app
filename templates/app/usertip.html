@@ -9,7 +9,8 @@
         {% if tip_user.icon %}
             <img src="{{ tip_user.icon.url }}" class="icon-userpage">
         {% endif %}
-        {{ tip_user.username }}さんのTips
+        <span class="me-3">{{ tip_user.username }}さんのTips</span>
+        <a href="{% url 'accounts:your_profile' tip_user.pk %}" class="btn btn-sm btn-info">プロフィールへ</a>
     </h2>
     <form method="get" name="searchForm">
         <div class="mb-3">
@@ -17,7 +18,12 @@
                 <label>検索内容：</label>
                 <div class="form-group d-flex">
                     <div class="me-2">
-                        <input type="search" value="{{ request.GET.query }}" name="query" class="query-search form-control" placeholder="タイトルor説明orコード">
+                        <input
+                            type="search"
+                            value="{{ request.GET.query }}"
+                            name="query"
+                            class="query-search form-control"
+                            placeholder="タイトルor説明orコード">
                         <input
                             type="search"
                             value="{{ request.GET.tagQuery }}"
@@ -32,11 +38,27 @@
                 <label>表示順(降順)：</label>
                 <div class="display-order">
                     <div class="btn-group btn-group-sm" role="group">
-                        <input type="radio" class="btn-check" name="displayOrder" id="displayOrder1" autocomplete="off" value="updated"
-                            {% if request.GET.displayOrder != 'liked' %}checked="checked"{% endif %}>
-                        <label class="btn btn-outline-secondary" for="displayOrder1">更新年月日</label>
-                        <input type="radio" class="btn-check" name="displayOrder" id="displayOrder2" autocomplete="off" value="liked"
-                            {% if request.GET.displayOrder == 'liked' %}checked="checked"{% endif %}>
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="displayOrder"
+                            id="displayOrder1"
+                            autocomplete="off"
+                            value="updated"
+                            {% if request.GET.displayOrder != 'liked' %}
+                            checked="checked"
+                            {% endif %}>
+                        <label class="btn btn-outline-secondary" for="displayOrder1">更新日時</label>
+                        <input
+                            type="radio"
+                            class="btn-check"
+                            name="displayOrder"
+                            id="displayOrder2"
+                            autocomplete="off"
+                            value="liked"
+                            {% if request.GET.displayOrder == 'liked' %}
+                            checked="checked"
+                            {% endif %}>
                         <label class="btn btn-outline-secondary" for="displayOrder2">お気に入り数</label>
                     </div>
                 </div>
@@ -58,8 +80,12 @@
                     </div>
                     <div class="card-body p-3">
                         <div class="card-text">
-                            <p class="mb-1"><strong>{{ tip.title|truncatechars:15 }}</strong></p>
-                            <p class="mb-1"><small>{{ tip.description|truncatechars:50 }}</small></p>
+                            <p class="mb-1">
+                                <strong>{{ tip.title|truncatechars:15 }}</strong>
+                            </p>
+                            <p class="mb-1">
+                                <small>{{ tip.description|truncatechars:50 }}</small>
+                            </p>
                         </div>
                         <a href="{{ tip.get_absolute_url }}" class="stretched-link"></a>
                     </div>
@@ -99,7 +125,9 @@
         $(function () {
             // 検索フォームの表示順・検索対象内のいずれかのボタンがクリックされたらsubmit
             $(document).on('change', '.btn-group', function (e) {
-                document.searchForm.submit();
+                document
+                    .searchForm
+                    .submit();
             });
         });
     </script>

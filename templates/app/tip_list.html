@@ -29,7 +29,7 @@
                     <div class="btn-group btn-group-sm" role="group">
                         <input type="radio" class="btn-check" name="displayOrder" id="displayOrder1" autocomplete="off" value="updated"
                             {% if request.GET.displayOrder != 'liked' %}checked="checked"{% endif %}>
-                        <label class="btn btn-outline-secondary" for="displayOrder1">更新年月日</label>
+                        <label class="btn btn-outline-secondary" for="displayOrder1">更新日時</label>
                         <input type="radio" class="btn-check" name="displayOrder" id="displayOrder2" autocomplete="off" value="liked"
                             {% if request.GET.displayOrder == 'liked' %}checked="checked"{% endif %}>
                         <label class="btn btn-outline-secondary" for="displayOrder2">お気に入り数</label>
