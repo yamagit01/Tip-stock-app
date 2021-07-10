@@ -3,15 +3,31 @@ name: Django CI/CD Workflow
 
 # triggers for our workflow
 on:
-  # opening a pull request to master branch will be a trigger
+  # opening a pull request to main branch will be a trigger
   pull_request:
     branches:
-      - master
-  # any code pushed to master and develop branch will also be a trigger
+      - main
+    types: [closed]
+    paths-ignore:
+      - '.vscode/*'
+      - 'accounts/tests/*'
+      - 'app/tests/*'
+      - 'nginx/*'
+      - '.coveragerc'
+      - '.gitignore'
+      - 'README.md'
+      - 'dev_requirements.txt'
+  # any code pushed to develop branch will also be a trigger
   push:
     branches:
-      - master
       - develop
+    paths-ignore:
+      - '.ecspresso/*'
+      - '.vscode/*'
+      - 'nginx/*'
+      - '.gitignore'
+      - 'Dockerfile'
+      - 'README.md'
 
 # three job definition
 jobs:
@@ -60,7 +76,7 @@ jobs:
   collect-static-job: # collect static job for run collectstatic , publish to AWS S3 and commit and push staticfiles.json
     runs-on: ubuntu-latest # os for running the job
     needs: [health-check-job] # will be fired if and only if health-check-job is passed.
-    if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }} # will be fired if the trigger event is a push to master.
+    if: github.event.pull_request.merged == true # will be fired if the trigger event is a pull request merged
     env:
       SECRET_KEY: ${{ secrets.SECRET_KEY }}
       ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
@@ -116,7 +132,7 @@ jobs:
   deploy-job: # deploy job for building and publishing docker images and deploy to ecs
     runs-on: ubuntu-latest
     needs: [collect-static-job] # will be fired if and only if health-check-job is passed.
-    if: ${{ github.ref == 'refs/heads/master' && github.event_name == 'push' }} # will be fired if the trigger event is a push to master.
+    if: github.event.pull_request.merged == true # will be fired if the trigger event is a pull request merged
     steps:
       - name: Checkout
         uses: actions/checkout@v2
