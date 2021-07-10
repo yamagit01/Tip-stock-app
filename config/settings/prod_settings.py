@@ -77,8 +77,17 @@ LOGGING = {
 
 
 # Email settings
-EMAIL_CONFIG = env.email_url('EMAIL_URL')
-vars().update(EMAIL_CONFIG)
+# SendGrid使用時の設定
+EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
+SENDGRID_API_KEY = env('SENDGRID_API_KEY')
+BCC_EMAIL = env('BCC_EMAIL')
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+DEFAULT_FROM_EMAIL = SERVER_EMAIL = 'no-replay <no-replay@tipstock.info>'
+
+# Gmail使用時の設定
+# EMAIL_CONFIG = env.email_url('EMAIL_URL')
+# vars().update(EMAIL_CONFIG)
+
 
 # axes settings
 AXES_META_PRECEDENCE_ORDER = [

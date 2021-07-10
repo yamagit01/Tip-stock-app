@@ -3,4 +3,9 @@
 ※このメールはシステムからの自動返信です。
 {% block content %}{% endblock %}
 今後ともTipStock サービスをご愛顧いただきますよう、よろしくお願いいたします。
+
+TipStock
+https://www.tipstock.info/
+[お問い合わせページ]
+https://www.tipstock.info/contact/
 {% endautoescape %}

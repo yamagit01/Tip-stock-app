@@ -1233,7 +1233,7 @@ class TestContactView(TestCase):
         self.assertIn(form_email, mail.outbox[0].body)
         self.assertIn(form_message, mail.outbox[0].body)
         self.assertEqual(mail.outbox[0].to, [form_email])
-        self.assertEqual(mail.outbox[0].bcc, [settings.EMAIL_HOST_USER])
+        self.assertEqual(mail.outbox[0].bcc, [settings.BCC_EMAIL])
 
     @mock.patch("app.views.EmailMessage.send")
     def test_post_request(self, send_mail_mock):

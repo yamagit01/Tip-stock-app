@@ -149,9 +149,14 @@ class WithdrawalView(LoginRequiredMixin, View):
                 この度はTipStockをご利用いただき誠にありがとうございました。
                 本ユーザアカウントで再登録をご希望の場合は、
                 サイト内のユーザ登録から「退会ユーザの再登録」を実施ください。
+                
+                TipStock
+                https://www.tipstock.info/
+                [お問い合わせページ]
+                https://www.tipstock.info/contact/
                 ''')
             to_list = [email]
-            bcc_list = [settings.EMAIL_HOST_USER]
+            bcc_list = [settings.BCC_EMAIL]
 
             try:
                 message = EmailMessage(subject=subject, body=contact,to=to_list, bcc=bcc_list)

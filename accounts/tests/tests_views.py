@@ -235,7 +235,7 @@ class TestWithdrawalView(TestCase):
         self.assertEqual(mail.outbox[0].subject, '[TipStock]退会手続き完了のお知らせ')
         self.assertIn(self.user.username, mail.outbox[0].body)
         self.assertEqual(mail.outbox[0].to, [self.user.email])
-        self.assertEqual(mail.outbox[0].bcc, [settings.EMAIL_HOST_USER])
+        self.assertEqual(mail.outbox[0].bcc, [settings.BCC_EMAIL])
 
     @mock.patch("accounts.views.EmailMessage.send")
     def test_post_request_send_email(self, send_mail_mock):
