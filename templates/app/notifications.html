@@ -53,7 +53,9 @@
                                             Inactive User
                                         {% endif %}
                                     </strong>
-                                    さんがあなたの「{{ notification.tip.title|truncatechars:15 }}」にコメントしました。</a><br>
+                                    さんがあなたの「{{ notification.tip.title|truncatechars:15 }}」にコメントしました。
+                                </a>
+                                <br>
                                 <small class="text-muted">受信:{{ notification.created_at|naturaltime }}</small>
                                 {% if notification.is_read %}
                                     <small class="text-dark">確認済</small>
@@ -62,9 +64,33 @@
                                 {% endif %}
                             {% elif notification.category == 'event' %}
                                 <a href="{% url 'app:notifications' %}?goto=event&notification={{ notification.pk }}">
-                                    「{{ notification.tip.title|truncatechars:15 }}」が<strong>{{ notification.content }}</strong><br>
-                                    <small class="text-muted">{{ notification.created_at|naturaltime }}</small>
+                                    「{{ notification.tip.title|truncatechars:15 }}」が<strong>{{ notification.content }}</strong>
                                 </a>
+                                <br>
+                                <small class="text-muted">{{ notification.created_at|naturaltime }}</small>
+                                {% if notification.is_read %}
+                                    <small class="text-dark">確認済</small>
+                                {% else %}
+                                    <small class="text-danger">未確認</small>
+                                {% endif %}
+                            {% elif notification.category == 'follow' %}
+                                <a href="{% url 'app:notifications' %}?goto=follow&notification={{ notification.pk }}">
+                                    <strong>
+                                        {% if notification.created_by.is_active %}
+                                            {{ notification.created_by.username }}
+                                        {% else %}
+                                            Inactive User
+                                        {% endif %}
+                                    </strong>
+                                    さんがあなたをフォローしました。
+                                </a>
+                                <br>
+                                <small class="text-muted">受信:{{ notification.created_at|naturaltime }}</small>
+                                {% if notification.is_read %}
+                                    <small class="text-dark">確認済</small>
+                                {% else %}
+                                    <small class="text-danger">未確認</small>
+                                {% endif %}
                             {% endif %}
                         </p>
                     </div>
@@ -85,16 +111,15 @@
                     icon: 'warning',
                     buttons: {
                         yes: "はい",
-                        cancel: "キャンセル",
-                    },
-                })
-                .then((value) => {
+                        cancel: "キャンセル"
+                    }
+                }).then((value) => {
                     switch (value) {
-                    
+
                         case "yes":
                             $('#all-read').submit();
                             break;
-                    
+
                         default:
                             break;
                     }

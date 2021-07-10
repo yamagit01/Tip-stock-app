@@ -66,7 +66,7 @@ a {
 }
 
 .profile_table .header {
-    max-width: 200px;
+    width: 200px;
     padding: 16px 24px;
     text-align: left;
     background: #f1f5fa;
@@ -146,6 +146,13 @@ a {
 
 .delete-color {
     background-color: silver !important;
+}
+
+.auto-text {
+  /* 要素のサイズを可変から固定にする */
+  resize: none;
+  /* 要素がスクロールしないようにする */
+  overflow: hidden;
 }
 
 .default-preview-img {
@@ -228,6 +235,16 @@ a {
     object-fit: contain;
 }
 
+.follow-icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+}
+
+.follow-body {
+    padding: 24px;
+}
+
 .auth-message-title,
 .auth-message-content {
     text-align: center;
@@ -247,7 +264,8 @@ a {
     .profile_table .header,
     .profile_table .data{
         display: block;
-        max-width: 100%;
+        padding: 8px 12px;
+        width: 100%;
     }
 
     .form-tab-list {
@@ -320,6 +338,16 @@ a {
         padding: 16px;
         font-size: 14px;
     }
+    .follow-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .follow-body {
+        padding: 16px;
+        font-size: 14px;
+    }
+    
 
     .auth-message-title {
         font-size: 18px;

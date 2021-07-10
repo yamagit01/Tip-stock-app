@@ -7,16 +7,20 @@ from allauth.account.signals import email_confirmed
 from allauth.account.utils import (filter_users_by_email,
                                    send_email_confirmation)
 from app.models import Notification, Tip
+from app.utils import create_notification
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.mail import BadHeaderError, EmailMessage
 from django.dispatch import receiver
 from django.http import HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import View
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
 from accounts.forms import ProfileForm, ReRegistrationForm, WithdrawalForm
@@ -26,8 +30,28 @@ from accounts.models import User
 class ProfileView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user_data = User.objects.get(id=request.user.id)
+        tips = Tip.objects.filter(created_by=user_data)
+        private_tips_count = tips.filter(public_set=Tip.PRIVATE).count()
+        public_tips_count = tips.filter(public_set=Tip.PUBLIC).count()
+
         return render(request, 'accounts/profile.html', {
-            'user_data': user_data
+            'user_data': user_data,
+            'private_tips_count': private_tips_count,
+            'public_tips_count': public_tips_count,
+        })
+        
+        
+class YourProfileView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        if request.user.pk == self.kwargs.get('pk'):
+            return redirect('accounts:profile')
+        user_data = get_object_or_404(User, pk=self.kwargs.get('pk'))
+        tips = Tip.objects.filter(created_by=user_data)
+        public_tips_count = tips.filter(public_set=Tip.PUBLIC).count()
+        
+        return render(request, 'accounts/your_profile.html', {
+            'user_data': user_data,
+            'public_tips_count': public_tips_count,
         })
         
 
@@ -38,7 +62,8 @@ class ProfileEditView(LoginRequiredMixin, View):
             request.POST or None,
             initial = {
                 'username': user_data.username,
-                'icon': user_data.icon
+                'icon': user_data.icon,
+                'self_introduction': user_data.self_introduction
             }
         )
         
@@ -52,6 +77,7 @@ class ProfileEditView(LoginRequiredMixin, View):
 
         if form.is_valid():
             user_data.username = form.cleaned_data.get('username')
+            user_data.self_introduction = form.cleaned_data.get('self_introduction')
             if request.FILES:
                 user_data.icon = request.FILES.get('icon')
             user_data.save()
@@ -196,3 +222,70 @@ def email_confirmed_(request, email_address, **kwargs):
     if user.is_active == False:
         user.is_active = True
         user.save()
+
+
+@login_required
+def follow_user(request, pk):
+    user = request.user
+    if user.pk == pk:
+        raise PermissionDenied('自身へのフォローはできません。')
+    followed_user = get_object_or_404(User, pk=pk)
+    follows = user.follows.all()
+    #既にフォローしていればメッセージのみ送信
+    if followed_user in follows:
+        messages.info(request, 'フォロー済みです。')
+    else:
+        user.follows.add(followed_user)
+        messages.success(request, 'フォローしました')
+        create_notification(request, to_user=followed_user, category=Notification.FOLLOW)
+
+    return redirect('accounts:your_profile', pk=pk)
+
+
+@login_required
+def unfollow_user(request, pk):
+    user = request.user
+    if user.pk == pk:
+        raise PermissionDenied('自身へのフォロー解除はできません。')
+    followed_user = get_object_or_404(User, pk=pk)
+    follows = user.follows.all()
+    #既にフォロー解除済みであればメッセージのみ送信
+    if followed_user in follows:
+        user.follows.remove(followed_user)
+        messages.success(request, 'フォローを解除しました')
+    else:
+        messages.info(request, 'フォロー解除済みです。')
+
+    return redirect('accounts:your_profile', pk=pk)
+
+
+def follows(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    
+    path = request.path_info
+    if 'follows' in path:
+        # フォローを表示
+        follows = user.follows.all().prefetch_related('created_tip')
+        title = 'フォロー'
+    else:
+        # フォロワーを表示
+        follows = user.followed_by.all().prefetch_related('created_tip')
+        title = 'フォロワー'
+
+    latest_tip = []
+    public_tips_counts = []
+    for user in follows:
+        tips = Tip.objects.filter(public_set=Tip.PUBLIC, created_by=user).order_by('-updated_at')
+        if tips.exists():
+            latest_tip.append(tips.first())
+            public_tips_counts.append(tips.count())
+        else:
+            latest_tip.append('')
+            public_tips_counts.append(0)
+
+    return render(request, 'accounts/follow.html', {
+        'follows': follows,
+        'latest_tip': latest_tip,
+        'public_tips_counts': public_tips_counts,
+        'title': title,
+    })

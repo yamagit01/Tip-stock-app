@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ user_data.username }}さんのプロフィール{% endblock %}
+
+{% block content %}
+
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <h5 class="card-title text-center">プロフィール</h5>
+            <table class="profile_table mb-4">
+                <tbody>
+                    <tr>
+                        <th class="header">ユーザ名</th>
+                        <td class="data">{{ user_data.username }}</td>
+                    </tr>
+                    <tr>
+                        <th class="header">アイコン</th>
+                        <td class="data"><img
+                            src="{% if user_data.icon %}{{ user_data.icon.url }}{% else %}{% static 'accounts/img/noimage.png' %}{% endif %}"
+                            class="d-block mx-auto default-preview-img"></td>
+                    </tr>
+                    <tr>
+                        <th class="header">自己紹介</th>
+                        <td class="data">{{ user_data.self_introduction|linebreaks }}</td>
+                    </tr>
+                    <tr>
+                        <th class="header">データ</th>
+                        <td class="data">
+                            <span style="display: inline-block;">投稿数(Public)：<a href="{% url 'app:usertip' user_data.id %}">{{ public_tips_count }}</a>&emsp;</span>
+                            <span style="display: inline-block;">
+                                フォロワー：<a href="{% url 'accounts:followers' user_data.pk %}">{{ user_data.followed_by.count }}</a>&emsp; フォロー：<a href="{% url 'accounts:follows' user_data.pk %}">{{ user_data.follows.count }}</a>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="mx-auto text-center">
+                <a href="{% url 'app:usertip' user_data.id %}" class="btn btn-custom btn-lg btn-warning btn-block">Tips</a>
+                {% if user_data in request.user.follows.all %}
+                    <a href="{% url 'accounts:unfollow_user' user_data.pk %}" class="btn btn-custom btn-lg btn-danger">フォローを外す</a>
+                {% else %}
+                    <a href="{% url 'accounts:follow_user' user_data.pk %}" class="btn btn-custom btn-lg btn-success">フォローする</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

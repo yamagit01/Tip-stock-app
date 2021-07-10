@@ -382,12 +382,12 @@ def notifications(request):
             return redirect('app:tip_detail', pk=notification.tip.pk)
         elif notification.category == Notification.EVENT:
             return redirect('app:tip_detail', pk=notification.tip.pk)
+        elif notification.category == Notification.FOLLOW:
+            return redirect('accounts:your_profile', pk=notification.created_by.pk)
 
         # TODO 今後機能を追加した場合追加
         # elif notification.category == Notification.MESSAGE:
         #     return redirect('app:message', username=notification.created_by.username)
-        # elif notification.category == Notification.FOLLOW:
-        #     return redirect('app:follow', username=notification.to_user.username)
 
     # 全て既読をクリック
     all_read = request.GET.get('allRead', '')

@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load static %}
+{% load access_list %}
+
+{% block title %}{{ title }}
+{% endblock %}
+
+{% block content %}
+    <h2 class="my-3 me-3">{{ title }}</h2>
+    {% if not follows %}
+        <p>{{ title }}はいません。</p>
+    {% endif %}
+
+    {% for user in follows %}
+        <div class="card my-4" style="max-width: 800px;">
+            <div class="row">
+                <div class="col-3 col-md-2 px-0 d-flex align-items-center justify-content-center">
+                    <img
+                        src="
+                        {% if user.icon %}
+                            {{ user.icon.url }}
+                        {% else %}
+                            {% static 'accounts/img/noimage.png' %}
+                        {% endif %}"
+                        class="follow-icon">
+                </div>
+                <div class="col-9 col-md-10 px-0">
+                    <div class="card-body follow-body">
+                        <p class="card-text">
+                            <a href="{% url 'accounts:your_profile' user.pk %}">
+                                <strong>
+                                    {% if user.is_active %}
+                                        {{ user.username }}
+                                    {% else %}
+                                        Inactive User
+                                    {% endif %}
+                                </strong>
+                            </a>
+                            <br>
+                            {% access_list public_tips_counts forloop.counter0 as tip_count %}
+                            <span style="display: inline-block;">投稿数(Public)：{{ tip_count }}&emsp;</span>
+                            <span style="display: inline-block;">フォロワー：{{ user.followed_by.count }}&emsp;フォロー：{{ user.follows.count }}</span>
+                            {% if user.self_introduction %}<br>{{ user.self_introduction }}
+                            {% endif %}
+                            <br>
+                            {% access_list latest_tip forloop.counter0 as tip %}
+                            {% if tip %}
+                                <a href="{% url 'app:tip_detail' tip.pk %}">最新Tip：{{ tip.title }}</a>
+                                <br>
+                                更新日：{{ tip.updated_at|naturaltime }}
+                            {% else %}
+                                Tipはありません。
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+{% endblock %}

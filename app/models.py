@@ -107,16 +107,16 @@ class Like(models.Model):
 class Notification(models.Model):
     COMMENT = 'comment'
     EVENT = 'event'
+    FOLLOW = 'follow'
     
     # TODO 今後機能を追加したときに追加
     # MESSAGE = 'message'
-    # FOLLOW = 'follow'
 
     CATEGORY_CHOICES = (
         (COMMENT, 'コメント'),
         (EVENT, 'イベント'),
+        (FOLLOW, 'フォロー'),
         # (MESSAGE, 'メッセージ'),
-        # (FOLLOW, 'フォロー'),
     )
 
     to_user = models.ForeignKey(get_user_model(), related_name='notification_to', on_delete=models.CASCADE)
