@@ -12,6 +12,7 @@ def _tip_uploadfile_upload_to(instance, filename):
     return f'uploadfiles/{str(uuid.uuid4())}-{filename}'
 
 
+
 class Tip(models.Model):
     PRIVATE = 'private'
     PUBLIC = 'public'
@@ -24,9 +25,7 @@ class Tip(models.Model):
     title = models.CharField(max_length=50)
     description = models.TextField()
     tags = TaggableManager()
-    uploadfile = models.FileField(upload_to=_tip_uploadfile_upload_to, blank=True, null=True,
-                                  validators=[FileSizeValidator(val=3, byte_type="mb")])
-    url = models.URLField(blank=True, null=True)
+    tweet = models.CharField(max_length=100, blank=True)
     created_by = models.ForeignKey(get_user_model(), related_name='created_tip', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -50,7 +49,7 @@ class Tip(models.Model):
 
 class Code(models.Model):
     tip = models.ForeignKey(Tip, related_name='codes', on_delete=models.CASCADE)
-    filename = models.CharField(max_length=30, blank=True, null=True)
+    filename = models.CharField(max_length=30, blank=True)
     content = models.TextField()
 
     class Meta:
@@ -122,7 +121,7 @@ class Notification(models.Model):
     to_user = models.ForeignKey(get_user_model(), related_name='notification_to', on_delete=models.CASCADE)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
     tip = models.ForeignKey(Tip, related_name='notifications', on_delete=models.CASCADE, blank=True, null=True)
-    content = models.CharField(max_length=100, blank=True, null=True)
+    content = models.CharField(max_length=100, blank=True)
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(get_user_model(), related_name='created_notification', on_delete=models.CASCADE, blank=True, null=True)

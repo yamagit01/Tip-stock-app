@@ -149,10 +149,10 @@ a {
 }
 
 .auto-text {
-  /* 要素のサイズを可変から固定にする */
   resize: none;
-  /* 要素がスクロールしないようにする */
   overflow: hidden;
+  height: 50px;
+  max-height: 200px;
 }
 
 .default-preview-img {

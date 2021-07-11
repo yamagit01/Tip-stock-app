@@ -8,6 +8,13 @@
 {% block title %}TipStock{% endblock %}
 
 {% block content %}
+    {% if user.is_superuser %}
+        {% if maintenance_mode %}
+            <a href="{% url 'maintenance_mode_off' %}">メンテナンス終了</a>
+        {% else %}
+            <a href="{% url 'maintenance_mode_on' %}">メンテナンス開始</a>
+        {% endif %}
+    {% endif %}
 
     <section class="top">
         <div>
@@ -93,10 +100,7 @@
                     現状フォロー機能は自身のプロフィールからフォロー、フォロワーを参照できるのみです。今後、フォローユーザがTipを登録するとお知らせが届くなどの機能も。
                 </li>
                 <li>
-                    Tipに登録したファイルおよびURLはセキュリテイの観点から、登録者のみリンクが貼られて表示されます。
-                </li>
-                <li>
-                    お知らせはコメントの宛先、フォローした相手にその旨が届きます(リアルタイムではなくページロード時に更新、件数表示)。
+                    お知らせはコメントの宛先、フォローした相手にその旨が届きます(リアルタイムではなくページロード時に更新、件数表示で30日経過で削除予定)。
                 </li>
             </ul>
         </div>
@@ -107,7 +111,10 @@
             <p class="note-message">本サービスはWeb開発初心者が勢いと努力で作成しております。</p>
             <p class="note-message">そのため、不具合等でサービスが利用できない状況に陥ることも十分考えられます。</p>
             <p class="note-message">その点ご留意の上、ご利用頂ければ幸いです。</p>
-            <p class="note-message">ご利用時は、<a href="{% url 'app:terms' %}">利用規約</a>  及び <a href="{% url 'app:policy' %}">プライバシーポリシー</a> に同意したこととさせて頂きます。</p>
+            <p class="note-message">ご利用時は、<a href="{% url 'app:terms' %}">利用規約</a>
+                及び
+                <a href="{% url 'app:policy' %}">プライバシーポリシー</a>
+                に同意したこととさせて頂きます。</p>
             <p class="note-message">不備等ご連絡頂ければ非常に助かります。</p>
         </div>
     </section>

@@ -96,8 +96,7 @@ class TestTipCreateView(TestCase):
         self.assertIn('title', form.fields)
         self.assertIn('description', form.fields)
         self.assertIn('tags', form.fields)
-        self.assertIn('uploadfile', form.fields)
-        self.assertIn('url', form.fields)
+        self.assertIn('tweet', form.fields)
         self.assertIn('public_set', form.fields)
         self.assertIn('filename', form.formset[0].fields)
         self.assertIn('content', form.formset[0].fields)
@@ -109,29 +108,26 @@ class TestTipCreateView(TestCase):
         form_title = 'タイトル'
         form_description = '説明'
         form_tags = 'tag1,tag2'
-        form_uploadfile = 'uploadfile_test.txt'
-        form_url = 'http://example.com'
+        form_tweet = 'ツイート'
         form_public_set = 'private'
         form_filename = 'filename.py'
         form_content = 'a = 3'
         now = timezone.make_aware(datetime(2021, 3, 4, 15, 57, 11, 703055))
-        with open(f'./app/tests/{form_uploadfile}') as fp:
-            with freeze_time(now):
-                form_data = {
-                    'title': form_title,
-                    'description': form_description,
-                    'tags': form_tags,
-                    'uploadfile': fp,
-                    'url': form_url,
-                    'public_set': form_public_set,
-                    'codes-TOTAL_FORMS': 1,
-                    'codes-INITIAL_FORMS': 0,
-                    'codes-MIN_NUM_FORMS': 1,
-                    'codes-MAX_NUM_FORMS': 5,
-                    'codes-0-filename': form_filename,
-                    'codes-0-content': form_content,
-                }
-                response = self.client.post(self.url, form_data, follow=True)
+        with freeze_time(now):
+            form_data = {
+                'title': form_title,
+                'description': form_description,
+                'tags': form_tags,
+                'tweet': form_tweet,
+                'public_set': form_public_set,
+                'codes-TOTAL_FORMS': 1,
+                'codes-INITIAL_FORMS': 0,
+                'codes-MIN_NUM_FORMS': 1,
+                'codes-MAX_NUM_FORMS': 5,
+                'codes-0-filename': form_filename,
+                'codes-0-content': form_content,
+            }
+            response = self.client.post(self.url, form_data, follow=True)
                 
         
         self.assertRedirects(response, reverse('app:tip_list'), status_code=302, target_status_code=200)
@@ -147,8 +143,7 @@ class TestTipCreateView(TestCase):
         self.assertEqual(tip.title, form_title)
         self.assertEqual(tip.description, form_description)
         self.assertCountEqual([tag.name for tag in tip.tags.all()], list(set(form_tags.split(','))))
-        self.assertEqual(os.path.basename(tip.uploadfile.name)[37:], form_uploadfile)
-        self.assertEqual(tip.url, form_url)
+        self.assertEqual(tip.tweet, form_tweet)
         self.assertEqual(tip.public_set, form_public_set)
         self.assertEqual(tip.updated_at, now)
         self.assertEqual(tip.created_at, now)
@@ -235,8 +230,7 @@ class TestTipDetailView(TestCase):
         self.assertEqual(tip.title, self.public_tip.title)
         self.assertEqual(tip.description, self.public_tip.description)
         self.assertQuerysetEqual(tip.tags.all(), self.public_tip.tags.all(), ordered=False)
-        self.assertEqual(tip.uploadfile, self.public_tip.uploadfile)
-        self.assertEqual(tip.url, self.public_tip.url)
+        self.assertEqual(tip.tweet, self.public_tip.tweet)
         self.assertEqual(tip.public_set, self.public_tip.public_set)
         self.assertEqual(tip.updated_at, self.public_tip.updated_at)
         self.assertEqual(tip.created_at, self.public_tip.created_at)
@@ -290,8 +284,8 @@ class TestTipDetailView(TestCase):
         
         self.assertContains(response, 'まだコメントはありません')
         self.assertContains(response, 'コメント投稿')
-        self.assertContains(response, '0人がお気に入りに入れています。')
-        self.assertContains(response, 'お気に入りに入れる')
+        self.assertContains(response, '</i>&nbsp;0</span>')
+        self.assertContains(response, 'お気に入り登録')
         
     def test_display_public_tip_with_comment_and_like_to_non_create_user(self):
 
@@ -302,8 +296,8 @@ class TestTipDetailView(TestCase):
         self.assertContains(response, 'コメント投稿')
         self.assertNotContains(response, 'なし(コメントがない場合はこの選択のみ)')
         self.assertContains(response, '登録者:')
-        self.assertContains(response, '1人がお気に入りに入れています。')
-        self.assertContains(response, 'お気に入りから外す')
+        self.assertContains(response, '</i>&nbsp;1</span>')
+        self.assertContains(response, 'お気に入り解除')
         self.assertNotContains(response, '更新</a>')
         self.assertNotContains(response, 'id="tip-delete-button">削除</button>')
         
@@ -316,9 +310,9 @@ class TestTipDetailView(TestCase):
         self.assertContains(response, 'コメント投稿')
         self.assertContains(response, 'なし(コメントがない場合はこの選択のみ)')
         self.assertNotContains(response, '登録者:')
-        self.assertContains(response, '1人がお気に入りに入れています。')
-        self.assertNotContains(response, 'お気に入りから外す')
-        self.assertNotContains(response, 'お気に入りに入れる')
+        self.assertContains(response, '</i>&nbsp;1</span>')
+        self.assertNotContains(response, 'お気に入り解除')
+        self.assertNotContains(response, 'お気に入り登録')
         self.assertContains(response, '更新</a>')
         self.assertContains(response, 'id="tip-delete-button">削除</button>')
         
@@ -329,9 +323,9 @@ class TestTipDetailView(TestCase):
         
         self.assertNotContains(response, 'まだコメントはありません')
         self.assertNotContains(response, 'コメント投稿')
-        self.assertNotContains(response, '人がお気に入りに入れています。')
-        self.assertNotContains(response, 'お気に入りから外す')
-        self.assertNotContains(response, 'お気に入りに入れる')
+        self.assertNotContains(response, '</i>&nbsp;0</span>')
+        self.assertNotContains(response, 'お気に入り解除')
+        self.assertNotContains(response, 'お気に入り登録')
         self.assertContains(response, '更新</a>')
         self.assertContains(response, 'id="tip-delete-button">削除</button>')
 
@@ -341,9 +335,9 @@ class TestTipDetailView(TestCase):
         
         self.assertContains(response, 'まだコメントはありません')
         self.assertNotContains(response, 'コメント投稿')
-        self.assertContains(response, '0人がお気に入りに入れています。')
-        self.assertNotContains(response, 'お気に入りから外す')
-        self.assertNotContains(response, 'お気に入りに入れる')
+        self.assertContains(response, '</i>&nbsp;0</span>')
+        self.assertNotContains(response, 'お気に入り解除')
+        self.assertNotContains(response, 'お気に入り登録')
         self.assertNotContains(response, '更新</a>')
         self.assertNotContains(response, 'id="tip-delete-button">削除</button>')
         
@@ -355,9 +349,9 @@ class TestTipDetailView(TestCase):
         self.assertNotContains(response, 'コメント投稿')
         self.assertNotContains(response, 'なし(コメントがない場合はこの選択のみ)')
         self.assertNotContains(response, '登録者:')
-        self.assertContains(response, '1人がお気に入りに入れています。')
-        self.assertNotContains(response, 'お気に入りから外す')
-        self.assertNotContains(response, 'お気に入りに入れる')
+        self.assertContains(response, '</i>&nbsp;1</span>')
+        self.assertNotContains(response, 'お気に入り解除')
+        self.assertNotContains(response, 'お気に入り登録')
         self.assertNotContains(response, '更新</a>')
         self.assertNotContains(response, 'id="tip-delete-button">削除</button>')
         
@@ -700,8 +694,7 @@ class TestTipUpdateView(TestCase):
         self.assertEqual(form['title'].value(), self.tip.title)
         self.assertEqual(form['description'].value(), self.tip.description)
         self.assertQuerysetEqual(form['tags'].value(), self.tip.tags.all(), ordered=False)
-        self.assertEqual(form['uploadfile'].value(), self.tip.uploadfile)
-        self.assertEqual(form['url'].value(), self.tip.url)
+        self.assertEqual(form['tweet'].value(), self.tip.tweet)
         self.assertEqual(form['public_set'].value(), self.tip.public_set)
         self.assertEqual(len(form.formset), 1)
         self.assertEqual(form.formset[0]['filename'].value(), self.code.filename)
@@ -714,35 +707,32 @@ class TestTipUpdateView(TestCase):
         form_title = 'タイトル'
         form_description = '説明'
         form_tags = 'tag1,tag2'
-        form_uploadfile = 'uploadfile_test.txt'
-        form_url = 'http://example.com'
+        form_tweet = 'ツイート'
         form_public_set = 'private'
         form_code1 = ['filename.py', 'a = 3']
         form_code2 = ['filename.js', 'b = 5']
         now = timezone.make_aware(datetime(2021, 3, 4, 15, 57, 11, 703055))
-        with open(f'./app/tests/{form_uploadfile}') as fp:
-            with freeze_time(now):
-                form_data = {
-                    'title': form_title,
-                    'description': form_description,
-                    'tags': form_tags,
-                    'uploadfile': fp,
-                    'url': form_url,
-                    'public_set': form_public_set,
-                    'codes-TOTAL_FORMS': 3,
-                    'codes-INITIAL_FORMS': 1,
-                    'codes-MIN_NUM_FORMS': 1,
-                    'codes-MAX_NUM_FORMS': 5,
-                    'codes-0-id': self.code.id,
-                    'codes-0-filename': '',
-                    'codes-0-content': '',
-                    'codes-0-DELETE': 'on',
-                    'codes-1-filename': form_code1[0],
-                    'codes-1-content': form_code1[1],
-                    'codes-2-filename': form_code2[0],
-                    'codes-2-content': form_code2[1],
-                }
-                response = self.client.post(self.url, form_data, follow=True)
+        with freeze_time(now):
+            form_data = {
+                'title': form_title,
+                'description': form_description,
+                'tags': form_tags,
+                'tweet': form_tweet,
+                'public_set': form_public_set,
+                'codes-TOTAL_FORMS': 3,
+                'codes-INITIAL_FORMS': 1,
+                'codes-MIN_NUM_FORMS': 1,
+                'codes-MAX_NUM_FORMS': 5,
+                'codes-0-id': self.code.id,
+                'codes-0-filename': '',
+                'codes-0-content': '',
+                'codes-0-DELETE': 'on',
+                'codes-1-filename': form_code1[0],
+                'codes-1-content': form_code1[1],
+                'codes-2-filename': form_code2[0],
+                'codes-2-content': form_code2[1],
+            }
+            response = self.client.post(self.url, form_data, follow=True)
         
         self.assertRedirects(response, reverse('app:tip_detail', args=[self.tip.pk]), status_code=302, target_status_code=200)
         messages = list(response.context['messages'])
@@ -755,8 +745,7 @@ class TestTipUpdateView(TestCase):
         self.assertEqual(tip.title, form_title)
         self.assertEqual(tip.description, form_description)
         self.assertCountEqual([tag.name for tag in tip.tags.all()], list(set(form_tags.split(','))))
-        self.assertEqual(os.path.basename(tip.uploadfile.name)[37:], form_uploadfile)
-        self.assertEqual(tip.url, form_url)
+        self.assertEqual(tip.tweet, form_tweet)
         self.assertEqual(tip.public_set, form_public_set)
         self.assertEqual(tip.updated_at, now)
         self.assertEqual(tip.created_at, self.created_at)
@@ -938,7 +927,7 @@ class TestAddComment(TestCase):
         self.assertEqual(notifications.count(), 1)
         self.assertEqual(notifications[0].to_user, self.create_user)
         self.assertEqual(notifications[0].category, Notification.COMMENT)
-        self.assertIsNone(notifications[0].content)
+        self.assertEqual(notifications[0].content, '')
         self.assertFalse(notifications[0].is_read)
         self.assertEqual(notifications[0].to_user, self.create_user)
         self.assertEqual(notifications[0].created_by, self.non_create_user)
