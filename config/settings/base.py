@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'taggit',
     'axes',
+    'maintenance_mode',
     
     # My applications
     'accounts.apps.AccountsConfig',
@@ -73,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'axes.middleware.AxesMiddleware',  # django-axes を追加
+    'maintenance_mode.middleware.MaintenanceModeMiddleware',  # django-maintenance-mode を追加
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -90,6 +92,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'app.context_processors.tips_count',
                 'app.context_processors.notifications_count',
+                'maintenance_mode.context_processors.maintenance_mode',
             ],
         },
     },
@@ -223,3 +226,7 @@ FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 AXES_FAILURE_LIMIT = 5  # 試行回数
 AXES_LOCKOUT_TEMPLATE = 'accounts/lockout.html'
 AXES_RESET_ON_SUCCESS = True
+
+# メンテナンスmode設定
+MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
+MAINTENANCE_MODE_IGNORE_SUPERUSER = True
