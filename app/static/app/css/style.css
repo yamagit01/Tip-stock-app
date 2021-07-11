@@ -250,6 +250,11 @@ a {
     text-align: center;
 }
 
+.twitter-icon {
+    display: flex;
+    align-items: center;
+}
+
 
 @media only screen and (max-width:767px) {
 

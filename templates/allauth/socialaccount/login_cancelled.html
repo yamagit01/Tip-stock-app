@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}ログインキャンセル{% endblock %}
+
+{% block content %}
+
+    <div class="card card-profile my-5 mx-auto">
+        <div class="card-body">
+            <div class="card-title auth-message-title">ログインキャンセル</div>
+            <div class="auth-message-content">
+                <p class="mb-2">既存の外部アカウントを使ったログインはキャンセルされました。<br>
+                    やり直される場合は<a href="{% url 'accounts:login' %}">ログインページ</a>にお進みください。
+                </p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
