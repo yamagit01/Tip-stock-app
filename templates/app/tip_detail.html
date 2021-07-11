@@ -16,9 +16,16 @@
         integrity="sha512-d1mnXGBFE/kEcVYDWOvqqRQov8YZhS5Eg5i6kX8smrEcMFcFIYpXW000lKxquKR4KdheA0+IE6xSmsmumGYNiA=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer"/>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.css"
+        integrity="sha512-T8xB3MmwpA77VK9lUH3UkdUTnkmpqOxHF8OceOKaHrvpcXMSNX0xtpa9FoLTDAVO1JnB2UiMdVeI2V0HTHjTWA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"/>
 {% endblock %}
 
-{% block title %}{{ tip.title }}{% endblock %}
+{% block title %}{{ tip.title }}
+{% endblock %}
 
 {% block content %}
 
@@ -290,6 +297,15 @@
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.js"
+        integrity="sha512-W1hGUpWU/hlAuQjKnoWXy29+UUA6zTad0iWfI8OrykZBf2lv35cZ6xlCCCBf/2Bpnez4ik+gY1BuHNk31sabAA=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/jquery-autosize@1.18.18/jquery.autosize.min.js"
+        integrity="sha256-VpDGR8CkdtaV/kfM1gLSAy2Dqfxb9mym6QBbKK9YYrM="
+        crossorigin="anonymous"></script>
 
     <script>
         $(function () {
@@ -305,6 +321,11 @@
                     readOnly: true,
                     autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
                     theme: "mdn-like", //  theme設定
+                    extraKeys: {
+                        "Esc": function (cm) {
+                            cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                        }
+                    }
                 });
 
                 let text = $.trim(code_tab[count].textContent)
@@ -357,13 +378,7 @@
                 });
             })
             // テキストエリアの高さ自動調整
-            $(".auto-text")
-                .attr("rows", 1)
-                .on("input", e => {
-                    $(e.target)
-                        .height(0)
-                        .innerHeight(e.target.scrollHeight);
-                });
+            $('.auto-text').autosize();
         });
     </script>
 
