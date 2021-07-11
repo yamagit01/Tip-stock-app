@@ -10,7 +10,7 @@
   "desiredCount": 1,
   "enableECSManagedTags": true,
   "enableExecuteCommand": false,
-  "healthCheckGracePeriodSeconds": 0,
+  "healthCheckGracePeriodSeconds": 30,
   "launchType": "FARGATE",
   "loadBalancers": [
     {
@@ -26,8 +26,8 @@
         "sg-084db6d38e9ccf238"
       ],
       "subnets": [
-        "subnet-019daea025961161f",
-        "subnet-07b908573bb0d2b32"
+        "subnet-0d12827817991718a",
+        "subnet-0d4bc7b9ec4d170a4"
       ]
     }
   },
