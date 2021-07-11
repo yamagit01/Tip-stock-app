@@ -8,6 +8,9 @@ def create_notification(request, to_user, category, tip=None, content=None):
             created_by = None
         else:
             created_by =request.user
+            
+        if content is None:
+            content = ''
         
         Notification.objects.create(
             to_user=to_user,

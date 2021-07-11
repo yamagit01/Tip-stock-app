@@ -32,8 +32,7 @@ class TestTip(TestCase):
             title = 'タイトル'
             description = '説明'
             tags = ['tag1', 'tag2']
-            uploadfile__filename = 'file1.js'
-            url = 'test@example.com'
+            tweet = 'ツイート'
             create_username = 'user1'
             created_by = UserFactory(username=create_username)
             public_set = 'private'
@@ -42,8 +41,7 @@ class TestTip(TestCase):
                 title=title,
                 description=description,
                 tags=tags,
-                uploadfile__filename=uploadfile__filename,
-                url=url,
+                tweet=tweet,
                 created_by=created_by,
                 public_set=public_set,
             )
@@ -57,8 +55,7 @@ class TestTip(TestCase):
         for tag in actual_tip.tags.all():
             set_tags.add(tag.name)
         self.assertSetEqual(set_tags, set(tags))
-        self.assertEqual(os.path.basename(actual_tip.uploadfile.name)[37:], uploadfile__filename)
-        self.assertEqual(actual_tip.url, url)
+        self.assertEqual(actual_tip.tweet, tweet)
         self.assertEqual(actual_tip.created_by, created_by)
         self.assertEqual(actual_tip.created_by.username, create_username)
         self.assertEqual(actual_tip.created_at, now)

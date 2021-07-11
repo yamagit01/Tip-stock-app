@@ -6,7 +6,6 @@ from django.forms.models import inlineformset_factory
 
 from .models import Code, Comment, Notification, Tip
 from .utils import create_notification
-from .widgets import FileInputByOnlyfilename
 
 
 class ModelFormWithFormSetMixin:
@@ -54,7 +53,7 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
         exclude = ('created_by', 'created_at', 'updated_at')
         widgets = {
             'public_set': forms.RadioSelect,
-            'uploadfile': FileInputByOnlyfilename(),
+            'tweet': forms.Textarea(),
         }
 
     def __init__(self, *args, **kwargs):
@@ -67,7 +66,7 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
         if public_set == Tip.PRIVATE:
             private_count = Tip.objects.filter(created_by=self.request.user, public_set=Tip.PRIVATE).count()
             if private_count >= settings.PRIVATE_TIPS_MAXNUM:
-                self.add_error('public_set', 'PrivateのTipの数が制限回数(20回)に達しています。')
+                self.add_error('public_set', f'PrivateのTipの数が制限回数({settings.PRIVATE_TIPS_MAXNUM}回)に達しています。')
         return public_set
     
     def clean_tags(self):

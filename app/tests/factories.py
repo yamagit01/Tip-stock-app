@@ -27,8 +27,7 @@ class TipFactory(DjangoModelFactory):
 
     title = fake_ja.word()
     description = fake_ja.paragraph(nb_sentences=3)
-    uploadfile = FileField(filename='test.pdf')
-    url = fake_ja.url()
+    tweet = fake_ja.word()
     created_by = SubFactory(UserFactory)
     created_at = fake_ja.date_time_this_year(tzinfo=tz_jst)
     updated_at = fake_ja.date_time_this_year(tzinfo=tz_jst)
