@@ -11,16 +11,11 @@
         referrerpolicy="no-referrer"/>
     <link
         rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/theme/mdn-like.min.css"
-        integrity="sha512-d1mnXGBFE/kEcVYDWOvqqRQov8YZhS5Eg5i6kX8smrEcMFcFIYpXW000lKxquKR4KdheA0+IE6xSmsmumGYNiA=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"/>
-    <link
-        rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.css"
         integrity="sha512-T8xB3MmwpA77VK9lUH3UkdUTnkmpqOxHF8OceOKaHrvpcXMSNX0xtpa9FoLTDAVO1JnB2UiMdVeI2V0HTHjTWA=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="{% static 'app/css/one-dark.css' %}">
 {% endblock %}
 
 {% block title %}Tip Form{% endblock %}
@@ -32,7 +27,9 @@
             <form action="" method="post" enctype="multipart/form-data" onsubmit="return false;">
                 {% csrf_token %}
                 <div class="form-group mb-3">
-                    <label>タイトル<span class="text-danger">（必須）<small>(最大50文字)</small></span></label>
+                    <label>
+                        <strong>タイトル</strong>
+                        <span class="text-danger">（必須）<small>(最大50文字)</small></span></label>
                     {% render_field form.title class="form-control" %}
                     {% for error in form.title.errors %}
                         <p class="text-danger">{{ error }}</p>
@@ -40,19 +37,19 @@
                 </div>
                 <div class="form-group mb-3" id="code-form">
                     {{ form.formset.management_form }}
-                    <label>コード<span class="text-danger">（必須）</span>
-                        <small>(ファイル名は任意)</small>
+                    <label class="me-2">
+                        <strong>コード</strong>
+                        <span class="text-danger">（必須）<small>(最大5つ)</small>
+                        </span>
                     </label>
                     <button class="btn btn-custom btn-outline-secondary my-2" id="add-code" type="button">コードを追加</button>
                     <p class="ms-3">
                         <small>
-                            <span class="text-danger">保存できるコードはTip１つにつき最大５つです。</span>
+                            追加で５つ以上表示可能ですが、<span class="text-danger">保存時にエラー</span>となります(削除のチェックを入れて５つ以下にする)。
                             <br>
-                            Formには５つ以上表示可能ですが、保存時にエラーとなります。
+                            ファイル名は任意ですが、<span class="text-danger">ファイル名の拡張子に応じてハイライトが変わります。</span>
                             <br>
-                            削除のチェックを入れるとカウントの対象外となります。
-                            <br>
-                            コード入力部分にカーソルがある状態で<span class="text-danger">Escキーで拡大、再度Escキーで元に戻ります。</span>
+                            コード部分にカーソル、<span class="text-danger">Escキーで拡大・縮小。</span>
                         </small>
                     </p>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -109,19 +106,21 @@
                         {% endif %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>説明<span class="text-danger">（必須）</span></label>
+                        <label>
+                            <strong>説明</strong>
+                            <span class="text-danger">（必須）</span></label>
                         {% render_field form.description class="form-control auto-text" %}
                         {% for error in form.description.errors %}
                             <p class="text-danger">{{ error }}</p>
                         {% endfor %}
                     </div>
                     <div class="form-group mb-3">
-                        <label>タグ<span class="text-danger">（必須）</span>
-                            <small class="form-tag-label">
-                                <span class="text-danger">(最大5つ)</span>
-                                <br>
-                                <span class="ms-3">カンマ(,)区切りで入力 ex) Python,Django</span>
-                            </small>
+                        <label>
+                            <strong>タグ</strong>
+                            <span class="text-danger">（必須）<small>(最大5つ)</small>
+                            </span>
+                            <br>
+                            <small class="ms-3">カンマ(,)区切りで入力 ex) Python,Django</small>
                         </label>
                         {% render_field form.tags class="form-control" %}
                         {% for error in form.tags.errors %}
@@ -130,254 +129,264 @@
                     </div>
                 </div>
                 <div class="form-group mb-3">
-                    <label>つぶやき（任意）</label>
-                    <small class="form-tag-label">
-                        <span class="text-danger">(最大100文字)</span>
-                        <br>
-                        <span class="ms-3">お遊び枠。Tipに関すること、今の気分、謎掛け等何でも可。</span>
-                    </small>
+                    <label>
+                        <strong>ヒトコト</strong>（任意）<small class="text-danger">(最大100文字)</small>
+                    </label>
+                    <br>
+                    <small class="ms-3">Tipに関すること、今の気分など何でも可。</small>
                     {% render_field form.tweet class="form-control auto-text" %}
                     {% for error in form.tweet.errors %}
                         <p class="text-danger">{{ error }}</p>
                     {% endfor %}
                 </div>
                 <div class="form-group mb-3">
-                    <label class="me-3 ">公開範囲</label>
+                    <label class="me-3 ">
+                        <strong>公開範囲</strong>
+                    </label>
                     <div class="public-set-form">
                         {% for radio in form.public_set %}
                             {{ radio.tag }}
                             <label class="me-3">{{ radio.choice_label }}
                                 {% if radio.choice_label == 'Private' %}
                                     <span>(最大{{ private_tips_maxnum }}個)</span>
-                                {% endif%}
-                            </label>
+                                    {% endif%}
+                                </label>
+                            {% endfor %}
+                        </div>
+                        {% for error in form.public_set.errors %}
+                            <p class="text-danger">{{ error }}</p>
                         {% endfor %}
                     </div>
-                    {% for error in form.public_set.errors %}
-                        <p class="text-danger">{{ error }}</p>
-                    {% endfor %}
-                </div>
-                {# non_field_errorを表示 #}
-                {% include 'form_alert.html' %}
-                <button type="button" class="btn btn-custom btn-primary" onclick="submit();">保存</button>
-            </form>
+                    {# non_field_errorを表示 #}
+                    {% include 'form_alert.html' %}
+                    <div class="d-grid gap-2 my-3">
+                        <button type="button" class="btn btn-primary" onclick="submit();">保存</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-{% endblock %}
+    {% endblock %}
 
-{% block extra_js %}
-    <!-- CodeMirror用js -->
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"
-        integrity="sha512-i9pd5Q6ntCp6LwSgAZDzsrsOlE8SN+H5E0T5oumSXWQz5l1Oc4Kb5ZrXASfyjjqtc6Mg6xWbu+ePbbmiEPJlDg=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/meta.min.js"
-        integrity="sha512-lA8XNUlWXrCvwl1kuDZKrlftWjM8/G6p7UH3Q9SzUC6YYy59qVLtYBSkOvmmR5O7zrKlXCm6Lo/HFhqyF1Y83A=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/autorefresh.min.js"
-        integrity="sha512-vAsKB7xXQAWMn5kcwda0HkFVKUxSYwrmrGprVhmbGFNAG1Ij+2epT3zzdwjHTJyDsKXsiEdrUdhIxh7loHyX+A=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/mode/loadmode.min.js"
-        integrity="sha512-oGyW28fDClI1MCVFG1N1hC3OCoYAzOUGkK5XJ1PxibLkCVXcUlqj9Fbrdy8hoVJ2xDKF3SBhOgWkgzxICt9s6A=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/keymap/sublime.min.js"
-        integrity="sha512-CB1k89Ilzxp1upm9MpHjWR0Ec2wg/OzDfWC/pmjJkDnxmXMl4AhgZ4bYPdkWjlL6NoLfoZppxHf55hunUgg8wQ=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.js"
-        integrity="sha512-W1hGUpWU/hlAuQjKnoWXy29+UUA6zTad0iWfI8OrykZBf2lv35cZ6xlCCCBf/2Bpnez4ik+gY1BuHNk31sabAA=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/edit/closebrackets.min.js"
-        integrity="sha512-cCnOU69ESswPmMV3f9TR7WgctoJZliqGbJ8WeLn0VlUrngSsmtVopRf6OG/epbURGfNmY4RY6RzZ/mWkPQ/onw=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/edit/closetag.min.js"
-        integrity="sha512-ZUq/bxUHwC35d3oP1hC5lshiHFCnI3dDtDPtSp9+CQDy/YU0LQu2ujDd603LuWho0G4XH8MSvyLV47x2Zcd8Jw=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/comment/comment.min.js"
-        integrity="sha512-U0udq4Tvwzb+OiL6f7aak/n07mlIutTl+pEPtKoK0oOTF4Q9SkLOQYvKpIaCIM8CKTufd7szgeN9VDcgXDVvWg=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"></script>
-    <script
-        src="https://cdn.jsdelivr.net/npm/jquery-autosize@1.18.18/jquery.autosize.min.js"
-        integrity="sha256-VpDGR8CkdtaV/kfM1gLSAy2Dqfxb9mym6QBbKK9YYrM="
-        crossorigin="anonymous"></script>
+    {% block extra_js %}
+        <!-- CodeMirror用js -->
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/codemirror.min.js"
+            integrity="sha512-i9pd5Q6ntCp6LwSgAZDzsrsOlE8SN+H5E0T5oumSXWQz5l1Oc4Kb5ZrXASfyjjqtc6Mg6xWbu+ePbbmiEPJlDg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/meta.min.js"
+            integrity="sha512-lA8XNUlWXrCvwl1kuDZKrlftWjM8/G6p7UH3Q9SzUC6YYy59qVLtYBSkOvmmR5O7zrKlXCm6Lo/HFhqyF1Y83A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/autorefresh.min.js"
+            integrity="sha512-vAsKB7xXQAWMn5kcwda0HkFVKUxSYwrmrGprVhmbGFNAG1Ij+2epT3zzdwjHTJyDsKXsiEdrUdhIxh7loHyX+A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/mode/loadmode.min.js"
+            integrity="sha512-oGyW28fDClI1MCVFG1N1hC3OCoYAzOUGkK5XJ1PxibLkCVXcUlqj9Fbrdy8hoVJ2xDKF3SBhOgWkgzxICt9s6A=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/keymap/sublime.min.js"
+            integrity="sha512-CB1k89Ilzxp1upm9MpHjWR0Ec2wg/OzDfWC/pmjJkDnxmXMl4AhgZ4bYPdkWjlL6NoLfoZppxHf55hunUgg8wQ=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.js"
+            integrity="sha512-W1hGUpWU/hlAuQjKnoWXy29+UUA6zTad0iWfI8OrykZBf2lv35cZ6xlCCCBf/2Bpnez4ik+gY1BuHNk31sabAA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/edit/matchbrackets.min.js"
+            integrity="sha512-03Ei8A+mDhwF6O/CmXM47U4A9L7TobAxMbPV2Wn5cEbY76lngHQRyvvmnqhJ8IthfoxrRqmtoBxQCxOC7AOeKw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/edit/closebrackets.min.js"
+            integrity="sha512-cCnOU69ESswPmMV3f9TR7WgctoJZliqGbJ8WeLn0VlUrngSsmtVopRf6OG/epbURGfNmY4RY6RzZ/mWkPQ/onw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/edit/closetag.min.js"
+            integrity="sha512-ZUq/bxUHwC35d3oP1hC5lshiHFCnI3dDtDPtSp9+CQDy/YU0LQu2ujDd603LuWho0G4XH8MSvyLV47x2Zcd8Jw=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/comment/comment.min.js"
+            integrity="sha512-U0udq4Tvwzb+OiL6f7aak/n07mlIutTl+pEPtKoK0oOTF4Q9SkLOQYvKpIaCIM8CKTufd7szgeN9VDcgXDVvWg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/jquery-autosize@1.18.18/jquery.autosize.min.js"
+            integrity="sha256-VpDGR8CkdtaV/kfM1gLSAy2Dqfxb9mym6QBbKK9YYrM="
+            crossorigin="anonymous"></script>
 
-    <!-- tab追加用js -->
-    <script type="text/html" id="code-tab-template">
-        <li class="nav-item form-tab-list" role="presentation">
-            <a
-                class="px-2 nav-link form-tab-text"
-                id="code-__prefix__-tab"
-                data-bs-toggle="tab"
-                href="#code-__prefix__"
-                role="tab"
-                aria-controls="code-__prefix__"
-                aria-selected="false"
-                draggable="false"
-                style="text-decoration: none">
-                {% render_field form.formset.empty_form.filename class="form-control code-tab", placeholder="ファイル名" %}
-            </a>
-        </li>
-    </script>
-    <script type="text/html" id="code-content-template">
-        <div
-            class="tab-pane fade"
-            id="code-__prefix__"
-            role="tabpanel"
-            aria-labelledby="code-__prefix__-tab">
-            {% render_field form.formset.empty_form.content class="form-control code-content" %}
-            <span class="ms-2">{% render_field form.formset.empty_form.DELETE class="code-delete" %}
-                （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
-        </div>
-    </script>
-    <script>
-        $(function () {
-            // 初期表示処理
-            CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/%N/%N.min.js";
-            let code_editor_array = []
-            let code_tab = document.getElementsByClassName('code-tab');
-            let tab_pane = document.getElementsByClassName('tab-pane');
-            let code_delete = document.getElementsByClassName('code-delete');
-            for (let count = 0; count < code_tab.length; count++) {
-                // CodeMirror初期設定
-                let code_content = tab_pane[count].querySelector('.code-content');
-                let editor = CodeMirror.fromTextArea(code_content, {
-                    lineNumbers: true, // 行番号を表示する
-                    fixedGutter: true, // 水平カーソル移動時、行番号表示
-                    autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
-                    keyMap: "sublime", //  keymap設定
-                    theme: "mdn-like", //  theme設定
-                    indentUnit: 4, //  インデント設定
-                    autoCloseBrackets: true,
-                    autoCloseTags: true,
-                    extraKeys: {
-                        "Esc": function (cm) {
-                            cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+        <!-- tab追加用js -->
+        <script type="text/html" id="code-tab-template">
+            <li class="nav-item form-tab-list" role="presentation">
+                <a
+                    class="px-2 nav-link form-tab-text"
+                    id="code-__prefix__-tab"
+                    data-bs-toggle="tab"
+                    href="#code-__prefix__"
+                    role="tab"
+                    aria-controls="code-__prefix__"
+                    aria-selected="false"
+                    draggable="false"
+                    style="text-decoration: none">
+                    {% render_field form.formset.empty_form.filename class="form-control code-tab", placeholder="ファイル名" %}
+                </a>
+            </li>
+        </script>
+        <script type="text/html" id="code-content-template">
+            <div
+                class="tab-pane fade"
+                id="code-__prefix__"
+                role="tabpanel"
+                aria-labelledby="code-__prefix__-tab">
+                {% render_field form.formset.empty_form.content class="form-control code-content" %}
+                <span class="ms-2">{% render_field form.formset.empty_form.DELETE class="code-delete" %}
+                    （左記にチェックし保存すると対象コードを<span class="text-danger">削除</span>します）</span>
+            </div>
+        </script>
+        <script>
+            $(function () {
+                // 初期表示処理
+                CodeMirror.modeURL = "https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/mode/%N/%N.min.js";
+                let code_editor_array = []
+                let code_tab = document.getElementsByClassName('code-tab');
+                let tab_pane = document.getElementsByClassName('tab-pane');
+                let code_delete = document.getElementsByClassName('code-delete');
+                for (let count = 0; count < code_tab.length; count++) {
+                    // CodeMirror初期設定
+                    let code_content = tab_pane[count].querySelector('.code-content');
+                    let editor = CodeMirror.fromTextArea(code_content, {
+                        lineNumbers: true, // 行番号を表示する
+                        fixedGutter: true, // 水平カーソル移動時、行番号表示
+                        autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
+                        keyMap: "sublime", //  keymap設定
+                        theme: "one-dark", //  theme設定
+                        indentUnit: 4, //  インデント設定
+                        matchBrackets: true,
+                        autoCloseBrackets: true,
+                        autoCloseTags: true,
+                        extraKeys: {
+                            "Esc": function (cm) {
+                                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                            }
                         }
+                    });
+
+                    // ファイル名(拡張子)から対象の言語を判定
+                    let text = $.trim(code_tab[count].value);
+                    let filename_info = CodeMirror.findModeByFileName(text);
+
+                    if (filename_info) {
+                        editor.setOption("mode", filename_info.mode);
+                        CodeMirror.autoLoadMode(editor, filename_info.mode);
+                    } else {
+                        // 判定できない場合、null(PlainText)モード
+                        editor.setOption("mode", "null");
                     }
+
+                    code_editor_array.push(editor)
+
+                    // 削除チェック時にコードの入力エリアをグレー(網掛け)表示(エラー時にチェックがついた状態でのリターンケースで必要)
+                    let code_mirror_content = tab_pane[count].querySelector(".CodeMirror");
+                    if ($(code_delete[count]).prop('checked')) {
+                        code_tab[count]
+                            .classList
+                            .add('delete-color')
+                        code_mirror_content
+                            .classList
+                            .add('delete-color')
+                    }
+                }
+
+                // 変更時処理 追加ボタン処理
+                $('#add-code').click(function (e) {
+                    // tab追加処理(totalのform数を基にid等を編集して追加)
+                    e.preventDefault();
+                    let form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
+                    let tmpl_tab = $('#code-tab-template').html();
+                    let tmpl_content = $('#code-content-template').html();
+                    let new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
+                    let new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
+                    $('#myTab').append(new_tag_form);
+                    $('#myTabContent').append(new_content_form);
+                    $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
+
+                    // CodeMirror初期設定
+                    let editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`), {
+                        lineNumbers: true, // 行番号を表示する
+                        fixedGutter: true, // 水平カーソル移動時、行番号表示
+                        autoRefresh: true, // 描画後にリフレッシュ(初期表示時は座標が取得できず表示がうまくいかない)
+                        keyMap: "sublime", //  keymap設定
+                        theme: "one-dark", //  theme設定
+                        indentUnit: 4, //  インデント設定
+                        matchBrackets: true,
+                        autoCloseBrackets: true,
+                        autoCloseTags: true,
+                        extraKeys: {
+                            "Esc": function (cm) {
+                                cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+                            }
+                        }
+                    });
+                    code_editor_array.push(editor)
                 });
 
-                // ファイル名(拡張子)から対象の言語を判定
-                let text = $.trim(code_tab[count].value);
-                let filename_info = CodeMirror.findModeByFileName(text);
+                // ファイル名の拡張子に応じてCodeMirrorのmode変更処理
+                $(document).on('change', '.code-tab', function (e) {
+                    // tabのファイル名を変更した要素のeditorを取得
+                    let id = e.target.id;
+                    let id_num = id.replace(/[^0-9]/g, '');
+                    let target_editor = code_editor_array[Number(id_num)];
 
-                if (filename_info) {
-                    editor.setOption("mode", filename_info.mode);
-                    CodeMirror.autoLoadMode(editor, filename_info.mode);
-                } else {
-                    // 判定できない場合、null(PlainText)モード
-                    editor.setOption("mode", "null");
-                }
+                    // ファイル名(拡張子)から対象の言語を判定
+                    let text = $.trim($(e.target).val());
+                    let filename_info = CodeMirror.findModeByFileName(text);
 
-                code_editor_array.push(editor)
-
-                // 削除チェック時にコードの入力エリアをグレー(網掛け)表示(エラー時にチェックがついた状態でのリターンケースで必要)
-                let code_mirror_content = tab_pane[count].querySelector(".CodeMirror");
-                if ($(code_delete[count]).prop('checked')) {
-                    code_tab[count]
-                        .classList
-                        .add('delete-color')
-                    code_mirror_content
-                        .classList
-                        .add('delete-color')
-                }
-            }
-
-            // 変更時処理 追加ボタン処理
-            $('#add-code').click(function (e) {
-                // tab追加処理(totalのform数を基にid等を編集して追加)
-                e.preventDefault();
-                let form_count = parseInt($('#id_codes-TOTAL_FORMS').attr('value'), 10);
-                let tmpl_tab = $('#code-tab-template').html();
-                let tmpl_content = $('#code-content-template').html();
-                let new_tag_form = tmpl_tab.replace(/__prefix__/g, form_count)
-                let new_content_form = tmpl_content.replace(/__prefix__/g, form_count)
-                $('#myTab').append(new_tag_form);
-                $('#myTabContent').append(new_content_form);
-                $('#id_codes-TOTAL_FORMS').attr('value', form_count + 1);
-
-                // CodeMirror初期設定
-                let editor = CodeMirror.fromTextArea(document.getElementById(`id_codes-${form_count}-content`), {
-                    lineNumbers: true, // 行番号を表示する
-                    fixedGutter: true, // 水平カーソル移動時、行番号表示
-                    autoRefresh: true, // 描画後にリフレッシュ(初期表示時は座標が取得できず表示がうまくいかない)
-                    keyMap: "sublime", //  keymap設定
-                    theme: "mdn-like", //  theme設定
-                    indentUnit: 4, //  インデント設定
-                    autoCloseBrackets: true,
-                    autoCloseTags: true,
-                    extraKeys: {
-                        "Esc": function (cm) {
-                            cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-                        }
+                    if (filename_info) {
+                        target_editor.setOption("mode", filename_info.mode);
+                        CodeMirror.autoLoadMode(target_editor, filename_info.mode);
+                    } else {
+                        // 判定できない場合、null(PlainText)モード
+                        target_editor.setOption("mode", "null");
                     }
                 });
-                code_editor_array.push(editor)
+                // 削除チェック時にコードの入力エリアをグレー(網掛け)表示
+                $(document).on('change', '.code-delete', function (e) {
+                    let id = e.target.id;
+                    let id_num = id.replace(/[^0-9]/g, '');
+
+                    let tab = document.getElementById(`id_codes-${id_num}-filename`);
+                    let content = document.querySelector(`#code-${id_num} .CodeMirror`);
+                    if ($(e.target).prop('checked')) {
+                        tab
+                            .classList
+                            .add('delete-color')
+                        content
+                            .classList
+                            .add('delete-color')
+                    } else {
+                        tab
+                            .classList
+                            .remove('delete-color')
+                        content
+                            .classList
+                            .remove('delete-color')
+                    }
+
+                });
+
+                // テキストエリアの高さ自動調整
+                $('.auto-text').autosize();
             });
+        </script>
 
-            // ファイル名の拡張子に応じてCodeMirrorのmode変更処理
-            $(document).on('change', '.code-tab', function (e) {
-                // tabのファイル名を変更した要素のeditorを取得
-                let id = e.target.id;
-                let id_num = id.replace(/[^0-9]/g, '');
-                let target_editor = code_editor_array[Number(id_num)];
-
-                // ファイル名(拡張子)から対象の言語を判定
-                let text = $.trim($(e.target).val());
-                let filename_info = CodeMirror.findModeByFileName(text);
-
-                if (filename_info) {
-                    target_editor.setOption("mode", filename_info.mode);
-                    CodeMirror.autoLoadMode(target_editor, filename_info.mode);
-                } else {
-                    // 判定できない場合、null(PlainText)モード
-                    target_editor.setOption("mode", "null");
-                }
-            });
-            // 削除チェック時にコードの入力エリアをグレー(網掛け)表示
-            $(document).on('change', '.code-delete', function (e) {
-                let id = e.target.id;
-                let id_num = id.replace(/[^0-9]/g, '');
-
-                let tab = document.getElementById(`id_codes-${id_num}-filename`);
-                let content = document.querySelector(`#code-${id_num} .CodeMirror`);
-                if ($(e.target).prop('checked')) {
-                    tab
-                        .classList
-                        .add('delete-color')
-                    content
-                        .classList
-                        .add('delete-color')
-                } else {
-                    tab
-                        .classList
-                        .remove('delete-color')
-                    content
-                        .classList
-                        .remove('delete-color')
-                }
-
-            });
-
-            // テキストエリアの高さ自動調整
-            $('.auto-text').autosize();
-        });
-    </script>
-
-{% endblock %}
+    {% endblock %}

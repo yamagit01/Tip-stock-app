@@ -39,8 +39,8 @@
                             </a>
                             <br>
                             {% access_list public_tips_counts forloop.counter0 as tip_count %}
-                            <span style="display: inline-block;">投稿数(Public)：{{ tip_count }}&emsp;</span>
-                            <span style="display: inline-block;">フォロワー：{{ user.followed_by.count }}&emsp;フォロー：{{ user.follows.count }}</span>
+                            <span class="d-inline-block">投稿数(Public)：{{ tip_count }}&emsp;</span>
+                            <span class="d-inline-block">フォロワー：{{ user.followed_by.count }}&emsp;フォロー：{{ user.follows.count }}</span>
                             {% if user.self_introduction %}<br>{{ user.self_introduction }}
                             {% endif %}
                             <br>

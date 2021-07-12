@@ -12,16 +12,11 @@
         referrerpolicy="no-referrer"/>
     <link
         rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/theme/mdn-like.min.css"
-        integrity="sha512-d1mnXGBFE/kEcVYDWOvqqRQov8YZhS5Eg5i6kX8smrEcMFcFIYpXW000lKxquKR4KdheA0+IE6xSmsmumGYNiA=="
-        crossorigin="anonymous"
-        referrerpolicy="no-referrer"/>
-    <link
-        rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.css"
         integrity="sha512-T8xB3MmwpA77VK9lUH3UkdUTnkmpqOxHF8OceOKaHrvpcXMSNX0xtpa9FoLTDAVO1JnB2UiMdVeI2V0HTHjTWA=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer"/>
+    <link rel="stylesheet" href="{% static 'app/css/one-dark.css' %}">
 {% endblock %}
 
 {% block title %}{{ tip.title }}
@@ -37,9 +32,7 @@
             </div>
             <div class="card mb-3">
                 <div class="card-body detail-card-body">
-                    <label class="mb-2">
-                        <strong class="detail-card-title">コード</strong>
-                    </label>
+                    <small class="d-inline-block mb-2">コードにカーソル、<span class="text-danger">Escキーで拡大・縮小</span></small>
                     <ul class="nav nav-tabs" id="myTab" role="tablist">
                         {% for code in codes %}
                             <li class="nav-item detail-tab-list" role="presentation">
@@ -73,9 +66,6 @@
             </div>
             <div class="card mb-3">
                 <div class="card-body detail-card-body">
-                    <label>
-                        <strong class="detail-card-title">説明</strong>
-                    </label>
                     <p>{{ tip.description|linebreaks }}</p>
                 </div>
             </div>
@@ -83,9 +73,8 @@
                 <div class="col-md-6">
                     <div class="card">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">つぶやき：{{ tip.tweet }}</li>
                             <li class="list-group-item">
-                                登録者&emsp;：
+                                <strong>登録者&emsp;：</strong>
                                 <a href="{% url 'app:usertip' tip.created_by_id %}">
                                     {% if tip.created_by.icon %}
                                     <img src="{{ tip.created_by.icon.url }}" class="icon-display">
@@ -97,19 +86,26 @@
                                     {% endif %}
                                 </a>
                             </li>
+                            <li class="list-group-item"><strong>公開範囲：</strong>{{ tip.public_set|title }}</li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card">
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item">更新日時：{{ tip.updated_at }}</li>
-                            <li class="list-group-item">登録日時：{{ tip.created_at }}</li>
-                            <li class="list-group-item">公開範囲：{{ tip.public_set|title }}</li>
+                            <li class="list-group-item"><strong>更新日時：</strong>{{ tip.updated_at }}</li>
+                            <li class="list-group-item"><strong>登録日時：</strong>{{ tip.created_at }}</li>
                         </ul>
                     </div>
                 </div>
             </div>
+            {% if tip.tweet %}
+                <div class="card mb-3">
+                    <div class="card-body detail-card-tweet text-center">
+                        <p class="my-1"><strong>ヒトコト</strong></p>{{ tip.tweet|linebreaks }}
+                    </div>
+                </div>
+            {% endif %}
             <!--お気に入り表示-->
             {% if tip.public_set == 'public' %}
                 <div class="mb-3">
@@ -280,7 +276,11 @@
         integrity="sha512-oGyW28fDClI1MCVFG1N1hC3OCoYAzOUGkK5XJ1PxibLkCVXcUlqj9Fbrdy8hoVJ2xDKF3SBhOgWkgzxICt9s6A=="
         crossorigin="anonymous"
         referrerpolicy="no-referrer"></script>
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/edit/matchbrackets.min.js"
+        integrity="sha512-03Ei8A+mDhwF6O/CmXM47U4A9L7TobAxMbPV2Wn5cEbY76lngHQRyvvmnqhJ8IthfoxrRqmtoBxQCxOC7AOeKw=="
+        crossorigin="anonymous"
+        referrerpolicy="no-referrer"></script>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.0/addon/display/fullscreen.min.js"
         integrity="sha512-W1hGUpWU/hlAuQjKnoWXy29+UUA6zTad0iWfI8OrykZBf2lv35cZ6xlCCCBf/2Bpnez4ik+gY1BuHNk31sabAA=="
@@ -290,6 +290,7 @@
         src="https://cdn.jsdelivr.net/npm/jquery-autosize@1.18.18/jquery.autosize.min.js"
         integrity="sha256-VpDGR8CkdtaV/kfM1gLSAy2Dqfxb9mym6QBbKK9YYrM="
         crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 
     <script>
         $(function () {
@@ -304,7 +305,8 @@
                     fixedGutter: true, // 水平カーソル移動時、行番号表示
                     readOnly: true,
                     autoRefresh: true, // 描画後にリフレッシュ(初期表示時はactiveになっていない表示がうまくいかない)
-                    theme: "mdn-like", //  theme設定
+                    theme: "one-dark", //  theme設定
+                    matchBrackets: true,
                     extraKeys: {
                         "Esc": function (cm) {
                             cm.setOption("fullScreen", !cm.getOption("fullScreen"));
