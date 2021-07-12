@@ -70,9 +70,10 @@ from importlib import import_module
 
 from allauth import app_settings
 from allauth.socialaccount import providers
+from . import allauth_socialaccount_urls
 
 if app_settings.SOCIALACCOUNT_ENABLED:
-    urlpatterns += [path("social/", include("allauth.socialaccount.urls"))]
+    urlpatterns += [path("social/", include(allauth_socialaccount_urls))]
 
 # Provider urlpatterns, as separate attribute (for reusability).
 provider_urlpatterns = []

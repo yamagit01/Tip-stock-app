@@ -124,14 +124,15 @@ a {
 
 .form-tab-text,
 .detail-tab-text {
-    color: black !important;
+    color: #282c34 !important;
     border: solid 0.5px !important;
     border-color: #ced4da  !important;
 }
 
 .form-tab-text.active,
 .detail-tab-text.active {
-    background-color: rgba(0, 83, 159, 0.15) !important;
+    color: whitesmoke !important;
+    background-color: #282c34 !important;
 }
 
 .detail-comment-to {
@@ -250,6 +251,14 @@ a {
     text-align: center;
 }
 
+.twitter-icon {
+    display: flex;
+    align-items: center;
+}
+
+.detail-card-tweet {
+    padding: 16px;
+}
 
 @media only screen and (max-width:767px) {
 
@@ -276,10 +285,6 @@ a {
         padding: 5px;
     }
 
-    .form-tag-label {
-        display: block;
-    }
-
     .code-tab {
         padding: 6px;
         font-size: 14px !important;
@@ -297,6 +302,10 @@ a {
     .detail-card-body {
         padding: 16px;
     }
+
+    .detail-card-tweet {
+        padding: 8px;
+    }    
 
     .detail-list {
         font-size: 14px;
