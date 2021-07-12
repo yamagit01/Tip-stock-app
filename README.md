@@ -2,7 +2,7 @@
 
 「TipStock」はよく使用するようなコードの内容をTipとして保存しておき、後からいつでも確認できるWebアプリです。
 
-ポートフォリオとして作成し、現状まだ初期開発段階で開発環境用。
+Web開発初心者ですが、せっかくなのでちゃんとしたWebアプリを開発したいと思い、ポートフォリオも兼ねて作成しました。
 
 # 作成背景
 
@@ -37,17 +37,22 @@
 その他
 * コメント
 * お気に入り登録(Public Tipsが対象で登録するとMy Tipsに表示)
+※ フォロー
+* お知らせ(コメント・フォロー時に作成)
 
 コード入力のフォームはCode Mirrorライブラリを使用。
 ファイル名(拡張子)に応じて、対象言語用のハイライトになります。
 
-今後、機能を追加し、最終的にはAWS等を使用し公開する予定。
-
-
 # Tech
 
-言語はPython, フレームワークはDjango。
+言語はPython, フレームワークはDjango
 
-その他の使用技術HTML,CSS,JavaScript。
+その他の使用技術HTML,CSS,JavaScript
 
-DBはDjango標準のSQLite3(公開時はPostgreSQLに変更予定)
+webサーバはnginx,apサーバはgunicorn
+
+DBはPostgreSQL
+
+CI/CDはGitHub Actionsのworkflow
+
+インフラはAWSのFargateでコンテナで起動、CloudFront,s3で静的ファイルの配信

@@ -41,7 +41,7 @@ class ProfileView(LoginRequiredMixin, View):
         })
         
         
-class YourProfileView(LoginRequiredMixin, View):
+class YourProfileView(View):
     def get(self, request, *args, **kwargs):
         if request.user.pk == self.kwargs.get('pk'):
             return redirect('accounts:profile')
