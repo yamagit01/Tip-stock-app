@@ -2,6 +2,7 @@
 {% load widget_tweaks %}
 {% load filename %}
 {% load static %}
+{% load url_target_blank %}
 
 {% block extra_css%}
     <link
@@ -66,7 +67,7 @@
             </div>
             <div class="card mb-3">
                 <div class="card-body detail-card-body">
-                    <p>{{ tip.description|linebreaks }}</p>
+                    <p>{{ tip.description|linebreaks|urlize|url_target_blank }}</p>
                 </div>
             </div>
             <div class="row mb-3 detail-list">

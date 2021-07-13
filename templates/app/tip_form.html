@@ -108,7 +108,10 @@
                     <div class="form-group mb-3">
                         <label>
                             <strong>説明</strong>
-                            <span class="text-danger">（必須）</span></label>
+                            <span class="text-danger">（必須）</span>
+                        </label>
+                        <br>
+                        <small class="ms-3">URLは前後に空白or改行でリンク表示</small>
                         {% render_field form.description class="form-control auto-text" %}
                         {% for error in form.description.errors %}
                             <p class="text-danger">{{ error }}</p>
