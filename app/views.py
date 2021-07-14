@@ -53,14 +53,15 @@ def tips_filter_and_order_by_with_request(request, queryset):
     """
 
     # 表示対象で抽出
-    search_target = request.GET.get('searchTarget','')
+    if request.user.is_authenticated:
+        search_target = request.GET.get('searchTarget','')
 
-    if search_target == 'my':
-        queryset = queryset.filter(created_by=request.user)
-    elif search_target == 'other':
-        queryset = queryset.exclude(created_by=request.user)
-    else:
-        pass
+        if search_target == 'my':
+            queryset = queryset.filter(created_by=request.user)
+        elif search_target == 'other':
+            queryset = queryset.exclude(created_by=request.user)
+        else:
+            pass
 
     # 検索内容で抽出
     query = request.GET.get('query','')
