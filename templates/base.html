@@ -36,6 +36,14 @@
         <title>
             {% block title %}TipStock{% endblock %}
         </title>
+        {% block meta %}
+            <meta name="twitter:card" content="summary" />
+            <meta name="twitter:site" content="@yamana117" />
+            <meta property="og:url" content="https://www.tipstock.info/" />
+            <meta property="og:title" content="TipStock" />
+            <meta property="og:description" content="プログラムコードをメインにしたTipの登録サイト" />
+            <meta property="og:image" content="{% static 'app/img/android-chrome-192x192.png' %}" />
+        {% endblock %}
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">

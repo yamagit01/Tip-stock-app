@@ -23,6 +23,17 @@
 {% block title %}{{ tip.title }}
 {% endblock %}
 
+{% if tip.public_set == 'public' %}
+    {% block meta %}
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@yamana117" />
+        <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+        <meta property="og:title" content="{{ tip.title }}" />
+        <meta property="og:description" content="{{ tip.description|linebreaks }}" />
+        <meta property="og:image" content="{% static 'app/img/android-chrome-192x192.png' %}" />
+    {% endblock %}
+{% endif %}
+
 {% block content %}
 
     <div class="row my-3">

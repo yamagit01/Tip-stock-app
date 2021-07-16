@@ -50,7 +50,7 @@ class TipForm(ModelFormWithFormSetMixin, forms.ModelForm):
     
     class Meta:
         model = Tip
-        exclude = ('created_by', 'created_at', 'updated_at')
+        exclude = ('created_by', 'created_at', 'updated_at','has_tweeted')
         widgets = {
             'public_set': forms.RadioSelect,
             'tweet': forms.Textarea(),

@@ -1,4 +1,5 @@
 import textwrap
+import tweepy
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import BadHeaderError, EmailMessage
 from django.db.models import Count, Q
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
@@ -100,7 +101,22 @@ class TipCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
-        return super().form_valid(form)
+        self.object = form.save()
+        # publicかつヒトコトに入力があれば、twitterに投稿する
+        if self.object.public_set == Tip.PUBLIC and self.object.tweet:
+            try:
+                auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+                auth.set_access_token(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_SECRET)
+                api = tweepy.API(auth)
+                tweet_message = f'{self.object.tweet} https://www.tipstock.info/tip_detail/{self.object.pk}/'
+                api.update_status(tweet_message)
+                messages.success(self.request, 'Twitterに投稿しました。')
+                self.object.has_tweeted = True
+                self.object.save()
+            except:
+                messages.warning(self.request, '制限等の理由でTwitterの投稿ができませんでした。ごめんなさい。')
+
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         messages.success(self.request, 'Tipを登録しました。')
@@ -191,6 +207,24 @@ class TipUpdateView(OnlyMyTipMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs['request'] = self.request  # formのチェックでrequest.userを使用するため設定
         return kwargs
+    
+    def form_valid(self, form):
+        self.object = form.save()
+        # publicかつヒトコトに入力があれば、twitterに投稿する
+        if self.object.public_set == Tip.PUBLIC and self.object.tweet and not self.object.has_tweeted:
+            try:
+                auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_KEY, settings.TWITTER_CONSUMER_SECRET)
+                auth.set_access_token(settings.TWITTER_ACCESS_TOKEN, settings.TWITTER_ACCESS_SECRET)
+                api = tweepy.API(auth)
+                tweet_message = f'{self.object.tweet} https://www.tipstock.info/tip_detail/{self.object.pk}/'
+                api.update_status(tweet_message)
+                messages.success(self.request, 'Twitterに投稿しました。')
+                self.object.has_tweeted = True
+                self.object.save()
+            except:
+                messages.warning(self.request, '制限等の理由でTwitterの投稿ができませんでした。ごめんなさい。')
+
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         messages.info(self.request, 'Tipを更新しました。')

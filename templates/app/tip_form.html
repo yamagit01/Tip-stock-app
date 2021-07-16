@@ -120,11 +120,10 @@
                     <div class="form-group mb-3">
                         <label>
                             <strong>タグ</strong>
-                            <span class="text-danger">（必須）<small>(最大5つ)</small>
-                            </span>
-                            <br>
-                            <small class="ms-3">カンマ(,)区切りで入力 ex) Python,Django</small>
+                            <span class="text-danger">（必須）<small>(最大5つ)</small></span>
                         </label>
+                        <br>
+                        <small class="ms-3">カンマ(,)区切りで入力 ex) Python,Django</small>
                         {% render_field form.tags class="form-control" %}
                         {% for error in form.tags.errors %}
                             <p class="text-danger">{{ error }}</p>
@@ -136,7 +135,13 @@
                         <strong>ヒトコト</strong>（任意）<small class="text-danger">(最大100文字)</small>
                     </label>
                     <br>
-                    <small class="ms-3">Tipに関すること、今の気分など何でも可。</small>
+                    <div class="ms-3">
+                        <small >
+                            PublicTipで<span class="text-danger">ヒトコトに入力がある場合</span>、ヒトコトとTip(リンク)を<a href="https://twitter.com/yamana117117" target="_blank" rel="noopener">ここ</a>にツイートします。
+                            <br>
+                            ツイートするのは更新時を含め<span class="text-danger">１回のみ</span>です。また、制限等でツイートできないケースもあります。
+                        </small>
+                    </div>
                     {% render_field form.tweet class="form-control auto-text" %}
                     {% for error in form.tweet.errors %}
                         <p class="text-danger">{{ error }}</p>
