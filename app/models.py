@@ -26,6 +26,7 @@ class Tip(models.Model):
     description = models.TextField()
     tags = TaggableManager()
     tweet = models.CharField(max_length=100, blank=True)
+    has_tweeted = models.BooleanField(default=False)
     created_by = models.ForeignKey(get_user_model(), related_name='created_tip', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
