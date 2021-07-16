@@ -1,5 +1,6 @@
 import textwrap
 import tweepy
+import logging
 
 from django.conf import settings
 from django.contrib import messages
@@ -114,6 +115,7 @@ class TipCreateView(LoginRequiredMixin, CreateView):
                 self.object.has_tweeted = True
                 self.object.save()
             except:
+                logging.exception("tweepy error")
                 messages.warning(self.request, '制限等の理由でTwitterの投稿ができませんでした。ごめんなさい。')
 
         return HttpResponseRedirect(self.get_success_url())
@@ -222,6 +224,7 @@ class TipUpdateView(OnlyMyTipMixin, UpdateView):
                 self.object.has_tweeted = True
                 self.object.save()
             except:
+                logging.exception("tweepy error")
                 messages.warning(self.request, '制限等の理由でTwitterの投稿ができませんでした。ごめんなさい。')
 
         return HttpResponseRedirect(self.get_success_url())
